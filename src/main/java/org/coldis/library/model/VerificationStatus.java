@@ -1,0 +1,56 @@
+package org.coldis.library.model;
+
+/**
+ * Verification status.
+ */
+public enum VerificationStatus implements IdentifiedObject {
+
+	/**
+	 * Valid information.
+	 */
+	VALID(1L),
+
+	/**
+	 * Not verified information.
+	 */
+	NOT_VERIFIED(2L),
+
+	/**
+	 * Invalid information.
+	 */
+	INVALID(3L),
+
+	/**
+	 * Dubious information (both verified and not).
+	 */
+	DUBIOUS(4L),
+
+	/**
+	 * Verification override. When original verification is not considered anymore.
+	 */
+	OVERRIDE(5L);
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param identifier The new identifier.
+	 */
+	private VerificationStatus(Long identifier) {
+		this.identifier = identifier;
+	}
+
+	/**
+	 * Identifier.
+	 */
+	private Long identifier;
+
+	/**
+	 * Gets the identifier.
+	 * 
+	 * @return The identifier.
+	 */
+	public Long getId() {
+		return identifier;
+	}
+
+}
