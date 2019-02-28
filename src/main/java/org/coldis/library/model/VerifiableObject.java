@@ -45,52 +45,55 @@ public interface VerifiableObject {
 		if ((verifiableObject != null) && (verifiableObject.getVerification() != null) && (attributeName != null)) {
 			// For each verification on the object.
 			for (final Verification verification : verifiableObject.getVerification()) {
-				// If the verification is not expired.
-				if (!verification.getExpired()) {
-					// Depending on the current attribute status.
-					switch (status) {
-					// If the current attribute status is not verified or override.
-					case NOT_VERIFIED:
-					case OVERRIDE:
-						// If the current verification status is not override.
-						if (!VerificationStatus.OVERRIDE.equals(verification.getStatus())) {
-							// Replaces the current attribute status.
-							status = verification.getStatus();
-						}
-						break;
-					// If the current attribute status is valid.
-					case VALID:
-						// If the current verification status is not verified or override.
-						if (!Set.of(VerificationStatus.NOT_VERIFIED, VerificationStatus.OVERRIDE)
-								.contains(verification.getStatus())) {
-							// If the current verification status is invalid.
-							if (VerificationStatus.INVALID.equals(verification.getStatus())) {
-								// The status is set to dubious.
-								status = VerificationStatus.DUBIOUS;
-							}
-							// For every other verification status.
-							else {
+				// If the verification is for the attribute.
+				if (verification.getAttributes().contains(attributeName)) {
+					// If the verification is not expired.
+					if (!verification.getExpired()) {
+						// Depending on the current attribute status.
+						switch (status) {
+						// If the current attribute status is not verified or override.
+						case NOT_VERIFIED:
+						case OVERRIDE:
+							// If the current verification status is not override.
+							if (!VerificationStatus.OVERRIDE.equals(verification.getStatus())) {
 								// Replaces the current attribute status.
 								status = verification.getStatus();
 							}
+							break;
+						// If the current attribute status is valid.
+						case VALID:
+							// If the current verification status is not verified or override.
+							if (!Set.of(VerificationStatus.NOT_VERIFIED, VerificationStatus.OVERRIDE)
+									.contains(verification.getStatus())) {
+								// If the current verification status is invalid.
+								if (VerificationStatus.INVALID.equals(verification.getStatus())) {
+									// The status is set to dubious.
+									status = VerificationStatus.DUBIOUS;
+								}
+								// For every other verification status.
+								else {
+									// Replaces the current attribute status.
+									status = verification.getStatus();
+								}
+							}
+							break;
+						// If the current attribute status is dubious.
+						case DUBIOUS:
+							// If the current verification status is invalid.
+							if (VerificationStatus.INVALID.equals(verification.getStatus())) {
+								// Replaces the current attribute status.
+								status = verification.getStatus();
+							}
+							break;
+						// If the current attribute status is invalid.
+						case INVALID:
+							// If the current verification status is valid.
+							if (VerificationStatus.VALID.equals(verification.getStatus())) {
+								// The status is set to dubious.
+								status = VerificationStatus.DUBIOUS;
+							}
+							break;
 						}
-						break;
-					// If the current attribute status is dubious.
-					case DUBIOUS:
-						// If the current verification status is invalid.
-						if (VerificationStatus.INVALID.equals(verification.getStatus())) {
-							// Replaces the current attribute status.
-							status = verification.getStatus();
-						}
-						break;
-					// If the current attribute status is invalid.
-					case INVALID:
-						// If the current verification status is valid.
-						if (VerificationStatus.VALID.equals(verification.getStatus())) {
-							// The status is set to dubious.
-							status = VerificationStatus.DUBIOUS;
-						}
-						break;
 					}
 				}
 			}

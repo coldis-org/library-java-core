@@ -31,7 +31,7 @@ public class VerificationTest {
 			new TestVerifiableObject(new TreeSet<>(Set.of(
 					new Verification(VerificationStatus.VALID, Set.of("attribute1", "attribute2", "attribute3"), "me",
 							DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
-					new Verification(VerificationStatus.INVALID, Set.of("attribute1", "attribute2", "attribute3"), "me",
+					new Verification(VerificationStatus.INVALID, Set.of("attribute1", "attribute2"), "me",
 							DateTimeHelper.getCurrentLocalDateTime().minusWeeks(1), "desc")))) };
 
 	/**
@@ -73,9 +73,9 @@ public class VerificationTest {
 					new Verification(VerificationStatus.VALID, Set.of("attribute3"), "me",
 							DateTimeHelper.getCurrentLocalDateTime().minusDays(1), "desc")))),
 			new TestVerifiableObject(new TreeSet<>(Set.of(
-					new Verification(VerificationStatus.INVALID, Set.of("attribute1"), "me",
+					new Verification(VerificationStatus.VALID, Set.of("attribute1"), "me",
 							DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
-					new Verification(VerificationStatus.INVALID, Set.of("attribute2"), "me",
+					new Verification(VerificationStatus.VALID, Set.of("attribute2"), "me",
 							DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
 					new Verification(VerificationStatus.INVALID, Set.of("attribute3"), "me",
 							DateTimeHelper.getCurrentLocalDateTime().minusMinutes(1), "desc")))),
@@ -174,9 +174,6 @@ public class VerificationTest {
 			// Makes sure not all of the attributes are valid.
 			Assertions.assertFalse(VerificationStatus.VALID == attribute1Status
 					&& VerificationStatus.VALID == attribute2Status && VerificationStatus.VALID == attribute3Status);
-			// Makes sure none of the attributes are dubious.
-			Assertions.assertFalse(
-					List.of(attribute1Status, attribute2Status, attribute3Status).contains(VerificationStatus.DUBIOUS));
 			// Makes sure the object is not verified.
 			Assertions.assertEquals(VerificationStatus.NOT_VERIFIED, testObject.getStatus());
 		}
