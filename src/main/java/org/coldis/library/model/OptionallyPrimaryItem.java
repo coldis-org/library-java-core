@@ -1,7 +1,6 @@
 package org.coldis.library.model;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
 
