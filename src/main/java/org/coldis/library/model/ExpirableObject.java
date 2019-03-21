@@ -4,29 +4,29 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Object that has expiration date.
+ * Object that has an expiration date/time.
  */
 public interface ExpirableObject extends Serializable {
 
 	/**
-	 * Gets the expiredAt.
+	 * Gets the object expiration date/time.
 	 *
-	 * @return The expiredAt.
+	 * @return The object expiration date/time.
 	 */
 	LocalDateTime getExpiredAt();
 
 	/**
-	 * Sets the expiredAt.
+	 * Sets the object expiration date/time.
 	 *
-	 * @param expiredAt New expiredAt.
+	 * @param expiredAt The object expiration date/time.
 	 */
 	void setExpiredAt(final LocalDateTime expiredAt);
 
 	/**
-	 * Returns if the object is expired.
+	 * Returns if the object has expired.
 	 *
-	 * @return If the object is expired.
+	 * @return If the object has expired.
 	 */
-	public Boolean getExpired();
+	Boolean getExpired();
 
 }
