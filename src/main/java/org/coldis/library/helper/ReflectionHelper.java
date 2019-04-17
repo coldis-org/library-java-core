@@ -40,4 +40,15 @@ public class ReflectionHelper {
 				+ getterName.substring(booleanGetter ? 3 : 4);
 	}
 
+	/**
+	 * Gets the getter name from an attribute name.
+	 *
+	 * @param  attributeName Attribute name.
+	 *
+	 * @return               The getter name from an attribute name.
+	 */
+	public static String getGetterName(final String attributeName) {
+		return "get" + attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+	}
+
 }
