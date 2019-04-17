@@ -128,12 +128,12 @@ public class BusinessException extends Exception {
 	 */
 	public Collection<SimpleMessage> getMessages() {
 		// If messages list has not been initialized.
-		if (messages == null) {
+		if (this.messages == null) {
 			// Initializes it with an empty list.
-			messages = new ArrayList<>();
+			this.messages = new ArrayList<>();
 		}
 		// Returns the list.
-		return messages;
+		return this.messages;
 	}
 
 	/**
@@ -152,12 +152,12 @@ public class BusinessException extends Exception {
 	 */
 	public Integer getStatusCode() {
 		// If the status code is null.
-		if (statusCode == null) {
+		if (this.statusCode == null) {
 			// Uses the default status code.
-			statusCode = BusinessException.DEFAULT_STATUS_CODE;
+			this.statusCode = BusinessException.DEFAULT_STATUS_CODE;
 		}
 		// Returns the status code.
-		return statusCode;
+		return this.statusCode;
 	}
 
 	/**
@@ -175,7 +175,9 @@ public class BusinessException extends Exception {
 	 * @return The first message code, or null if there is no code for the message.
 	 */
 	public String getCode() {
-		return (getMessages() != null) && !getMessages().isEmpty() ? getMessages().iterator().next().getCode() : null;
+		return (this.getMessages() != null) && !this.getMessages().isEmpty()
+				? this.getMessages().iterator().next().getCode()
+						: null;
 	}
 
 	/**
@@ -183,8 +185,9 @@ public class BusinessException extends Exception {
 	 */
 	@Override
 	public String getMessage() {
-		return (getMessages() != null) && !getMessages().isEmpty() ? getMessages().iterator().next().getContent()
-				: null;
+		return (this.getMessages() != null) && !this.getMessages().isEmpty()
+				? this.getMessages().iterator().next().getContent()
+						: null;
 	}
 
 }
