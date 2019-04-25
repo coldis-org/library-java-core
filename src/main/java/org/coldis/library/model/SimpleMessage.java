@@ -1,5 +1,8 @@
 package org.coldis.library.model;
 
+import java.util.Arrays;
+import java.util.function.Predicate;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -83,13 +86,34 @@ public class SimpleMessage implements TypedObject {
 	}
 
 	/**
+	 * If the message has the same code.
+	 *
+	 * @param  otherSimpleMessage SimpleMessage.
+	 * @return                    If the message has the same code.
+	 */
+	public static Predicate<SimpleMessage> hasSameCode(final SimpleMessage otherSimpleMessage) {
+		return message -> otherSimpleMessage.getCode().equals(message.getCode());
+	}
+
+	/**
+	 * If the message has the same code.
+	 *
+	 * @param  otherSimpleMessages SimpleMessages.
+	 * @return                     If the message has the same code.
+	 */
+	public static Predicate<SimpleMessage> hasOneOfCodes(final SimpleMessage... otherSimpleMessages) {
+		return message -> (otherSimpleMessages != null)
+				&& Arrays.asList(otherSimpleMessages).stream().anyMatch(SimpleMessage.hasSameCode(message));
+	}
+
+	/**
 	 * Gets the code.
 	 *
 	 * @return The code.
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getCode() {
-		return code;
+		return this.code;
 	}
 
 	/**
@@ -108,7 +132,7 @@ public class SimpleMessage implements TypedObject {
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getContent() {
-		return content;
+		return this.content;
 	}
 
 	/**
@@ -127,7 +151,7 @@ public class SimpleMessage implements TypedObject {
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public Object[] getParameters() {
-		return parameters;
+		return this.parameters;
 	}
 
 	/**
@@ -142,6 +166,7 @@ public class SimpleMessage implements TypedObject {
 	/**
 	 * @see org.coldis.library.model.TypedObject#getTypeName()
 	 */
+	@Override
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getTypeName() {
 		return SimpleMessage.TYPE_NAME;
