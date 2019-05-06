@@ -4,13 +4,11 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
  * Typed object (type name is an attribute).
  */
-@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "typeName", visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "typeName")
 public interface TypedObject extends Serializable {
 
 	/**
