@@ -14,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonView;
  * Verification information.
  */
 @JsonTypeName(value = Verification.TYPE_NAME)
-public class Verification implements TypedObject, ExpirableObject, Comparable<Verification> {
+public class Verification extends AbstractExpirableObject
+implements TypedObject, ExpirableObject, Comparable<Verification> {
 
 	/**
 	 * Generated serial.
@@ -44,17 +45,12 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	/**
 	 * Object verification date.
 	 */
-	private LocalDateTime verifiedAt = DateTimeHelper.getCurrentLocalDateTime();
-
-	/**
-	 * Object verification expiration.
-	 */
-	private LocalDateTime expiredAt;
+	private LocalDateTime verifiedAt;
 
 	/**
 	 * Verification description.
 	 */
-	private String description;
+	private SimpleMessage description;
 
 	/**
 	 * No arguments constructor.
@@ -72,32 +68,31 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 * @param description Verification description.
 	 */
 	public Verification(final VerificationStatus status, final Set<String> attributes, final String verifiedBy,
-			final LocalDateTime expiredAt, final String description) {
+			final LocalDateTime expiredAt, final SimpleMessage description) {
 		super();
 		this.status = status;
 		this.attributes = attributes;
 		this.verifiedBy = verifiedBy;
-		this.expiredAt = expiredAt;
+		this.setExpiredAt(expiredAt);
 		this.description = description;
 	}
 
 	/**
 	 * Gets the status.
-	 * 
+	 *
 	 * @return The status.
 	 */
-//	@NotNull(message = "verification.verified.required")
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public VerificationStatus getStatus() {
-		return status;
+		return this.status;
 	}
 
 	/**
 	 * Sets the status.
-	 * 
+	 *
 	 * @param status New status.
 	 */
-	public void setStatus(VerificationStatus status) {
+	public void setStatus(final VerificationStatus status) {
 		this.status = status;
 	}
 
@@ -108,13 +103,10 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public Set<String> getAttributes() {
-		// If there is no set for the information.
-		if (attributes == null) {
-			// Creates a new set for the attributes.
-			attributes = new HashSet<>();
-		}
+		// Makes sure the set is initialized.
+		this.attributes = this.attributes == null ? new HashSet<>() : this.attributes;
 		// Returns the verified attributes.
-		return attributes;
+		return this.attributes;
 	}
 
 	/**
@@ -131,11 +123,9 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 *
 	 * @return The verified by.
 	 */
-//	@NotNull(message = "verification.verifiedby.required")
-//	@NotEmpty(message = "verification.verifiedby.required")
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getVerifiedBy() {
-		return verifiedBy;
+		return this.verifiedBy;
 	}
 
 	/**
@@ -152,10 +142,12 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 *
 	 * @return The verification date.
 	 */
-//	@NotNull(message = "verification.verifiedat.required")
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public LocalDateTime getVerifiedAt() {
-		return verifiedAt;
+		// Makes sure the date is initialized.
+		this.verifiedAt = this.verifiedAt == null ? DateTimeHelper.getCurrentLocalDateTime() : this.verifiedAt;
+		// Returns the date.
+		return this.verifiedAt;
 	}
 
 	/**
@@ -168,36 +160,16 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	}
 
 	/**
-	 * Gets the expiredAt.
-	 *
-	 * @return The expiredAt.
-	 */
-	@Override
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public LocalDateTime getExpiredAt() {
-		return expiredAt;
-	}
-
-	/**
-	 * Sets the expiredAt.
-	 *
-	 * @param expiredAt New expiredAt.
-	 */
-	@Override
-	public void setExpiredAt(final LocalDateTime expiredAt) {
-		this.expiredAt = expiredAt;
-	}
-
-	/**
 	 * Gets the description.
 	 *
 	 * @return The description.
 	 */
-//	@NotNull(message = "verification.description.required")
-//	@NotEmpty(message = "verification.description.required")
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public String getDescription() {
-		return description;
+	public SimpleMessage getDescription() {
+		// Makes sure the object is initialized.
+		this.description = this.description == null ? new SimpleMessage() : this.description;
+		// Returns the object.
+		return this.description;
 	}
 
 	/**
@@ -205,8 +177,16 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 *
 	 * @param description New description.
 	 */
-	public void setDescription(final String description) {
+	public void setDescription(final SimpleMessage description) {
 		this.description = description;
+	}
+
+	/**
+	 * @see org.coldis.library.model.AbstractExpirableObject#getExpiredByDefault()
+	 */
+	@Override
+	protected Boolean getExpiredByDefault() {
+		return false;
 	}
 
 	/**
@@ -215,7 +195,7 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	@Override
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getTypeName() {
-		return TYPE_NAME;
+		return Verification.TYPE_NAME;
 	}
 
 	/**
@@ -223,16 +203,7 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 */
 	@Override
 	public int compareTo(final Verification verificationInfo) {
-		return equals(verificationInfo) ? 0 : -(getVerifiedAt().compareTo(verificationInfo.getVerifiedAt()));
-	}
-
-	/**
-	 * @see org.coldis.library.model.ExpirableObject#getExpired()
-	 */
-	@Override
-	@JsonView({ ModelView.Public.class })
-	public Boolean getExpired() {
-		return getExpiredAt() == null ? false : DateTimeHelper.getCurrentLocalDateTime().isAfter(getExpiredAt());
+		return this.equals(verificationInfo) ? 0 : -(this.getVerifiedAt().compareTo(verificationInfo.getVerifiedAt()));
 	}
 
 	/**
@@ -240,14 +211,14 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(attributes, description, verifiedBy);
+		return Objects.hash(this.attributes, this.description, this.verifiedBy);
 	}
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -257,9 +228,9 @@ public class Verification implements TypedObject, ExpirableObject, Comparable<Ve
 		if (!(obj instanceof Verification)) {
 			return false;
 		}
-		Verification other = (Verification) obj;
-		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
-				&& Objects.equals(verifiedBy, other.verifiedBy);
+		final Verification other = (Verification) obj;
+		return Objects.equals(this.attributes, other.attributes) && Objects.equals(this.description, other.description)
+				&& Objects.equals(this.verifiedBy, other.verifiedBy);
 	}
 
 }
