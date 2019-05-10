@@ -3,7 +3,6 @@ package org.coldis.library.model;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.coldis.library.helper.ReflectionHelper;
 
@@ -13,16 +12,16 @@ import org.coldis.library.helper.ReflectionHelper;
 public interface VerifiableObject {
 
 	/**
-	 * Returns All the verification information for an object.
+	 * Returns the verification.
 	 *
-	 * @return All the verification information for an object.
+	 * @return The verification.
 	 */
-	SortedSet<Verification> getVerification();
+	Verification getVerification();
 
 	/**
-	 * Returns the verification status for an object.
+	 * Returns the verification status.
 	 *
-	 * @return If the verification status for an object.
+	 * @return The verification status.
 	 */
 	VerificationStatus getVerificationStatus();
 
@@ -33,7 +32,7 @@ public interface VerifiableObject {
 	 * @return                  The attributes that should be verified for the
 	 *                          object to be verified.
 	 */
-	private static Set<String> getVerifiableAttributes(final VerifiableObject verifiableObject) {
+	static Set<String> getVerifiableAttributes(final VerifiableObject verifiableObject) {
 		// Set of verifiable attributes.
 		final Set<String> verifiableAttributes = new HashSet<>();
 		// If the verifiable object is given.
@@ -71,53 +70,54 @@ public interface VerifiableObject {
 		// Attribute status is not verified by default.
 		VerificationStatus status = VerificationStatus.NOT_VERIFIED;
 		// If the object and attribute are given.
-		if ((verifiableObject != null) && (verifiableObject.getVerification() != null) && (attributeName != null)) {
+		if ((verifiableObject != null) && (verifiableObject.getVerification().getItems() != null)
+				&& (attributeName != null)) {
 			// For each verification on the object.
-			for (final Verification verification : verifiableObject.getVerification()) {
+			for (final VerificationItem verificationItem : verifiableObject.getVerification().getItems()) {
 				// If the verification is for the attribute.
-				if (verification.getAttributes().contains(attributeName)) {
+				if (verificationItem.getAttributes().contains(attributeName)) {
 					// If the verification is not expired.
-					if (!verification.getExpired()) {
+					if (!verificationItem.getExpired()) {
 						// Depending on the current attribute status.
 						switch (status) {
 							// If the current attribute status is not verified or override.
 							case NOT_VERIFIED:
 							case OVERRIDE:
 								// If the current verification status is not override.
-								if (!VerificationStatus.OVERRIDE.equals(verification.getStatus())) {
+								if (!VerificationStatus.OVERRIDE.equals(verificationItem.getStatus())) {
 									// Replaces the current attribute status.
-									status = verification.getStatus();
+									status = verificationItem.getStatus();
 								}
 								break;
 								// If the current attribute status is valid.
 							case VALID:
 								// If the current verification status is not verified or override.
 								if (!Set.of(VerificationStatus.NOT_VERIFIED, VerificationStatus.OVERRIDE)
-										.contains(verification.getStatus())) {
+										.contains(verificationItem.getStatus())) {
 									// If the current verification status is invalid.
-									if (VerificationStatus.INVALID.equals(verification.getStatus())) {
+									if (VerificationStatus.INVALID.equals(verificationItem.getStatus())) {
 										// The status is set to dubious.
 										status = VerificationStatus.DUBIOUS;
 									}
 									// For every other verification status.
 									else {
 										// Replaces the current attribute status.
-										status = verification.getStatus();
+										status = verificationItem.getStatus();
 									}
 								}
 								break;
 								// If the current attribute status is dubious.
 							case DUBIOUS:
 								// If the current verification status is invalid.
-								if (VerificationStatus.INVALID.equals(verification.getStatus())) {
+								if (VerificationStatus.INVALID.equals(verificationItem.getStatus())) {
 									// Replaces the current attribute status.
-									status = verification.getStatus();
+									status = verificationItem.getStatus();
 								}
 								break;
 								// If the current attribute status is invalid.
 							case INVALID:
 								// If the current verification status is valid.
-								if (VerificationStatus.VALID.equals(verification.getStatus())) {
+								if (VerificationStatus.VALID.equals(verificationItem.getStatus())) {
 									// The status is set to dubious.
 									status = VerificationStatus.DUBIOUS;
 								}
@@ -145,8 +145,7 @@ public interface VerifiableObject {
 			// For each verifiable.
 			for (final String attributeName : VerifiableObject.getVerifiableAttributes(verifiableObject)) {
 				// Gets the verification for the attribute.
-				final VerificationStatus attributeStatus = VerifiableObject.getVerificationStatus(verifiableObject,
-						attributeName);
+				final VerificationStatus attributeStatus = VerifiableObject.getVerificationStatus(verifiableObject, attributeName);
 				// Depending on the current object status.
 				switch (status) {
 					// If the current object status is valid.

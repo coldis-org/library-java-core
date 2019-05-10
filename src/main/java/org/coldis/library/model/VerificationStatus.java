@@ -1,7 +1,7 @@
 package org.coldis.library.model;
 
 /**
- * Verification status.
+ * VerificationItem status.
  */
 public enum VerificationStatus implements IdentifiedObject {
 
@@ -26,7 +26,7 @@ public enum VerificationStatus implements IdentifiedObject {
 	DUBIOUS(4L),
 
 	/**
-	 * Verification override. When original verification is not considered anymore.
+	 * VerificationItem override. When original verification is not considered anymore.
 	 */
 	OVERRIDE(5L);
 

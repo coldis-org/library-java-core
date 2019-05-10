@@ -1,8 +1,5 @@
 package org.coldis.library.test.model;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.coldis.library.model.VerifiableAttribute;
 import org.coldis.library.model.VerifiableObject;
 import org.coldis.library.model.Verification;
@@ -36,14 +33,14 @@ public class TestVerifiableObject implements VerifiableObject {
 	/**
 	 * Verification information.
 	 */
-	private SortedSet<Verification> verification;
+	private Verification verification;
 
 	/**
 	 * Default constructor.
 	 *
 	 * @param verification Verification information.
 	 */
-	public TestVerifiableObject(final SortedSet<Verification> verification) {
+	public TestVerifiableObject(final Verification verification) {
 		super();
 		this.verification = verification;
 	}
@@ -129,11 +126,11 @@ public class TestVerifiableObject implements VerifiableObject {
 	 * @return The verification.
 	 */
 	@Override
-	public SortedSet<Verification> getVerification() {
+	public Verification getVerification() {
 		// If the sort has not been initialized.
 		if (this.verification == null) {
 			// Initializes the set.
-			this.verification = new TreeSet<>();
+			this.verification = new Verification();
 		}
 		// Returns the set.
 		return this.verification;
@@ -144,7 +141,7 @@ public class TestVerifiableObject implements VerifiableObject {
 	 *
 	 * @param verification New verification.
 	 */
-	public void setVerification(final SortedSet<Verification> verification) {
+	public void setVerification(final Verification verification) {
 		this.verification = verification;
 	}
 
