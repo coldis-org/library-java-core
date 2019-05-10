@@ -16,7 +16,7 @@ public class ExtendedValidator implements Validator {
 	/**
 	 * Validator.
 	 */
-	private Validator validator;
+	private final Validator validator;
 
 	/**
 	 * Default constructor.
@@ -25,13 +25,15 @@ public class ExtendedValidator implements Validator {
 	 */
 	public ExtendedValidator(final Validator validator) {
 		super();
+		this.validator = validator;
 	}
 
 	/**
 	 * @see javax.validation.Validator#validate(java.lang.Object, java.lang.Class[])
 	 */
 	@Override
-	public <T> Set<ConstraintViolation<T>> validate(final T object, final Class<?>... groups) {
+	public <ObjectType> Set<ConstraintViolation<ObjectType>> validate(final ObjectType object,
+			final Class<?>... groups) {
 		return this.validator.validate(object, groups);
 	}
 
@@ -40,8 +42,8 @@ public class ExtendedValidator implements Validator {
 	 *      java.lang.String, java.lang.Class[])
 	 */
 	@Override
-	public <T> Set<ConstraintViolation<T>> validateProperty(final T object, final String propertyName,
-			final Class<?>... groups) {
+	public <ObjectType> Set<ConstraintViolation<ObjectType>> validateProperty(final ObjectType object,
+			final String propertyName, final Class<?>... groups) {
 		return this.validator.validateProperty(object, propertyName, groups);
 	}
 
@@ -50,8 +52,8 @@ public class ExtendedValidator implements Validator {
 	 *      java.lang.String, java.lang.Object, java.lang.Class[])
 	 */
 	@Override
-	public <T> Set<ConstraintViolation<T>> validateValue(final Class<T> beanType, final String propertyName,
-			final Object value, final Class<?>... groups) {
+	public <ObjectType> Set<ConstraintViolation<ObjectType>> validateValue(final Class<ObjectType> beanType,
+			final String propertyName, final Object value, final Class<?>... groups) {
 		return this.validator.validateValue(beanType, propertyName, value, groups);
 	}
 
@@ -67,7 +69,7 @@ public class ExtendedValidator implements Validator {
 	 * @see javax.validation.Validator#unwrap(java.lang.Class)
 	 */
 	@Override
-	public <T> T unwrap(final Class<T> type) {
+	public <ObjectType> ObjectType unwrap(final Class<ObjectType> type) {
 		return this.validator.unwrap(type);
 	}
 

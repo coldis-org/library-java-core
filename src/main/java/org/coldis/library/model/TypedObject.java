@@ -8,7 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
  * Typed object (type name is an attribute).
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "typeName")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeName",
+visible = true)
 public interface TypedObject extends Serializable {
 
 	/**
