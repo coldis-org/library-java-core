@@ -30,13 +30,13 @@ public class IntegrationException extends RuntimeException {
 	/**
 	 * Message, status and cause constructor.
 	 *
-	 * @param internalMessage Exception message.
-	 * @param statusCode      Exception status code.
-	 * @param cause           The exception cause.
+	 * @param message    Exception message.
+	 * @param statusCode Exception status code.
+	 * @param cause      The exception cause.
 	 */
-	public IntegrationException(final SimpleMessage internalMessage, final Integer statusCode, final Throwable cause) {
+	public IntegrationException(final SimpleMessage message, final Integer statusCode, final Throwable cause) {
 		super(cause);
-		this.internalMessage = internalMessage;
+		this.internalMessage = message;
 		this.statusCode = statusCode;
 	}
 
@@ -53,20 +53,20 @@ public class IntegrationException extends RuntimeException {
 	/**
 	 * Message and cause constructor.
 	 *
-	 * @param internalMessage Exception message.
-	 * @param cause           The exception cause.
+	 * @param message Exception message.
+	 * @param cause   The exception cause.
 	 */
-	public IntegrationException(final SimpleMessage internalMessage, final Throwable cause) {
-		this(internalMessage, IntegrationException.DEFAULT_STATUS_CODE, cause);
+	public IntegrationException(final SimpleMessage message, final Throwable cause) {
+		this(message, IntegrationException.DEFAULT_STATUS_CODE, cause);
 	}
 
 	/**
 	 * Message constructor.
 	 *
-	 * @param internalMessage Exception message.
+	 * @param message Exception message.
 	 */
-	public IntegrationException(final SimpleMessage internalMessage) {
-		this(internalMessage, (Throwable) null);
+	public IntegrationException(final SimpleMessage message) {
+		this(message, (Throwable) null);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class IntegrationException extends RuntimeException {
 	 * @return The internalMessage.
 	 */
 	public SimpleMessage getInternalMessage() {
-		return internalMessage;
+		return this.internalMessage;
 	}
 
 	/**
@@ -101,12 +101,12 @@ public class IntegrationException extends RuntimeException {
 	 */
 	public Integer getStatusCode() {
 		// If the status code is null.
-		if (statusCode == null) {
+		if (this.statusCode == null) {
 			// Uses the default status code.
-			statusCode = IntegrationException.DEFAULT_STATUS_CODE;
+			this.statusCode = IntegrationException.DEFAULT_STATUS_CODE;
 		}
 		// Returns the status code.
-		return statusCode;
+		return this.statusCode;
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class IntegrationException extends RuntimeException {
 	 */
 	@Override
 	public String getMessage() {
-		return getInternalMessage() != null ? getInternalMessage().getContent() : null;
+		return this.getInternalMessage() != null ? this.getInternalMessage().getContent() : null;
 	}
 
 }
