@@ -5,11 +5,22 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 /**
  * Date/time helper.
  */
 public class DateTimeHelper {
+
+	/**
+	 * Date time formatter.
+	 */
+	public static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseStrict()
+			.optionalStart().append(DateTimeFormatter.ofPattern("dd/MM/yyyy")).optionalEnd().optionalStart()
+			.append(DateTimeFormatter.ISO_DATE).optionalEnd().optionalStart().appendLiteral('T')
+			.append(DateTimeFormatter.ISO_TIME).optionalEnd().optionalStart().appendOffset("+HHMMss", "X").optionalEnd()
+			.toFormatter();
 
 	/**
 	 * Clock to be used by the helper.
@@ -18,11 +29,11 @@ public class DateTimeHelper {
 
 	/**
 	 * Gets the clock to be used by the helper..
-	 * 
+	 *
 	 * @return the clock to be used by the helper..
 	 */
 	public static Clock getClock() {
-		return CLOCK;
+		return DateTimeHelper.CLOCK;
 	}
 
 	/**
@@ -36,23 +47,23 @@ public class DateTimeHelper {
 
 	/**
 	 * Adjust the clock for the given offsets.
-	 * 
-	 * @param offsets The offsets to adjust the clock.
-	 * @return The original clock (before adjustments).
+	 *
+	 * @param  offsets The offsets to adjust the clock.
+	 * @return         The original clock (before adjustments).
 	 */
-	public static Clock adjustClock(Duration... offsets) {
+	public static Clock adjustClock(final Duration... offsets) {
 		// Gets the original clock.
-		Clock originalClock = getClock();
+		final Clock originalClock = DateTimeHelper.getClock();
 		Clock currentClock = originalClock;
 		// For each offset.
 		if (offsets != null) {
-			for (Duration currentOffset : offsets) {
+			for (final Duration currentOffset : offsets) {
 				// Adds the offset to the clock.
 				currentClock = Clock.offset(currentClock, currentOffset);
 			}
 		}
 		// Re-sets the clock.
-		CLOCK = currentClock;
+		DateTimeHelper.CLOCK = currentClock;
 		// Returns the original clock.
 		return originalClock;
 	}
