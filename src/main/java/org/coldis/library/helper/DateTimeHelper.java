@@ -17,7 +17,7 @@ public class DateTimeHelper {
 	 * Date time formatter.
 	 */
 	public static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseStrict()
-			.optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd().appendLiteral('T')
+			.optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd().optionalStart().appendLiteral('T')
 			.optionalStart().append(DateTimeFormatter.ISO_TIME).optionalEnd().optionalStart()
 			.appendOffset("+HHMMss", "X").optionalEnd().toFormatter();
 
