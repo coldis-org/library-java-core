@@ -96,7 +96,7 @@ public class ExtendedValidator implements Validator {
 		// For each violation.
 		for (final ConstraintViolation<ObjectType> violation : violations) {
 			// Adds the violation to the composed message.
-			violationsMessage.append(violation.getMessage() + "\n");
+			violationsMessage.append(violation.getPropertyPath() + ": " + violation.getMessage() + "\n");
 		}
 		// If there are constraint violations.
 		if ((violations != null) && !violations.isEmpty()) {
