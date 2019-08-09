@@ -1,6 +1,6 @@
 package org.coldis.library.helper;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,9 +93,8 @@ public class ReflectionHelper {
 					if ((attributePathPartIndex + 1) == attributePath.length) {
 						// Tries to set the attribute value.
 						try {
-							FieldUtils.writeField(
-									FieldUtils.getField(attributePathValue.getClass(), attributePathPart, true),
-									attributePathValue, newValue, true);
+							MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getSetterName(attributePathPart),
+									newValue);
 						}
 						// If the method cannot be found.
 						catch (final Exception exception) {
@@ -107,9 +106,8 @@ public class ReflectionHelper {
 					else {
 						// Tries to get the next path value.
 						try {
-							attributePathValue = FieldUtils.readField(
-									FieldUtils.getField(attributePathValue.getClass(), attributePathPart, true),
-									attributePathValue, true);
+							attributePathValue = MethodUtils.invokeMethod(attributePathValue,
+									ReflectionHelper.getGetterName(attributePathPart));
 						}
 						// If the attribute path cannot be retrieved.
 						catch (final Exception exception) {

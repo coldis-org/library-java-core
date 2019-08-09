@@ -8,14 +8,53 @@ import java.text.Collator;
 public class StringHelper {
 
 	/**
+	 * Brazilian phone number region prefix regular expression.
+	 */
+	public static final String BR_PHONE_NUMBER_REGION_PREFIX_REGEX = "((1[1-9])|(2[12478])|(3[1234578])|(4[1-9])|(5[1345])|(6[1-9])|(7[134579])|(8[1-9])|(9[1-9]))";
+
+	/**
+	 * Brazilian mobile phone number prefix regular expression.
+	 */
+	public static final String BR_MOBILE_PHONE_NUMBER_PREFIX_REGEX = "(9[0-9]{2})|(7[0789])";
+
+	/**
+	 * Brazilian land-line number prefix regular expression.
+	 */
+	public static String BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX = "([2345][0-9])";
+
+	/**
+	 * Brazilian phone number suffix regular expression.
+	 */
+	public static final String BR_PHONE_NUMBER_SUFFIX_REGEX = "[0-9]{6}";
+
+	/**
+	 * Brazilian mobile phone number regular expression.
+	 */
+	public static final String BR_MOBILE_PHONE_NUMBER_REGEX = StringHelper.BR_PHONE_NUMBER_REGION_PREFIX_REGEX + "("
+			+ StringHelper.BR_MOBILE_PHONE_NUMBER_PREFIX_REGEX + ")" + StringHelper.BR_PHONE_NUMBER_SUFFIX_REGEX;
+
+	/**
+	 * Brazilian land-line phone number regular expression.
+	 */
+	public static final String BR_LANDLINE_PHONE_NUMBER_REGEX = StringHelper.BR_PHONE_NUMBER_REGION_PREFIX_REGEX + "("
+			+ StringHelper.BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX + ")" + StringHelper.BR_PHONE_NUMBER_SUFFIX_REGEX;
+
+	/**
+	 * Brazilian phone number regular expression.
+	 */
+	public static final String BR_PHONE_NUMBER_REGEX = StringHelper.BR_PHONE_NUMBER_REGION_PREFIX_REGEX + "("
+			+ StringHelper.BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX + "|"
+			+ StringHelper.BR_MOBILE_PHONE_NUMBER_PREFIX_REGEX + ")" + StringHelper.BR_PHONE_NUMBER_SUFFIX_REGEX;
+
+	/**
 	 * Compares if two strings are equal considering a given strength
 	 * ({@link Collator}).
 	 *
-	 * @param source   Source string.
-	 * @param target   Target string.
-	 * @param strength Strength.
-	 * @return If two strings are the equal considering a given strength
-	 *         ({@link Collator}).
+	 * @param  source   Source string.
+	 * @param  target   Target string.
+	 * @param  strength Strength.
+	 * @return          If two strings are the equal considering a given strength
+	 *                  ({@link Collator}).
 	 */
 	public static Boolean equals(final String source, final String target, final Integer strength) {
 		// Creates a new collator.
@@ -29,11 +68,11 @@ public class StringHelper {
 	/**
 	 * Truncates an object (as string) for a given size limit.
 	 *
-	 * @param original Original object.
-	 * @param limit    The size limit for a string.
-	 * @param append   Some string to be appended informing the original string was
-	 *                 truncated.
-	 * @return The truncated string.
+	 * @param  original Original object.
+	 * @param  limit    The size limit for a string.
+	 * @param  append   Some string to be appended informing the original string was
+	 *                      truncated.
+	 * @return          The truncated string.
 	 */
 	public static String truncate(final Object original, final Integer limit, final String append) {
 		// The truncated string is, initially, the original object (as string).
@@ -46,7 +85,7 @@ public class StringHelper {
 		// append.
 		truncatedString = ((truncatedString != null) && (truncatedString.length() > actualLimit))
 				? truncatedString.substring(0, actualLimit) + actualAppend
-				: truncatedString;
+						: truncatedString;
 		// Returns the truncated string.
 		return truncatedString;
 	}
@@ -54,8 +93,8 @@ public class StringHelper {
 	/**
 	 * Removes multiple blank spaces.
 	 *
-	 * @param stringValue The original string.
-	 * @return The updated string.
+	 * @param  stringValue The original string.
+	 * @return             The updated string.
 	 */
 	public static final String removeMultipleBlankSpaces(final String stringValue) {
 		return stringValue.trim().replaceAll("\\s\\s+", " ");
@@ -64,10 +103,10 @@ public class StringHelper {
 	/**
 	 * Verify if a URL is from a given domain.
 	 *
-	 * @param url                   The URL to look for.
-	 * @param domainPattern         The domain pattern.
-	 * @param acceptOneMoreDomainCN If one more domain common name is accepted.
-	 * @return If a URL is from a given domain.
+	 * @param  url                   The URL to look for.
+	 * @param  domainPattern         The domain pattern.
+	 * @param  acceptOneMoreDomainCN If one more domain common name is accepted.
+	 * @return                       If a URL is from a given domain.
 	 */
 	public static Boolean isFromDomain(final String url, final String domainPattern,
 			final Boolean acceptOneMoreDomainCN) {
