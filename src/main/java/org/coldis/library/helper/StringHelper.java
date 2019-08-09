@@ -20,7 +20,7 @@ public class StringHelper {
 	/**
 	 * Brazilian land-line number prefix regular expression.
 	 */
-	public static String BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX = "([2345][0-9])";
+	public static final String BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX = "([2345][0-9])";
 
 	/**
 	 * Brazilian phone number suffix regular expression.
