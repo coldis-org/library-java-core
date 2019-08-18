@@ -70,17 +70,56 @@ public class ReflectionHelper {
 	}
 
 	/**
+	 * Gets an object attribute.
+	 *
+	 * @param  object            Object.
+	 * @param  attributeNamePath Attribute name path.
+	 * @return                   The object attribute value.
+	 */
+	public static Object getAttribute(final Object object, final String attributeNamePath) {
+		// Attribute path value.
+		Object attributePathValue = null;
+		// If the object and attribute name are given.
+		if ((object != null) && (attributeNamePath != null)) {
+			// Splits the attributes.
+			final String[] attributePath = attributeNamePath.split("\\.");
+			// Current attribute path value.
+			attributePathValue = object;
+			// For each attribute in the path.
+			for (Integer attributePathPartIndex = 0; attributePathPartIndex < attributePath.length; attributePathPartIndex++) {
+				// Gets the attribute path part.
+				final String attributePathPart = attributePath[attributePathPartIndex];
+				// If the attribute value path is still valid.
+				if (attributePathValue != null) {
+					// Tries to get the next path value.
+					try {
+						attributePathValue = MethodUtils.invokeMethod(attributePathValue,
+								ReflectionHelper.getGetterName(attributePathPart));
+					}
+					// If the attribute path cannot be retrieved.
+					catch (final Exception exception) {
+						// Logs it.
+						ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved.", exception);
+					}
+				}
+			}
+		}
+		// Returns the final attribute value.
+		return attributePathValue;
+	}
+
+	/**
 	 * Replace an object attribute.
 	 *
-	 * @param object        Object.
-	 * @param attributeName Attribute name.
-	 * @param newValue      New attribute value.
+	 * @param object            Object.
+	 * @param attributeNamePath Attribute name path.
+	 * @param newValue          New attribute value.
 	 */
-	public static void setAttribute(final Object object, final String attributeName, final Object newValue) {
+	public static void setAttribute(final Object object, final String attributeNamePath, final Object newValue) {
 		// If the object and attribute name are given.
-		if ((object != null) && (attributeName != null)) {
+		if ((object != null) && (attributeNamePath != null)) {
 			// Splits the attributes.
-			final String[] attributePath = attributeName.split("\\.");
+			final String[] attributePath = attributeNamePath.split("\\.");
 			// Current attribute path value.
 			Object attributePathValue = object;
 			// For each attribute in the path.
@@ -93,8 +132,8 @@ public class ReflectionHelper {
 					if ((attributePathPartIndex + 1) == attributePath.length) {
 						// Tries to set the attribute value.
 						try {
-							MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getSetterName(attributePathPart),
-									newValue);
+							MethodUtils.invokeMethod(attributePathValue,
+									ReflectionHelper.getSetterName(attributePathPart), newValue);
 						}
 						// If the method cannot be found.
 						catch (final Exception exception) {

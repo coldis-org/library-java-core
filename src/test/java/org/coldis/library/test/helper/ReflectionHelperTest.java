@@ -31,26 +31,32 @@ public class ReflectionHelperTest {
 			ReflectionHelper.setAttribute(test, "test1", "100");
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals("100", test.getTest1());
+			Assertions.assertEquals("100", ReflectionHelper.getAttribute(test, "test1"));
 			// Sets an attribute value.
 			ReflectionHelper.setAttribute(test, "test2", 100L);
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals(100L, test.getTest2().longValue());
+			Assertions.assertEquals(100L, ReflectionHelper.getAttribute(test, "test2"));
 			// Sets an attribute value.
 			ReflectionHelper.setAttribute(test, "test4.test1", "100");
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals("100", test.getTest4().getTest1());
+			Assertions.assertEquals("100", ReflectionHelper.getAttribute(test, "test4.test1"));
 			// Sets an attribute value.
 			ReflectionHelper.setAttribute(test, "test4.test2", 100L);
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals(100L, test.getTest4().getTest2().longValue());
+			Assertions.assertEquals(100L, ReflectionHelper.getAttribute(test, "test4.test2"));
 			// Sets an attribute value.
 			ReflectionHelper.setAttribute(test, "test3.test3.test1", "100");
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals("100", test.getTest3().getTest3().getTest1());
+			Assertions.assertEquals("100", ReflectionHelper.getAttribute(test, "test3.test3.test1"));
 			// Sets an attribute value.
 			ReflectionHelper.setAttribute(test, "test3.test3.test2", 100L);
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals(100L, test.getTest3().getTest3().getTest2().longValue());
+			Assertions.assertEquals(100L, ReflectionHelper.getAttribute(test, "test3.test3.test2"));
 		}
 	}
 
