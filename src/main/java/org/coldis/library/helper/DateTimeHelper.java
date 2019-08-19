@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 /**
  * Date/time helper.
@@ -18,8 +19,10 @@ public class DateTimeHelper {
 	 */
 	public static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseStrict()
 			.optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd().optionalStart().appendLiteral('T')
-			.optionalStart().append(DateTimeFormatter.ISO_TIME).optionalEnd().optionalStart()
-			.appendOffset("+HHMMss", "X").optionalEnd().toFormatter();
+			.append(DateTimeFormatter.ISO_TIME).optionalEnd().parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+			.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+			.parseDefaulting(ChronoField.NANO_OF_SECOND, 0).optionalStart().appendOffset("+HHMMss", "X").optionalEnd()
+			.toFormatter();
 
 	/**
 	 * Clock to be used by the helper.

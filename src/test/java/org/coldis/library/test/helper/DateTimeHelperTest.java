@@ -21,6 +21,7 @@ public class DateTimeHelperTest {
 		LocalDateTime.parse("2019-10-12T10:10", DateTimeHelper.DATE_TIME_FORMATTER);
 		LocalDate.parse("2019-10-12T10:10:10", DateTimeHelper.DATE_TIME_FORMATTER);
 		LocalDateTime.parse("2019-10-12T10:10:10", DateTimeHelper.DATE_TIME_FORMATTER);
+		LocalDateTime.parse("2019-10-12", DateTimeHelper.DATE_TIME_FORMATTER);
 	}
 
 }
