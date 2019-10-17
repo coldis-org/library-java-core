@@ -61,6 +61,11 @@ public class EnumHelper {
 		// If there is a problem getting the attribute getter.
 		catch (final Exception exception) {
 			// Ignores the error.
+			EnumHelper.LOGGER.error("Enum '" + enumType + "' could not be gathered for range '" + floorAttributeName
+					+ "/" + ceilAttributeName + "' and value '" + attributeValue + "': "
+					+ exception.getLocalizedMessage());
+			EnumHelper.LOGGER.debug("Enum '" + enumType + "' could not be gathered for range '" + floorAttributeName
+					+ "/" + ceilAttributeName + "' and value '" + attributeValue + "': ", exception);
 		}
 		// Returns the enum value for the given attribute.
 		return enumValue;
@@ -99,6 +104,10 @@ public class EnumHelper {
 		// If there is a problem getting the attribute getter.
 		catch (final Exception exception) {
 			// Ignores the error.
+			EnumHelper.LOGGER.error("Enum '" + enumType + "' could not be gathered for name '" + attributeName
+					+ "' and value '" + attributeValue + "': " + exception.getLocalizedMessage());
+			EnumHelper.LOGGER.debug("Enum '" + enumType + "' could not be gathered for name '" + attributeName
+					+ "' and value '" + attributeValue + "'.", exception);
 		}
 		// Returns the enum value for the given attribute.
 		return enumValue;
