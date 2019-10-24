@@ -26,9 +26,9 @@ public interface OptionallyPrimaryItem {
 	/**
 	 * Gets the primary item of a collection.
 	 *
-	 * @param                <Item> Item type.
-	 * @param itemCollection Item collection.
-	 * @return The primary item of the collection.
+	 * @param  <Item>         Item type.
+	 * @param  itemCollection Item collection.
+	 * @return                The primary item of the collection.
 	 */
 	static <Item extends OptionallyPrimaryItem> Item getPrimary(final Collection<Item> itemCollection) {
 		// Primary item.
@@ -38,7 +38,7 @@ public interface OptionallyPrimaryItem {
 			// For each item in the collection.
 			for (final Item currentItem : itemCollection) {
 				// If the item is set as primary.
-				if (currentItem != null && currentItem.getPrimary()) {
+				if ((currentItem != null) && (currentItem.getPrimary() != null) && currentItem.getPrimary()) {
 					// Sets the primary item and stops searching.
 					primaryItem = currentItem;
 					break;
@@ -53,14 +53,14 @@ public interface OptionallyPrimaryItem {
 	 * Only if there is no item set as primary in the collection, auto assign the
 	 * primary flag to one of the items.
 	 *
-	 * @param                <Item> Item type.
+	 * @param <Item>         Item type.
 	 * @param itemCollection Item collection.
 	 */
 	static <Item extends OptionallyPrimaryItem> void autoAssignPrimary(final Collection<Item> itemCollection) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// Gets the primary item.
-			Item primaryItem = getPrimary(itemCollection);
+			final Item primaryItem = OptionallyPrimaryItem.getPrimary(itemCollection);
 			// If there is no primary item.
 			if (primaryItem == null) {
 				// The first item is the primary one.
@@ -71,8 +71,8 @@ public interface OptionallyPrimaryItem {
 
 	/**
 	 * Sets a item as primary inside of a collection.
-	 * 
-	 * @param                <Item> Item type.
+	 *
+	 * @param <Item>         Item type.
 	 * @param itemCollection Item collection.
 	 * @param primaryItem    The new primary item.
 	 */
@@ -103,14 +103,14 @@ public interface OptionallyPrimaryItem {
 	 * Adds a new info to a list where one (and only one) record must be marked as
 	 * primary.
 	 *
-	 * @param                <Item> Item type.
+	 * @param <Item>         Item type.
 	 * @param itemCollection Item collection.
 	 * @param newItem        New item to be added to the collection.
 	 * @param overwrite      If existing item should be replaced. If not, item is
-	 *                       discarded it already present.
+	 *                           discarded it already present.
 	 */
 	static <Item extends OptionallyPrimaryItem> void add(final Collection<Item> itemCollection, final Item newItem,
-			Boolean overwrite) {
+			final Boolean overwrite) {
 		// If the collection is given.
 		if (itemCollection != null) {
 			// If the collection does not contain the new item.
@@ -125,9 +125,9 @@ public interface OptionallyPrimaryItem {
 				itemCollection.add(newItem);
 			}
 			// If the new item is to be primary.
-			if (newItem != null && newItem.getPrimary()) {
+			if ((newItem != null) && newItem.getPrimary()) {
 				// Makes sure the item is set as primary.
-				setAsPrimary(itemCollection, newItem);
+				OptionallyPrimaryItem.setAsPrimary(itemCollection, newItem);
 			}
 			// If the item is not to be primary.
 			else {
@@ -141,7 +141,7 @@ public interface OptionallyPrimaryItem {
 	 * Removes on item of the item collection, but assigning a new primary item (if
 	 * the primary is removed).
 	 *
-	 * @param                <Item> Item type.
+	 * @param <Item>         Item type.
 	 * @param itemCollection Item collection.
 	 * @param itemToRemove   Item to be removed.
 	 */
