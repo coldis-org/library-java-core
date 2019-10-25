@@ -155,7 +155,7 @@ implements TypedObject, ExpirableObject, Comparable<VerificationItem> {
 	 *
 	 * @param verificationDate New verification date.
 	 */
-	protected void setVerifiedAt(final LocalDateTime verificationDate) {
+	public void setVerifiedAt(final LocalDateTime verificationDate) {
 		this.verifiedAt = verificationDate;
 	}
 
