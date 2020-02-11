@@ -1,6 +1,7 @@
 package org.coldis.library.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Abstract time-stamped and expirable object.
@@ -52,6 +53,35 @@ public abstract class AbstractTimestampedExpirableObject extends AbstractExpirab
 	@Override
 	public void setUpdatedAt(final LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = (prime * result) + Objects.hash(this.createdAt, this.updatedAt);
+		return result;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof AbstractTimestampedExpirableObject)) {
+			return false;
+		}
+		final AbstractTimestampedExpirableObject other = (AbstractTimestampedExpirableObject) obj;
+		return Objects.equals(this.createdAt, other.createdAt) && Objects.equals(this.updatedAt, other.updatedAt);
 	}
 
 }

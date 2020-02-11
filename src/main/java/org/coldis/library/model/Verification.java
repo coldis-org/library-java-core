@@ -1,5 +1,6 @@
 package org.coldis.library.model;
 
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -75,6 +76,29 @@ public class Verification implements TypedObject {
 	@Override
 	public String getTypeName() {
 		return Verification.TYPE_NAME;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.items);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Verification)) {
+			return false;
+		}
+		final Verification other = (Verification) obj;
+		return Objects.equals(this.items, other.items);
 	}
 
 }

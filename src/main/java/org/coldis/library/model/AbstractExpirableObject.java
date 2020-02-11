@@ -2,6 +2,7 @@ package org.coldis.library.model;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import org.coldis.library.helper.DateTimeHelper;
 
@@ -30,8 +31,7 @@ public abstract class AbstractExpirableObject implements ExpirableObject {
 	 * @return                    The new expiration value using a base date and a
 	 *                            time value.
 	 */
-	public static LocalDateTime getExpirationDate(final LocalDateTime expirationBaseDate, final ChronoUnit plusUnit,
-			final Long plusValue) {
+	public static LocalDateTime getExpirationDate(final LocalDateTime expirationBaseDate, final ChronoUnit plusUnit, final Long plusValue) {
 		return expirationBaseDate == null ? null : expirationBaseDate.plus(plusValue, plusUnit);
 	}
 
@@ -79,8 +79,30 @@ public abstract class AbstractExpirableObject implements ExpirableObject {
 	 */
 	@Override
 	public Boolean getExpired() {
-		return ((this.getExpiredAt() == null) ? this.getExpiredByDefault()
-				: (DateTimeHelper.getCurrentLocalDateTime().isAfter(this.getExpiredAt())));
+		return ((this.getExpiredAt() == null) ? this.getExpiredByDefault() : (DateTimeHelper.getCurrentLocalDateTime().isAfter(this.getExpiredAt())));
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.expiredAt);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof AbstractExpirableObject)) {
+			return false;
+		}
+		final AbstractExpirableObject other = (AbstractExpirableObject) obj;
+		return Objects.equals(this.expiredAt, other.expiredAt);
 	}
 
 }

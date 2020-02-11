@@ -1,6 +1,7 @@
 package org.coldis.library.model;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -102,8 +103,7 @@ public class SimpleMessage implements TypedObject {
 	 * @return                     If the message has the same code.
 	 */
 	public static Predicate<SimpleMessage> hasOneOfCodes(final SimpleMessage... otherSimpleMessages) {
-		return message -> (otherSimpleMessages != null)
-				&& Arrays.asList(otherSimpleMessages).stream().anyMatch(SimpleMessage.hasSameCode(message));
+		return message -> (otherSimpleMessages != null) && Arrays.asList(otherSimpleMessages).stream().anyMatch(SimpleMessage.hasSameCode(message));
 	}
 
 	/**
@@ -170,6 +170,33 @@ public class SimpleMessage implements TypedObject {
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getTypeName() {
 		return SimpleMessage.TYPE_NAME;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + Arrays.deepHashCode(this.parameters);
+		result = (prime * result) + Objects.hash(this.code, this.content);
+		return result;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof SimpleMessage)) {
+			return false;
+		}
+		final SimpleMessage other = (SimpleMessage) obj;
+		return Objects.equals(this.code, other.code) && Objects.equals(this.content, other.content) && Arrays.deepEquals(this.parameters, other.parameters);
 	}
 
 }

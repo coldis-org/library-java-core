@@ -1,6 +1,7 @@
 package org.coldis.library.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Abstract time-stamped object.
@@ -52,6 +53,29 @@ public abstract class AbstractTimestampedObject implements TimestampedObject {
 	@Override
 	public void setUpdatedAt(final LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.createdAt, this.updatedAt);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof AbstractTimestampedObject)) {
+			return false;
+		}
+		final AbstractTimestampedObject other = (AbstractTimestampedObject) obj;
+		return Objects.equals(this.createdAt, other.createdAt) && Objects.equals(this.updatedAt, other.updatedAt);
 	}
 
 }
