@@ -9,7 +9,7 @@ import org.coldis.library.helper.DateTimeHelper;
 /**
  * Abstract object that might expire.
  */
-public abstract class AbstractExpirableObject implements ExpirableObject {
+public abstract class AbstractExpirable implements Expirable {
 
 	/**
 	 * Serial.
@@ -45,7 +45,7 @@ public abstract class AbstractExpirableObject implements ExpirableObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.ExpirableObject#getExpiredAt()
+	 * @see org.coldis.library.model.Expirable#getExpiredAt()
 	 */
 	@Override
 	public LocalDateTime getExpiredAt() {
@@ -56,7 +56,7 @@ public abstract class AbstractExpirableObject implements ExpirableObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.ExpirableObject#setExpiredAt(java.time.LocalDateTime)
+	 * @see org.coldis.library.model.Expirable#setExpiredAt(java.time.LocalDateTime)
 	 */
 	@Override
 	public void setExpiredAt(final LocalDateTime expiredAt) {
@@ -75,7 +75,7 @@ public abstract class AbstractExpirableObject implements ExpirableObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.ExpirableObject#getExpired()
+	 * @see org.coldis.library.model.Expirable#getExpired()
 	 */
 	@Override
 	public Boolean getExpired() {
@@ -98,10 +98,10 @@ public abstract class AbstractExpirableObject implements ExpirableObject {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof AbstractExpirableObject)) {
+		if (!(obj instanceof AbstractExpirable)) {
 			return false;
 		}
-		final AbstractExpirableObject other = (AbstractExpirableObject) obj;
+		final AbstractExpirable other = (AbstractExpirable) obj;
 		return Objects.equals(this.expiredAt, other.expiredAt);
 	}
 

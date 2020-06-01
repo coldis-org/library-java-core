@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * Abstract time-stamped object.
  */
-public abstract class AbstractTimestampedObject implements TimestampedObject {
+public abstract class AbstractTimestampable implements Timestampable {
 
 	/**
 	 * Serial.
@@ -24,7 +24,7 @@ public abstract class AbstractTimestampedObject implements TimestampedObject {
 	private LocalDateTime updatedAt;
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#getCreatedAt()
+	 * @see org.coldis.library.model.Timestampable#getCreatedAt()
 	 */
 	@Override
 	public LocalDateTime getCreatedAt() {
@@ -32,7 +32,7 @@ public abstract class AbstractTimestampedObject implements TimestampedObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#setCreatedAt(java.time.LocalDateTime)
+	 * @see org.coldis.library.model.Timestampable#setCreatedAt(java.time.LocalDateTime)
 	 */
 	@Override
 	public void setCreatedAt(final LocalDateTime createdAt) {
@@ -40,7 +40,7 @@ public abstract class AbstractTimestampedObject implements TimestampedObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#getUpdatedAt()
+	 * @see org.coldis.library.model.Timestampable#getUpdatedAt()
 	 */
 	@Override
 	public LocalDateTime getUpdatedAt() {
@@ -48,7 +48,7 @@ public abstract class AbstractTimestampedObject implements TimestampedObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#setUpdatedAt(java.time.LocalDateTime)
+	 * @see org.coldis.library.model.Timestampable#setUpdatedAt(java.time.LocalDateTime)
 	 */
 	@Override
 	public void setUpdatedAt(final LocalDateTime updatedAt) {
@@ -71,10 +71,10 @@ public abstract class AbstractTimestampedObject implements TimestampedObject {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof AbstractTimestampedObject)) {
+		if (!(obj instanceof AbstractTimestampable)) {
 			return false;
 		}
-		final AbstractTimestampedObject other = (AbstractTimestampedObject) obj;
+		final AbstractTimestampable other = (AbstractTimestampable) obj;
 		return Objects.equals(this.createdAt, other.createdAt) && Objects.equals(this.updatedAt, other.updatedAt);
 	}
 

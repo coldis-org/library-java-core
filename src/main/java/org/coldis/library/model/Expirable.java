@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /**
  * Object that has an expiration date/time.
  */
-public interface ExpirableObject extends Serializable {
+public interface Expirable extends Serializable {
 
 	/**
 	 * Gets the object expiration date/time.

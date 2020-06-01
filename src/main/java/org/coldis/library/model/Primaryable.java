@@ -7,7 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 /**
  * Item that is optionally primary among others.
  */
-public interface OptionallyPrimaryItem {
+public interface Primaryable {
 
 	/**
 	 * Gets the primary.
@@ -30,7 +30,7 @@ public interface OptionallyPrimaryItem {
 	 * @param  itemCollection Item collection.
 	 * @return                The primary item of the collection.
 	 */
-	static <Item extends OptionallyPrimaryItem> Item getPrimary(final Collection<Item> itemCollection) {
+	static <Item extends Primaryable> Item getPrimary(final Collection<Item> itemCollection) {
 		// Primary item.
 		Item primaryItem = null;
 		// If the collection is given.
@@ -56,11 +56,11 @@ public interface OptionallyPrimaryItem {
 	 * @param <Item>         Item type.
 	 * @param itemCollection Item collection.
 	 */
-	static <Item extends OptionallyPrimaryItem> void autoAssignPrimary(final Collection<Item> itemCollection) {
+	static <Item extends Primaryable> void autoAssignPrimary(final Collection<Item> itemCollection) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// Gets the primary item.
-			final Item primaryItem = OptionallyPrimaryItem.getPrimary(itemCollection);
+			final Item primaryItem = Primaryable.getPrimary(itemCollection);
 			// If there is no primary item.
 			if (primaryItem == null) {
 				// The first item is the primary one.
@@ -76,7 +76,7 @@ public interface OptionallyPrimaryItem {
 	 * @param itemCollection Item collection.
 	 * @param primaryItem    The new primary item.
 	 */
-	static <Item extends OptionallyPrimaryItem> void setAsPrimary(final Collection<Item> itemCollection,
+	static <Item extends Primaryable> void setAsPrimary(final Collection<Item> itemCollection,
 			final Item primaryItem) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
@@ -109,7 +109,7 @@ public interface OptionallyPrimaryItem {
 	 * @param overwrite      If existing item should be replaced. If not, item is
 	 *                           discarded it already present.
 	 */
-	static <Item extends OptionallyPrimaryItem> void add(final Collection<Item> itemCollection, final Item newItem,
+	static <Item extends Primaryable> void add(final Collection<Item> itemCollection, final Item newItem,
 			final Boolean overwrite) {
 		// If the collection is given.
 		if (itemCollection != null) {
@@ -127,12 +127,12 @@ public interface OptionallyPrimaryItem {
 			// If the new item is to be primary.
 			if ((newItem != null) && newItem.getPrimary()) {
 				// Makes sure the item is set as primary.
-				OptionallyPrimaryItem.setAsPrimary(itemCollection, newItem);
+				Primaryable.setAsPrimary(itemCollection, newItem);
 			}
 			// If the item is not to be primary.
 			else {
 				// Makes sure that there is a primary item in the collection.
-				OptionallyPrimaryItem.autoAssignPrimary(itemCollection);
+				Primaryable.autoAssignPrimary(itemCollection);
 			}
 		}
 	}
@@ -145,14 +145,14 @@ public interface OptionallyPrimaryItem {
 	 * @param itemCollection Item collection.
 	 * @param itemToRemove   Item to be removed.
 	 */
-	static <Item extends OptionallyPrimaryItem> void remove(final Collection<Item> itemCollection,
+	static <Item extends Primaryable> void remove(final Collection<Item> itemCollection,
 			final Item itemToRemove) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// Removes the item from the collection.
 			itemCollection.remove(itemToRemove);
 			// Makes sure that there is a primary item in the collection.
-			OptionallyPrimaryItem.autoAssignPrimary(itemCollection);
+			Primaryable.autoAssignPrimary(itemCollection);
 		}
 	}
 }

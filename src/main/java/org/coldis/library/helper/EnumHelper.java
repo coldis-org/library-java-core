@@ -138,7 +138,7 @@ public class EnumHelper {
 	 */
 	public static <EnumType extends Enum<EnumType>> String toString(final EnumType enumValue) {
 		return (enumValue.getClass().getSimpleName().replaceAll("([^^])([A-Z])", "$1.$2") + "."
-				+ enumValue.name().replace("_", ".")).toLowerCase();
+				+ enumValue.name().replace("_", "-")).toLowerCase();
 	}
 
 	/**

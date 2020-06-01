@@ -3,7 +3,7 @@ package org.coldis.library.model;
 /**
  * Object that can be versioned.
  */
-public interface VersionedObject {
+public interface Versionable {
 
 	/**
 	 * Gets the version of the object.

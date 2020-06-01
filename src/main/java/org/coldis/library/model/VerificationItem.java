@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.coldis.library.helper.DateTimeHelper;
+import org.coldis.library.model.view.ModelView;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -14,8 +15,8 @@ import com.fasterxml.jackson.annotation.JsonView;
  * VerificationItem information.
  */
 @JsonTypeName(value = VerificationItem.TYPE_NAME)
-public class VerificationItem extends AbstractExpirableObject
-implements TypedObject, ExpirableObject, Comparable<VerificationItem> {
+public class VerificationItem extends AbstractExpirable
+implements Typable, Expirable, Comparable<VerificationItem> {
 
 	/**
 	 * Generated serial.
@@ -182,7 +183,7 @@ implements TypedObject, ExpirableObject, Comparable<VerificationItem> {
 	}
 
 	/**
-	 * @see org.coldis.library.model.AbstractExpirableObject#getExpiredByDefault()
+	 * @see org.coldis.library.model.AbstractExpirable#getExpiredByDefault()
 	 */
 	@Override
 	protected Boolean getExpiredByDefault() {
@@ -190,7 +191,7 @@ implements TypedObject, ExpirableObject, Comparable<VerificationItem> {
 	}
 
 	/**
-	 * @see org.coldis.library.model.TypedObject#getTypeName()
+	 * @see org.coldis.library.model.Typable#getTypeName()
 	 */
 	@Override
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })

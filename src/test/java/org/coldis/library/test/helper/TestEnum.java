@@ -1,11 +1,11 @@
 package org.coldis.library.test.helper;
 
-import org.coldis.library.model.IdentifiedObject;
+import org.coldis.library.model.Identifiable;
 
 /**
  * Test enum.
  */
-public enum TestEnum implements IdentifiedObject {
+public enum TestEnum implements Identifiable {
 
 	/**
 	 * Up to 6.

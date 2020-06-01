@@ -2,13 +2,13 @@ package org.coldis.library.test.model;
 
 import java.util.Objects;
 
-import org.coldis.library.model.IdentifiedObject;
-import org.coldis.library.model.OptionallyPrimaryItem;
+import org.coldis.library.model.Identifiable;
+import org.coldis.library.model.Primaryable;
 
 /**
  * Test object.
  */
-public class TestPrimaryObject implements IdentifiedObject, OptionallyPrimaryItem {
+public class TestPrimaryObject implements Identifiable, Primaryable {
 
 	/**
 	 * Generated serial.

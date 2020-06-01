@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /**
  * Time-stamped object.
  */
-public interface TimestampedObject extends Serializable {
+public interface Timestampable extends Serializable {
 
 	/**
 	 * Gets the object creation date/time.

@@ -1,4 +1,4 @@
-package org.coldis.library.model;
+package org.coldis.library.model.view;
 
 /**
  * Model views.

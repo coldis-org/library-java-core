@@ -6,6 +6,8 @@ import java.util.TreeSet;
 
 import javax.validation.Valid;
 
+import org.coldis.library.model.view.ModelView;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -13,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  * Verification information.
  */
 @JsonTypeName(value = Verification.TYPE_NAME)
-public class Verification implements TypedObject {
+public class Verification implements Typable {
 
 	/**
 	 * Serial.
@@ -71,7 +73,7 @@ public class Verification implements TypedObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.TypedObject#getTypeName()
+	 * @see org.coldis.library.model.Typable#getTypeName()
 	 */
 	@Override
 	public String getTypeName() {

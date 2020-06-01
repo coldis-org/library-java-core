@@ -1,14 +1,14 @@
 package org.coldis.library.test.model;
 
+import org.coldis.library.model.Verifiable;
 import org.coldis.library.model.VerifiableAttribute;
-import org.coldis.library.model.VerifiableObject;
 import org.coldis.library.model.Verification;
 import org.coldis.library.model.VerificationStatus;
 
 /**
  * Test object.
  */
-public class TestVerifiableObject implements VerifiableObject {
+public class TestVerifiableObject implements Verifiable {
 
 	/**
 	 * Test attribute.
@@ -146,11 +146,11 @@ public class TestVerifiableObject implements VerifiableObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.VerifiableObject#getVerificationStatus()
+	 * @see org.coldis.library.model.Verifiable#getVerificationStatus()
 	 */
 	@Override
 	public VerificationStatus getVerificationStatus() {
-		return VerifiableObject.getVerificationStatus(this);
+		return Verifiable.getVerificationStatus(this);
 	}
 
 }

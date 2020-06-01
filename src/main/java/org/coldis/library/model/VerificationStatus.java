@@ -3,7 +3,7 @@ package org.coldis.library.model;
 /**
  * VerificationItem status.
  */
-public enum VerificationStatus implements IdentifiedObject {
+public enum VerificationStatus implements Identifiable {
 
 	/**
 	 * Valid information.

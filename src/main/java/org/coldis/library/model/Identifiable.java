@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Identified object.
  */
-public interface IdentifiedObject extends Serializable {
+public interface Identifiable extends Serializable {
 
 	/**
 	 * Gets the identifier.

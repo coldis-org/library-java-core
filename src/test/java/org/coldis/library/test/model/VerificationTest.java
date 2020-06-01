@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.SimpleMessage;
-import org.coldis.library.model.VerifiableObject;
+import org.coldis.library.model.Verifiable;
 import org.coldis.library.model.Verification;
 import org.coldis.library.model.VerificationItem;
 import org.coldis.library.model.VerificationStatus;
@@ -141,11 +141,11 @@ public class VerificationTest {
 		// For each test object.
 		for (final TestVerifiableObject testObject : VerificationTest.VALID_DATA) {
 			// Gets the verifiable attributes statuses.
-			final VerificationStatus attribute1Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute1Status = Verifiable.getVerificationStatus(testObject,
 					"attribute1");
-			final VerificationStatus attribute2Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute2Status = Verifiable.getVerificationStatus(testObject,
 					"attribute2");
-			final VerificationStatus attribute3Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute3Status = Verifiable.getVerificationStatus(testObject,
 					"attribute3");
 			// Makes sure the attributes are valid.
 			Assertions.assertEquals(VerificationStatus.VALID, attribute1Status);
@@ -170,11 +170,11 @@ public class VerificationTest {
 		// For each test object.
 		for (final TestVerifiableObject testObject : VerificationTest.INVALID_DATA) {
 			// Gets the verifiable attributes statuses.
-			final VerificationStatus attribute1Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute1Status = Verifiable.getVerificationStatus(testObject,
 					"attribute1");
-			final VerificationStatus attribute2Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute2Status = Verifiable.getVerificationStatus(testObject,
 					"attribute2");
-			final VerificationStatus attribute3Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute3Status = Verifiable.getVerificationStatus(testObject,
 					"attribute3");
 			// Makes sure at least one attribute is invalid.
 			Assertions.assertTrue(
@@ -195,11 +195,11 @@ public class VerificationTest {
 		// For each test object.
 		for (final TestVerifiableObject testObject : VerificationTest.NOT_VERIFIED_DATA) {
 			// Gets the verifiable attributes statuses.
-			final VerificationStatus attribute1Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute1Status = Verifiable.getVerificationStatus(testObject,
 					"attribute1");
-			final VerificationStatus attribute2Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute2Status = Verifiable.getVerificationStatus(testObject,
 					"attribute2");
-			final VerificationStatus attribute3Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute3Status = Verifiable.getVerificationStatus(testObject,
 					"attribute3");
 			// Makes sure none of the attributes is invalid.
 			Assertions.assertFalse(
@@ -221,11 +221,11 @@ public class VerificationTest {
 		// For each test object.
 		for (final TestVerifiableObject testObject : VerificationTest.DUBIOUS_DATA) {
 			// Gets the verifiable attributes statuses.
-			final VerificationStatus attribute1Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute1Status = Verifiable.getVerificationStatus(testObject,
 					"attribute1");
-			final VerificationStatus attribute2Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute2Status = Verifiable.getVerificationStatus(testObject,
 					"attribute2");
-			final VerificationStatus attribute3Status = VerifiableObject.getVerificationStatus(testObject,
+			final VerificationStatus attribute3Status = Verifiable.getVerificationStatus(testObject,
 					"attribute3");
 			// Makes sure none of the attributes is invalid.
 			Assertions.assertFalse(

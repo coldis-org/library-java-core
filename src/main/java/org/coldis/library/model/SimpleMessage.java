@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.coldis.library.model.view.ModelView;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -11,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  * Simple message.
  */
 @JsonTypeName(value = SimpleMessage.TYPE_NAME)
-public class SimpleMessage implements TypedObject {
+public class SimpleMessage implements Typable {
 
 	/**
 	 * Generated serial.
@@ -164,7 +166,7 @@ public class SimpleMessage implements TypedObject {
 	}
 
 	/**
-	 * @see org.coldis.library.model.TypedObject#getTypeName()
+	 * @see org.coldis.library.model.Typable#getTypeName()
 	 */
 	@Override
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })

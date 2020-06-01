@@ -6,7 +6,7 @@ import java.util.Objects;
 /**
  * Abstract time-stamped and expirable object.
  */
-public abstract class AbstractTimestampedExpirableObject extends AbstractExpirableObject implements TimestampedObject {
+public abstract class AbstractTimestampableExpirable extends AbstractExpirable implements Timestampable {
 
 	/**
 	 * Serial.
@@ -24,7 +24,7 @@ public abstract class AbstractTimestampedExpirableObject extends AbstractExpirab
 	private LocalDateTime updatedAt;
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#getCreatedAt()
+	 * @see org.coldis.library.model.Timestampable#getCreatedAt()
 	 */
 	@Override
 	public LocalDateTime getCreatedAt() {
@@ -32,7 +32,7 @@ public abstract class AbstractTimestampedExpirableObject extends AbstractExpirab
 	}
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#setCreatedAt(java.time.LocalDateTime)
+	 * @see org.coldis.library.model.Timestampable#setCreatedAt(java.time.LocalDateTime)
 	 */
 	@Override
 	public void setCreatedAt(final LocalDateTime createdAt) {
@@ -40,7 +40,7 @@ public abstract class AbstractTimestampedExpirableObject extends AbstractExpirab
 	}
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#getUpdatedAt()
+	 * @see org.coldis.library.model.Timestampable#getUpdatedAt()
 	 */
 	@Override
 	public LocalDateTime getUpdatedAt() {
@@ -48,7 +48,7 @@ public abstract class AbstractTimestampedExpirableObject extends AbstractExpirab
 	}
 
 	/**
-	 * @see org.coldis.library.model.TimestampedObject#setUpdatedAt(java.time.LocalDateTime)
+	 * @see org.coldis.library.model.Timestampable#setUpdatedAt(java.time.LocalDateTime)
 	 */
 	@Override
 	public void setUpdatedAt(final LocalDateTime updatedAt) {
@@ -77,10 +77,10 @@ public abstract class AbstractTimestampedExpirableObject extends AbstractExpirab
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof AbstractTimestampedExpirableObject)) {
+		if (!(obj instanceof AbstractTimestampableExpirable)) {
 			return false;
 		}
-		final AbstractTimestampedExpirableObject other = (AbstractTimestampedExpirableObject) obj;
+		final AbstractTimestampableExpirable other = (AbstractTimestampableExpirable) obj;
 		return Objects.equals(this.createdAt, other.createdAt) && Objects.equals(this.updatedAt, other.updatedAt);
 	}
 

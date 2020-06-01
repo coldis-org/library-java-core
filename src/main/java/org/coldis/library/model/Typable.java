@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeName",
 visible = true)
-public interface TypedObject extends Serializable {
+public interface Typable extends Serializable {
 
 	/**
 	 * Gets the type name of the object.
