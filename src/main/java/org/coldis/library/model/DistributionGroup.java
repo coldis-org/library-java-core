@@ -1,31 +1,50 @@
 package org.coldis.library.model;
 
-import java.math.BigDecimal;
-
 /**
  * Distribution group.
  */
-public interface DistributionGroup extends Primaryable {
+public interface DistributionGroup extends Primaryable, Expirable {
 
 	/**
-	 * Gets the group size.
+	 * Gets the distribution size.
 	 *
-	 * @return The group size.
+	 * @return The distribution size.
 	 */
-	BigDecimal getSize();
+	Integer getDistributionSize();
 
 	/**
-	 * Sets the group size.
+	 * Sets the distribution size.
 	 *
-	 * @param size The group size.
+	 * @param size The distribution size.
 	 */
-	void setSize(BigDecimal size);
+	void setDistributionSize(Integer size);
 
 	/**
-	 * TODO Javadoc
-	 * @return Javadoc
+	 * Gets the current size.
+	 * 
+	 * @return The current size.
 	 */
-	String getLimit();
+	Long getCurrentSize();
 
+	/**
+	 * Sets the current size.
+	 * 
+	 * @param currentSize The current size.
+	 */
+	void setCurrentSize(Long currentSize);
+
+	/**
+	 * Gets the (absolute) limit.
+	 * 
+	 * @return The (absolute) limit.
+	 */
+	Long getAbsoluteLimit();
+
+	/**
+	 * Sets the (absolute) limit.
+	 * 
+	 * @param absoluteLimit The (absolute) limit.
+	 */
+	void setAbsoluteLimit(Long absoluteLimit);
 
 }
