@@ -18,22 +18,22 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	/**
 	 * If is the primary group.
 	 */
-	private Boolean primary = false;
+	private Boolean primary;
 
 	/**
 	 * Distribution size.
 	 */
-	private Integer distributionSize = 0;
+	private Integer distributionSize;
 
 	/**
 	 * Absolute limit.
 	 */
-	private Long absoluteLimit = 0L;
+	private Long absoluteLimit;
 
 	/**
 	 * Current size.
 	 */
-	private Long currentSize = 0L;
+	private Long currentSize;
 
 	/**
 	 * When group expires.
@@ -47,6 +47,9 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public Boolean getPrimary() {
+		// Make sure the object is initialized.
+		this.primary = (primary == null ? false : this.primary);
+		// Returns the object.
 		return this.primary;
 	}
 
@@ -67,6 +70,9 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public Integer getDistributionSize() {
+		// Make sure the object is initialized.
+		this.distributionSize = (distributionSize == null ? 0 : this.distributionSize);
+		// Returns the object.
 		return this.distributionSize;
 	}
 
@@ -87,6 +93,9 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public Long getAbsoluteLimit() {
+		// Make sure the object is initialized.
+		this.absoluteLimit = (absoluteLimit == null ? 0L : this.absoluteLimit);
+		// Returns the object.
 		return this.absoluteLimit;
 	}
 
@@ -107,6 +116,9 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public Long getCurrentSize() {
+		// Make sure the object is initialized.
+		this.currentSize = (currentSize == null ? 0L : this.currentSize);
+		// Returns the object.
 		return this.currentSize;
 	}
 
