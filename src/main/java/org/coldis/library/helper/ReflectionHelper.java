@@ -36,6 +36,16 @@ public class ReflectionHelper {
 	}
 
 	/**
+	 * If a method is a setter.
+	 *
+	 * @param  methodName Method name.
+	 * @return            If a method is a setter.
+	 */
+	public static Boolean isSetter(final String methodName) {
+		return (methodName.startsWith("set"));
+	}
+
+	/**
 	 * Gets the original attribute name from a getter.
 	 *
 	 * @param  getterName Getter name.
@@ -45,8 +55,7 @@ public class ReflectionHelper {
 		// If it is a boolean getter.
 		final Boolean booleanGetter = getterName.startsWith("is");
 		// Returns attribute name.
-		return getterName.substring(booleanGetter ? 2 : 3, booleanGetter ? 3 : 4).toLowerCase()
-				+ getterName.substring(booleanGetter ? 3 : 4);
+		return getterName.substring(booleanGetter ? 2 : 3, booleanGetter ? 3 : 4).toLowerCase() + getterName.substring(booleanGetter ? 3 : 4);
 	}
 
 	/**
@@ -93,14 +102,12 @@ public class ReflectionHelper {
 				if (attributePathValue != null) {
 					// Tries to get the next path value.
 					try {
-						attributePathValue = MethodUtils.invokeMethod(attributePathValue,
-								ReflectionHelper.getGetterName(attributePathPart));
+						attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
 					}
 					// If the attribute path cannot be retrieved.
 					catch (final Exception exception) {
 						// Logs it.
-						ReflectionHelper.LOGGER.error(
-								"Attribute path part value cannot be retrieved: " + exception.getLocalizedMessage());
+						ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved: " + exception.getLocalizedMessage());
 						ReflectionHelper.LOGGER.debug("Attribute path part value cannot be retrieved.", exception);
 					}
 				}
@@ -134,14 +141,12 @@ public class ReflectionHelper {
 					if ((attributePathPartIndex + 1) == attributePath.length) {
 						// Tries to set the attribute value.
 						try {
-							MethodUtils.invokeMethod(attributePathValue,
-									ReflectionHelper.getSetterName(attributePathPart), newValue);
+							MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getSetterName(attributePathPart), newValue);
 						}
 						// If the method cannot be found.
 						catch (final Exception exception) {
 							// Logs it.
-							ReflectionHelper.LOGGER
-							.error("Attribute value cannot be updated: " + exception.getLocalizedMessage());
+							ReflectionHelper.LOGGER.error("Attribute value cannot be updated: " + exception.getLocalizedMessage());
 							ReflectionHelper.LOGGER.debug("Attribute value cannot be updated.", exception);
 						}
 					}
@@ -149,14 +154,12 @@ public class ReflectionHelper {
 					else {
 						// Tries to get the next path value.
 						try {
-							attributePathValue = MethodUtils.invokeMethod(attributePathValue,
-									ReflectionHelper.getGetterName(attributePathPart));
+							attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
 						}
 						// If the attribute path cannot be retrieved.
 						catch (final Exception exception) {
 							// Logs it.
-							ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved: "
-									+ exception.getLocalizedMessage());
+							ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved: " + exception.getLocalizedMessage());
 							ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved.", exception);
 						}
 					}

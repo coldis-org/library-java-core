@@ -28,6 +28,13 @@ public class TestClass {
 	private TestClass test4;
 
 	/**
+	 * Empty constructor.
+	 */
+	public TestClass() {
+		super();
+	}
+
+	/**
 	 * Default constructor.
 	 *
 	 * @param test1 Test attribute.
@@ -135,8 +142,8 @@ public class TestClass {
 			return false;
 		}
 		final TestClass other = (TestClass) obj;
-		return Objects.equals(this.test1, other.test1) && Objects.equals(this.test2, other.test2)
-				&& Objects.equals(this.test3, other.test3) && Objects.equals(this.test4, other.test4);
+		return Objects.equals(this.test1, other.test1) && Objects.equals(this.test2, other.test2) && Objects.equals(this.test3, other.test3)
+				&& Objects.equals(this.test4, other.test4);
 	}
 
 }
