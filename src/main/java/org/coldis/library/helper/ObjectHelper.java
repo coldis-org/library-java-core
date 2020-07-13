@@ -35,7 +35,7 @@ public class ObjectHelper {
 		// By default the class is not complex.
 		Boolean complexClass = false;
 		// If the class is not primitive.
-		if (!clazz.isPrimitive()) {
+		if (!clazz.isPrimitive() && !clazz.isAnnotation() && !clazz.isArray() && !clazz.isEnum()) {
 			// If the class matches the complex classes packages.
 			if (!CollectionUtils.isEmpty(complexClassesPackages)
 					&& complexClassesPackages.stream().anyMatch(complexClassesPackage -> clazz.getPackageName().matches(complexClassesPackage))) {
