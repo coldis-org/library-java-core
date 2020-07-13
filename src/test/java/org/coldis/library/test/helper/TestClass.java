@@ -1,5 +1,6 @@
 package org.coldis.library.test.helper;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -28,6 +29,11 @@ public class TestClass {
 	private TestClass test4;
 
 	/**
+	 * Test atribute.
+	 */
+	private BigDecimal test5;
+
+	/**
 	 * Empty constructor.
 	 */
 	public TestClass() {
@@ -41,13 +47,15 @@ public class TestClass {
 	 * @param test2 Test attribute.
 	 * @param test3 Test attribute.
 	 * @param test4 Test attribute.
+	 * @param test5 Test attribute.
 	 */
-	public TestClass(final String test1, final Long test2, final TestClass test3, final TestClass test4) {
+	public TestClass(final String test1, final Long test2, final TestClass test3, final TestClass test4, final BigDecimal test5) {
 		super();
 		this.test1 = test1;
 		this.test2 = test2;
 		this.test3 = test3;
 		this.test4 = test4;
+		this.test5 = test5;
 	}
 
 	/**
@@ -123,11 +131,29 @@ public class TestClass {
 	}
 
 	/**
+	 * Gets the test5.
+	 *
+	 * @return The test5.
+	 */
+	public BigDecimal getTest5() {
+		return this.test5;
+	}
+
+	/**
+	 * Sets the test5.
+	 *
+	 * @param test5 New test5.
+	 */
+	public void setTest5(final BigDecimal test5) {
+		this.test5 = test5;
+	}
+
+	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.test1, this.test2, this.test3, this.test4);
+		return Objects.hash(this.test1, this.test2, this.test3, this.test4, this.test5);
 	}
 
 	/**
@@ -143,7 +169,7 @@ public class TestClass {
 		}
 		final TestClass other = (TestClass) obj;
 		return Objects.equals(this.test1, other.test1) && Objects.equals(this.test2, other.test2) && Objects.equals(this.test3, other.test3)
-				&& Objects.equals(this.test4, other.test4);
+				&& Objects.equals(this.test4, other.test4) && Objects.equals(this.test5, other.test5);
 	}
 
 }

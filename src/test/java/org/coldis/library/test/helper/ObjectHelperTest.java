@@ -1,5 +1,6 @@
 package org.coldis.library.test.helper;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 import org.coldis.library.helper.ObjectHelper;
@@ -17,8 +18,9 @@ public class ObjectHelperTest {
 	@Test
 	public void testShallowCopyAttributes() {
 		// Test data.
-		final TestClass source = new TestClass("source", 1L, new TestClass("source1", 11L, null, null), new TestClass("source1", 12L, null, null));
-		final TestClass target = new TestClass("target", 2L, null, null);
+		final TestClass source = new TestClass("source", 1L, new TestClass("source1", 11L, null, null, null), new TestClass("source1", 12L, null, null, null),
+				BigDecimal.ONE);
+		final TestClass target = new TestClass("target", 2L, null, null, null);
 		// Shallow copy the attributes.
 		ObjectHelper.copyAttributes(source, target, false, false, null, null, null);
 		// Makes sure the source and target are equals now.
@@ -32,8 +34,9 @@ public class ObjectHelperTest {
 	@Test
 	public void testDeepCopyAttributesIgnoring() {
 		// Test data.
-		final TestClass source = new TestClass("source", 1L, new TestClass("source1", 11L, null, null), new TestClass("source1", 12L, null, null));
-		final TestClass target = new TestClass("target", 2L, new TestClass(), new TestClass());
+		final TestClass source = new TestClass("source", 1L, new TestClass("source1", 11L, null, null, null), new TestClass("source1", 12L, null, null, null),
+				null);
+		final TestClass target = new TestClass("target", 2L, new TestClass(), new TestClass(), null);
 		// Shallow copy the attributes.
 		ObjectHelper.copyAttributes(source, target, true, false, Set.of("test3.test1", "test4"), null, null);
 		// Makes sure the source and target are not equals.
@@ -55,8 +58,9 @@ public class ObjectHelperTest {
 	@Test
 	public void testDeepCopyAttributesUsingSourceConditions() {
 		// Test data.
-		final TestClass source = new TestClass("source", null, null, new TestClass(null, 12L, null, new TestClass("source1", 13L, null, null)));
-		final TestClass target = new TestClass("target", 2L, new TestClass(), new TestClass("target1", 22L, new TestClass(), null));
+		final TestClass source = new TestClass("source", null, null, new TestClass(null, 12L, null, new TestClass("source1", 13L, null, null, null), null),
+				BigDecimal.ONE);
+		final TestClass target = new TestClass("target", 2L, new TestClass(), new TestClass("target1", 22L, new TestClass(), null, null), BigDecimal.ZERO);
 		// Shallow copy the attributes.
 		ObjectHelper.copyAttributes(source, target, true, true, null, (getter, value) -> (value != null), null);
 		// Makes sure the source and target are not equals.
@@ -69,6 +73,7 @@ public class ObjectHelperTest {
 		Assertions.assertEquals(source.getTest4().getTest2(), target.getTest4().getTest2());
 		Assertions.assertEquals(new TestClass(), target.getTest4().getTest3());
 		Assertions.assertEquals(source.getTest4().getTest4(), target.getTest4().getTest4());
+		Assertions.assertEquals(source.getTest5(), target.getTest5());
 	}
 
 	/**
@@ -78,8 +83,8 @@ public class ObjectHelperTest {
 	public void testDeepCopyAttributesUsingTargetConditions() {
 		// Test data.
 		final TestClass source = new TestClass("source", 1L, new TestClass(),
-				new TestClass("source1", 12L, new TestClass(), new TestClass("source1", 13L, null, null)));
-		final TestClass target = new TestClass(null, 2L, null, new TestClass(null, 22L, null, null));
+				new TestClass("source1", 12L, new TestClass(), new TestClass("source1", 13L, null, null, null), null), null);
+		final TestClass target = new TestClass(null, 2L, null, new TestClass(null, 22L, null, null, null), null);
 		// Shallow copy the attributes.
 		ObjectHelper.copyAttributes(source, target, true, true, null, null, (getter, value) -> (value == null));
 		// Makes sure the source and target are not equals.

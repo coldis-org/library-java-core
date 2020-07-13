@@ -20,27 +20,41 @@ public class ObjectHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ObjectHelper.class);
 
 	/**
+	 * Java packages regex.
+	 */
+	public static final String NON_JAVA_PACKAGES_REGEX = "^(?!(java\\.)).*";
+
+	/**
+	 * If it is a class for a complex object.
+	 *
+	 * @param  clazz                  Class.
+	 * @param  complexClassesPackages Complex classes packages regular expressions.
+	 * @return                        If it is a class for a complex object.
+	 */
+	public static Boolean isComplexClass(final Class<?> clazz, final Set<String> complexClassesPackages) {
+		// By default the class is not complex.
+		Boolean complexClass = false;
+		// If the class is not primitive.
+		if (!clazz.isPrimitive()) {
+			// If the class matches the complex classes packages.
+			if (!CollectionUtils.isEmpty(complexClassesPackages)
+					&& complexClassesPackages.stream().anyMatch(complexClassesPackage -> clazz.getPackageName().matches(complexClassesPackage))) {
+				// The class is complex.
+				complexClass = true;
+			}
+		}
+		// Returns if the class is complex.
+		return complexClass;
+	}
+
+	/**
 	 * If it is a class for a complex object.
 	 *
 	 * @param  clazz Class.
 	 * @return       If it is a class for a complex object.
 	 */
 	public static Boolean isComplexClass(final Class<?> clazz) {
-		// By default the class is not complex.
-		Boolean complexClass = false;
-		// If the class is not primitive.
-		if (!clazz.isPrimitive()) {
-			// If there is at least one setter.
-			for (final Method method : clazz.getMethods()) {
-				if (ReflectionHelper.isSetter(method.getName())) {
-					// The class is complex.
-					complexClass = true;
-					break;
-				}
-			}
-		}
-		// Returns if the class is complex.
-		return complexClass;
+		return ObjectHelper.isComplexClass(clazz, Set.of(ObjectHelper.NON_JAVA_PACKAGES_REGEX));
 	}
 
 	/**
