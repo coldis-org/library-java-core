@@ -32,8 +32,11 @@ public class EnumHelper {
 	 * @return                    The enum value by a given attribute value.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <EnumType extends Enum<EnumType>, AttributeType> EnumType getByRange(final Class<EnumType> enumType,
-			final String floorAttributeName, final String ceilAttributeName, final AttributeType attributeValue) {
+	public static <EnumType extends Enum<EnumType>, AttributeType> EnumType getByRange(
+			final Class<EnumType> enumType,
+			final String floorAttributeName,
+			final String ceilAttributeName,
+			final AttributeType attributeValue) {
 		// Return enum value is null by default.
 		EnumType enumValue = null;
 		// Tries to get the value for the given attributeValue.
@@ -46,10 +49,8 @@ public class EnumHelper {
 			enumValue = Arrays.stream(enumType.getEnumConstants()).filter(enumConstant -> {
 				// Tries to return if the attribute has the given value.
 				try {
-					return (((Comparable<AttributeType>) floorGetter.invoke(enumConstant))
-							.compareTo(attributeValue) <= 0)
-							&& (((Comparable<AttributeType>) ceilGetter.invoke(enumConstant))
-									.compareTo(attributeValue) > 0);
+					return (((Comparable<AttributeType>) floorGetter.invoke(enumConstant)).compareTo(attributeValue) <= 0)
+							&& (((Comparable<AttributeType>) ceilGetter.invoke(enumConstant)).compareTo(attributeValue) > 0);
 				}
 				// If there is a problem getting the attribute value.
 				catch (final Exception exception) {
@@ -61,11 +62,8 @@ public class EnumHelper {
 		// If there is a problem getting the attribute getter.
 		catch (final Exception exception) {
 			// Ignores the error.
-			EnumHelper.LOGGER.error("Enum '" + enumType + "' could not be gathered for range '" + floorAttributeName
-					+ "/" + ceilAttributeName + "' and value '" + attributeValue + "': "
-					+ exception.getLocalizedMessage());
-			EnumHelper.LOGGER.debug("Enum '" + enumType + "' could not be gathered for range '" + floorAttributeName
-					+ "/" + ceilAttributeName + "' and value '" + attributeValue + "': ", exception);
+			EnumHelper.LOGGER.debug("Enum '" + enumType + "' could not be gathered for range '" + floorAttributeName + "/" + ceilAttributeName + "' and value '"
+					+ attributeValue + "': ", exception);
 		}
 		// Returns the enum value for the given attribute.
 		return enumValue;
@@ -81,8 +79,10 @@ public class EnumHelper {
 	 * @param  attributeValue Attribute value.
 	 * @return                The enum value by a given attribute value.
 	 */
-	public static <EnumType extends Enum<EnumType>> EnumType getByAttribute(final Class<EnumType> enumType,
-			final String attributeName, final Object attributeValue) {
+	public static <EnumType extends Enum<EnumType>> EnumType getByAttribute(
+			final Class<EnumType> enumType,
+			final String attributeName,
+			final Object attributeValue) {
 		// Return enum value is null by default.
 		EnumType enumValue = null;
 		try {
@@ -104,10 +104,8 @@ public class EnumHelper {
 		// If there is a problem getting the attribute getter.
 		catch (final Exception exception) {
 			// Ignores the error.
-			EnumHelper.LOGGER.error("Enum '" + enumType + "' could not be gathered for name '" + attributeName
-					+ "' and value '" + attributeValue + "': " + exception.getLocalizedMessage());
-			EnumHelper.LOGGER.debug("Enum '" + enumType + "' could not be gathered for name '" + attributeName
-					+ "' and value '" + attributeValue + "'.", exception);
+			EnumHelper.LOGGER.debug("Enum '" + enumType + "' could not be gathered for name '" + attributeName + "' and value '" + attributeValue + "'.",
+					exception);
 		}
 		// Returns the enum value for the given attribute.
 		return enumValue;
@@ -122,7 +120,8 @@ public class EnumHelper {
 	 * @param  attributeValue Attribute value.
 	 * @return                The enum value by id (id attribute).
 	 */
-	public static <EnumType extends Enum<EnumType>> EnumType getById(final Class<EnumType> enumType,
+	public static <EnumType extends Enum<EnumType>> EnumType getById(
+			final Class<EnumType> enumType,
 			final Object attributeValue) {
 		return EnumHelper.getByAttribute(enumType, "id", attributeValue);
 	}
@@ -136,9 +135,9 @@ public class EnumHelper {
 	 *
 	 * @return            The enum as string.
 	 */
-	public static <EnumType extends Enum<EnumType>> String toString(final EnumType enumValue) {
-		return (enumValue.getClass().getSimpleName().replaceAll("([^^])([A-Z])", "$1.$2") + "."
-				+ enumValue.name().replace("_", "-")).toLowerCase();
+	public static <EnumType extends Enum<EnumType>> String toString(
+			final EnumType enumValue) {
+		return (enumValue.getClass().getSimpleName().replaceAll("([^^])([A-Z])", "$1.$2") + "." + enumValue.name().replace("_", "-")).toLowerCase();
 	}
 
 	/**
@@ -150,7 +149,9 @@ public class EnumHelper {
 	 * @param  resumeOnErrors If errors should be silently ignored.
 	 * @return                The enum valu for the type and name.
 	 */
-	public static <EnumType extends Enum<EnumType>> EnumType valueOf(final Class<EnumType> enumType, final String name,
+	public static <EnumType extends Enum<EnumType>> EnumType valueOf(
+			final Class<EnumType> enumType,
+			final String name,
 			final Boolean resumeOnErrors) {
 		// Value of enum string.
 		EnumType enumValue = null;
@@ -163,9 +164,7 @@ public class EnumHelper {
 			// If errors should be silently ignored.
 			if (resumeOnErrors) {
 				// Logs and returns null.
-				EnumHelper.LOGGER.debug(
-						"Supressed: invalid enum value for type: '" + enumType + "' and name '" + name + "'.",
-						exception);
+				EnumHelper.LOGGER.debug("Supressed: invalid enum value for type: '" + enumType + "' and name '" + name + "'.", exception);
 			}
 			// If errors should not be silently ignored.
 			else {

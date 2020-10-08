@@ -31,7 +31,9 @@ public class ObjectHelper {
 	 * @param  complexClassesPackages Complex classes packages regular expressions.
 	 * @return                        If it is a class for a complex object.
 	 */
-	public static Boolean isComplexClass(final Class<?> clazz, final Set<String> complexClassesPackages) {
+	public static Boolean isComplexClass(
+			final Class<?> clazz,
+			final Set<String> complexClassesPackages) {
 		// By default the class is not complex.
 		Boolean complexClass = false;
 		// If the class is not primitive.
@@ -53,7 +55,8 @@ public class ObjectHelper {
 	 * @param  clazz Class.
 	 * @return       If it is a class for a complex object.
 	 */
-	public static Boolean isComplexClass(final Class<?> clazz) {
+	public static Boolean isComplexClass(
+			final Class<?> clazz) {
 		return ObjectHelper.isComplexClass(clazz, Set.of(ObjectHelper.NON_JAVA_PACKAGES_REGEX));
 	}
 
@@ -78,8 +81,13 @@ public class ObjectHelper {
 	 *                                       value to copy the attribute.
 	 * @return                           The target object after the copy.
 	 */
-	public static <SourceType, TargetType> TargetType copyAttributes(final SourceType source, final TargetType target, final Boolean deepCopy,
-			final Boolean initializeEmptyAttributes, final Set<String> ignoreAttributes, final BiPredicate<Method, Object> sourceConditions,
+	public static <SourceType, TargetType> TargetType copyAttributes(
+			final SourceType source,
+			final TargetType target,
+			final Boolean deepCopy,
+			final Boolean initializeEmptyAttributes,
+			final Set<String> ignoreAttributes,
+			final BiPredicate<Method, Object> sourceConditions,
 			final BiPredicate<Method, Object> targetConditions) {
 		// Only if both objects exist.
 		if ((source != null) && (target != null)) {
@@ -156,7 +164,6 @@ public class ObjectHelper {
 							// If the attribute cannot be copied.
 							catch (final Exception exception) {
 								// Logs it.
-								ObjectHelper.LOGGER.error("Attribute '" + attributeName + "' could not be copied: " + exception.getLocalizedMessage());
 								ObjectHelper.LOGGER.debug("Attribute '" + attributeName + "' could not be copied.", exception);
 							}
 						}

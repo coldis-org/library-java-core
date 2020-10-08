@@ -20,7 +20,8 @@ public class ReflectionHelper {
 	 * @param  methodName Method name.
 	 * @return            If a method is a getter.
 	 */
-	public static Boolean isGetter(final String methodName) {
+	public static Boolean isGetter(
+			final String methodName) {
 		return (methodName.startsWith("get") || methodName.startsWith("is"));
 	}
 
@@ -31,7 +32,9 @@ public class ReflectionHelper {
 	 * @param  parameters Parameters (or parameters classes) list.
 	 * @return            If a method is a getter.
 	 */
-	public static Boolean isGetter(final String methodName, final Object[] parameters) {
+	public static Boolean isGetter(
+			final String methodName,
+			final Object[] parameters) {
 		return ((parameters == null) || (parameters.length == 0)) && ReflectionHelper.isGetter(methodName);
 	}
 
@@ -41,7 +44,8 @@ public class ReflectionHelper {
 	 * @param  methodName Method name.
 	 * @return            If a method is a setter.
 	 */
-	public static Boolean isSetter(final String methodName) {
+	public static Boolean isSetter(
+			final String methodName) {
 		return (methodName.startsWith("set"));
 	}
 
@@ -51,7 +55,8 @@ public class ReflectionHelper {
 	 * @param  getterName Getter name.
 	 * @return            The original attribute name.
 	 */
-	public static String getAttributeName(final String getterName) {
+	public static String getAttributeName(
+			final String getterName) {
 		// If it is a boolean getter.
 		final Boolean booleanGetter = getterName.startsWith("is");
 		// Returns attribute name.
@@ -64,7 +69,8 @@ public class ReflectionHelper {
 	 * @param  attributeName Attribute name.
 	 * @return               The getter name from an attribute name.
 	 */
-	public static String getGetterName(final String attributeName) {
+	public static String getGetterName(
+			final String attributeName) {
 		return "get" + attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
 	}
 
@@ -74,7 +80,8 @@ public class ReflectionHelper {
 	 * @param  attributeName Attribute name.
 	 * @return               The setter name from an attribute name.
 	 */
-	public static String getSetterName(final String attributeName) {
+	public static String getSetterName(
+			final String attributeName) {
 		return "set" + attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
 	}
 
@@ -85,7 +92,9 @@ public class ReflectionHelper {
 	 * @param  attributeNamePath Attribute name path.
 	 * @return                   The object attribute value.
 	 */
-	public static Object getAttribute(final Object object, final String attributeNamePath) {
+	public static Object getAttribute(
+			final Object object,
+			final String attributeNamePath) {
 		// Attribute path value.
 		Object attributePathValue = null;
 		// If the object and attribute name are given.
@@ -107,7 +116,6 @@ public class ReflectionHelper {
 					// If the attribute path cannot be retrieved.
 					catch (final Exception exception) {
 						// Logs it.
-						ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved: " + exception.getLocalizedMessage());
 						ReflectionHelper.LOGGER.debug("Attribute path part value cannot be retrieved.", exception);
 					}
 				}
@@ -124,7 +132,10 @@ public class ReflectionHelper {
 	 * @param attributeNamePath Attribute name path.
 	 * @param newValue          New attribute value.
 	 */
-	public static void setAttribute(final Object object, final String attributeNamePath, final Object newValue) {
+	public static void setAttribute(
+			final Object object,
+			final String attributeNamePath,
+			final Object newValue) {
 		// If the object and attribute name are given.
 		if ((object != null) && (attributeNamePath != null)) {
 			// Splits the attributes.
@@ -146,7 +157,6 @@ public class ReflectionHelper {
 						// If the method cannot be found.
 						catch (final Exception exception) {
 							// Logs it.
-							ReflectionHelper.LOGGER.error("Attribute value cannot be updated: " + exception.getLocalizedMessage());
 							ReflectionHelper.LOGGER.debug("Attribute value cannot be updated.", exception);
 						}
 					}
@@ -159,8 +169,7 @@ public class ReflectionHelper {
 						// If the attribute path cannot be retrieved.
 						catch (final Exception exception) {
 							// Logs it.
-							ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved: " + exception.getLocalizedMessage());
-							ReflectionHelper.LOGGER.error("Attribute path part value cannot be retrieved.", exception);
+							ReflectionHelper.LOGGER.debug("Attribute path part value cannot be retrieved.", exception);
 						}
 					}
 				}
