@@ -21,7 +21,8 @@ public interface Primaryable {
 	 *
 	 * @param primary New primary.
 	 */
-	void setPrimary(final Boolean primary);
+	void setPrimary(
+			final Boolean primary);
 
 	/**
 	 * Gets the primary item of a collection.
@@ -30,7 +31,8 @@ public interface Primaryable {
 	 * @param  itemCollection Item collection.
 	 * @return                The primary item of the collection.
 	 */
-	static <Item extends Primaryable> Item getPrimary(final Collection<Item> itemCollection) {
+	static <Item extends Primaryable> Item getPrimary(
+			final Collection<Item> itemCollection) {
 		// Primary item.
 		Item primaryItem = null;
 		// If the collection is given.
@@ -56,7 +58,8 @@ public interface Primaryable {
 	 * @param <Item>         Item type.
 	 * @param itemCollection Item collection.
 	 */
-	static <Item extends Primaryable> void autoAssignPrimary(final Collection<Item> itemCollection) {
+	static <Item extends Primaryable> void autoAssignPrimary(
+			final Collection<Item> itemCollection) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// Gets the primary item.
@@ -76,7 +79,8 @@ public interface Primaryable {
 	 * @param itemCollection Item collection.
 	 * @param primaryItem    The new primary item.
 	 */
-	static <Item extends Primaryable> void setAsPrimary(final Collection<Item> itemCollection,
+	static <Item extends Primaryable> void setAsPrimary(
+			final Collection<Item> itemCollection,
 			final Item primaryItem) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
@@ -103,20 +107,25 @@ public interface Primaryable {
 	 * Adds a new info to a list where one (and only one) record must be marked as
 	 * primary.
 	 *
-	 * @param <Item>         Item type.
-	 * @param itemCollection Item collection.
-	 * @param newItem        New item to be added to the collection.
-	 * @param overwrite      If existing item should be replaced. If not, item is
-	 *                           discarded it already present.
+	 * @param  <Item>         Item type.
+	 * @param  itemCollection Item collection.
+	 * @param  newItem        New item to be added to the collection.
+	 * @param  overwrite      If existing item should be replaced. If not, item is
+	 *                            discarded it already present.
+	 * @return                If the item has been added.
 	 */
-	static <Item extends Primaryable> void add(final Collection<Item> itemCollection, final Item newItem,
+	static <Item extends Primaryable> Boolean add(
+			final Collection<Item> itemCollection,
+			final Item newItem,
 			final Boolean overwrite) {
+		// If a item has been added.
+		Boolean added = false;
 		// If the collection is given.
 		if (itemCollection != null) {
 			// If the collection does not contain the new item.
 			if (!itemCollection.contains(newItem)) {
 				// Adds the new item to the collection.
-				itemCollection.add(newItem);
+				added = itemCollection.add(newItem);
 			}
 			// If the collection contains the new item and it should be overwrite.
 			else if (overwrite) {
@@ -135,24 +144,32 @@ public interface Primaryable {
 				Primaryable.autoAssignPrimary(itemCollection);
 			}
 		}
+		// Returns if the item has been added.
+		return added;
 	}
 
 	/**
 	 * Removes on item of the item collection, but assigning a new primary item (if
 	 * the primary is removed).
 	 *
-	 * @param <Item>         Item type.
-	 * @param itemCollection Item collection.
-	 * @param itemToRemove   Item to be removed.
+	 * @param  <Item>         Item type.
+	 * @param  itemCollection Item collection.
+	 * @param  itemToRemove   Item to be removed.
+	 * @return                If the item has been removed.
 	 */
-	static <Item extends Primaryable> void remove(final Collection<Item> itemCollection,
+	static <Item extends Primaryable> Boolean remove(
+			final Collection<Item> itemCollection,
 			final Item itemToRemove) {
+		// If a item was removed.
+		Boolean removed = false;
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// Removes the item from the collection.
-			itemCollection.remove(itemToRemove);
+			removed = itemCollection.remove(itemToRemove);
 			// Makes sure that there is a primary item in the collection.
 			Primaryable.autoAssignPrimary(itemCollection);
 		}
+		// Returns if a item has been removed.
+		return removed;
 	}
 }
