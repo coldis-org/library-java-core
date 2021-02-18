@@ -134,7 +134,7 @@ public interface Primaryable {
 				itemCollection.add(newItem);
 			}
 			// If the new item is to be primary.
-			if ((newItem != null) && newItem.getPrimary()) {
+			if ((newItem != null) && (newItem.getPrimary() != null) && newItem.getPrimary()) {
 				// Makes sure the item is set as primary.
 				Primaryable.setAsPrimary(itemCollection, newItem);
 			}
