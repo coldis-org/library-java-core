@@ -1,6 +1,7 @@
 package org.coldis.library.model;
 
 import java.util.Collection;
+import java.util.function.BiPredicate;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -75,13 +76,15 @@ public interface Primaryable {
 	/**
 	 * Sets a item as primary inside of a collection.
 	 *
-	 * @param <Item>         Item type.
-	 * @param itemCollection Item collection.
-	 * @param primaryItem    The new primary item.
+	 * @param <Item>           Item type.
+	 * @param itemCollection   Item collection.
+	 * @param primaryItem      The new primary item.
+	 * @param identityPredicate Identity function.
 	 */
 	static <Item extends Primaryable> void setAsPrimary(
 			final Collection<Item> itemCollection,
-			final Item primaryItem) {
+			final Item primaryItem,
+			final BiPredicate<Item, Item> identityPredicate) {
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// If the primary item exists in the collection.
@@ -89,7 +92,7 @@ public interface Primaryable {
 				// Sets the item as primary and other items
 				itemCollection.stream().forEach(item -> {
 					// If the item is the given one (primary).
-					if (item.equals(primaryItem)) {
+					if (identityPredicate.test(primaryItem, item)) {
 						// Sets it as primary.
 						item.setPrimary(true);
 					}
@@ -107,23 +110,25 @@ public interface Primaryable {
 	 * Adds a new info to a list where one (and only one) record must be marked as
 	 * primary.
 	 *
-	 * @param  <Item>         Item type.
-	 * @param  itemCollection Item collection.
-	 * @param  newItem        New item to be added to the collection.
-	 * @param  overwrite      If existing item should be replaced. If not, item is
-	 *                            discarded it already present.
-	 * @return                If the item has been added.
+	 * @param  <Item>           Item type.
+	 * @param  itemCollection   Item collection.
+	 * @param  newItem          New item to be added to the collection.
+	 * @param  identityPredicate Identity function.
+	 * @param  overwrite        If existing item should be replaced. If not, item is
+	 *                              discarded it already present.
+	 * @return                  If the item has been added.
 	 */
 	static <Item extends Primaryable> Boolean add(
 			final Collection<Item> itemCollection,
 			final Item newItem,
+			final BiPredicate<Item, Item> identityPredicate,
 			final Boolean overwrite) {
 		// If a item has been added.
 		Boolean added = false;
 		// If the collection is given.
 		if (itemCollection != null) {
 			// If the collection does not contain the new item.
-			if (!itemCollection.contains(newItem)) {
+			if (itemCollection.stream().noneMatch(item -> identityPredicate.test(newItem, item))) {
 				// Adds the new item to the collection.
 				added = itemCollection.add(newItem);
 			}
@@ -136,7 +141,7 @@ public interface Primaryable {
 			// If the new item is to be primary.
 			if ((newItem != null) && (newItem.getPrimary() != null) && newItem.getPrimary()) {
 				// Makes sure the item is set as primary.
-				Primaryable.setAsPrimary(itemCollection, newItem);
+				Primaryable.setAsPrimary(itemCollection, newItem, identityPredicate);
 			}
 			// If the item is not to be primary.
 			else {
@@ -172,4 +177,5 @@ public interface Primaryable {
 		// Returns if a item has been removed.
 		return removed;
 	}
+
 }
