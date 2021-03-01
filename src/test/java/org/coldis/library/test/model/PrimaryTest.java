@@ -30,7 +30,7 @@ public class PrimaryTest {
 		// Makes sure methods do not fail on a empty collection.
 		Primaryable.autoAssignPrimary(itemCollection);
 		Primaryable.add(itemCollection, null, Objects::equals, false);
-		Primaryable.remove(itemCollection, null);
+		Primaryable.remove(itemCollection, null, Objects::equals);
 		// Makes sure there is no primary item in the collection.
 		Assertions.assertNull(Primaryable.getPrimary(itemCollection));
 		// Makes sure the first test item is not primary.
@@ -59,7 +59,7 @@ public class PrimaryTest {
 		Assertions.assertTrue(itemCollection.contains(PrimaryTest.TEST_DATA[1]));
 		Assertions.assertEquals(1, itemCollection.stream().filter(Primaryable::getPrimary).count());
 		// Removes the non primary item.
-		Primaryable.remove(itemCollection, PrimaryTest.TEST_DATA[0]);
+		Primaryable.remove(itemCollection, PrimaryTest.TEST_DATA[0], Objects::equals);
 		// Makes sure remove works and left item is still primary.
 		Assertions.assertEquals(PrimaryTest.TEST_DATA[1], Primaryable.getPrimary(itemCollection));
 		Assertions.assertEquals(1, itemCollection.size());
@@ -84,7 +84,7 @@ public class PrimaryTest {
 		Assertions.assertTrue(itemCollection.contains(PrimaryTest.TEST_DATA[1]));
 		Assertions.assertEquals(1, itemCollection.stream().filter(Primaryable::getPrimary).count());
 		// Removes the primary item.
-		Primaryable.remove(itemCollection, PrimaryTest.TEST_DATA[0]);
+		Primaryable.remove(itemCollection, PrimaryTest.TEST_DATA[0], Objects::equals);
 		// Makes sure the primary object is now the last one.
 		Assertions.assertEquals(PrimaryTest.TEST_DATA[1], Primaryable.getPrimary(itemCollection));
 		Assertions.assertEquals(1, itemCollection.size());

@@ -76,9 +76,9 @@ public interface Primaryable {
 	/**
 	 * Sets a item as primary inside of a collection.
 	 *
-	 * @param <Item>           Item type.
-	 * @param itemCollection   Item collection.
-	 * @param primaryItem      The new primary item.
+	 * @param <Item>            Item type.
+	 * @param itemCollection    Item collection.
+	 * @param primaryItem       The new primary item.
 	 * @param identityPredicate Identity function.
 	 */
 	static <Item extends Primaryable> void setAsPrimary(
@@ -110,13 +110,13 @@ public interface Primaryable {
 	 * Adds a new info to a list where one (and only one) record must be marked as
 	 * primary.
 	 *
-	 * @param  <Item>           Item type.
-	 * @param  itemCollection   Item collection.
-	 * @param  newItem          New item to be added to the collection.
+	 * @param  <Item>            Item type.
+	 * @param  itemCollection    Item collection.
+	 * @param  newItem           New item to be added to the collection.
 	 * @param  identityPredicate Identity function.
-	 * @param  overwrite        If existing item should be replaced. If not, item is
-	 *                              discarded it already present.
-	 * @return                  If the item has been added.
+	 * @param  overwrite         If existing item should be replaced. If not, item
+	 *                               is discarded it already present.
+	 * @return                   If the item has been added.
 	 */
 	static <Item extends Primaryable> Boolean add(
 			final Collection<Item> itemCollection,
@@ -157,20 +157,22 @@ public interface Primaryable {
 	 * Removes on item of the item collection, but assigning a new primary item (if
 	 * the primary is removed).
 	 *
-	 * @param  <Item>         Item type.
-	 * @param  itemCollection Item collection.
-	 * @param  itemToRemove   Item to be removed.
-	 * @return                If the item has been removed.
+	 * @param  <Item>            Item type.
+	 * @param  itemCollection    Item collection.
+	 * @param  itemToRemove      Item to be removed.
+	 * @param  identityPredicate Identity predicate.
+	 * @return                   If the item has been removed.
 	 */
 	static <Item extends Primaryable> Boolean remove(
 			final Collection<Item> itemCollection,
-			final Item itemToRemove) {
+			final Item itemToRemove,
+			final BiPredicate<Item, Item> identityPredicate) {
 		// If a item was removed.
 		Boolean removed = false;
 		// If the collection is given.
 		if (!CollectionUtils.isEmpty(itemCollection)) {
 			// Removes the item from the collection.
-			removed = itemCollection.remove(itemToRemove);
+			removed = itemCollection.removeIf(item -> identityPredicate.test(item, itemToRemove));
 			// Makes sure that there is a primary item in the collection.
 			Primaryable.autoAssignPrimary(itemCollection);
 		}
