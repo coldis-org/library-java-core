@@ -1,6 +1,18 @@
 package org.coldis.library.helper;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Collectors;
+
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
+
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.coldis.library.exception.IntegrationException;
+import org.coldis.library.model.SimpleMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,6 +187,91 @@ public class ReflectionHelper {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Gets the class annotation value from an annotation (ignoring type mirror
+	 * exceptions).
+	 *
+	 * @param  <AnnotationType> Annotation type.
+	 * @param  annotation       Annotation.
+	 * @param  attribute        Attribute.
+	 * @return                  The class annotation value from an annotation
+	 *                          (ignoring type mirror exceptions).
+	 */
+	public static <AnnotationType extends Annotation> Class<?> getAnnotationClassAttribute(
+			final AnnotationType annotation,
+			final String attribute) {
+		// Class attribute.
+		Class<?> classAttributeValue = null;
+		// If the annotation is given.
+		if (annotation != null) {
+			// Tries to get the attribute value.
+			try {
+				classAttributeValue = (Class<?>) MethodUtils.invokeExactMethod(annotation, attribute);
+			}
+			// If there is an error with mirrors.
+			catch (final MirroredTypeException exception) {
+				// Tries to get the error from the name.
+				try {
+					classAttributeValue = ClassUtils
+							.getClass(((TypeElement) ((DeclaredType) exception.getTypeMirror()).asElement()).getQualifiedName().toString());
+				}
+				catch (final ClassNotFoundException e) {
+					throw new IntegrationException(new SimpleMessage("class.notfound"));
+				}
+			}
+			// For any other error.
+			catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+				throw new IntegrationException(new SimpleMessage("method.notfound"));
+			}
+		}
+		// Returns the attribute value.
+		return classAttributeValue;
+
+	}
+
+	/**
+	 * Gets the classes annotation value from an annotation (ignoring type mirror
+	 * exceptions).
+	 *
+	 * @param  <AnnotationType> Annotation type.
+	 * @param  annotation       Annotation.
+	 * @param  attribute        Attribute.
+	 * @return                  The classes annotation value from an annotation
+	 *                          (ignoring type mirror exceptions).
+	 */
+	public static <AnnotationType extends Annotation> Class<?>[] getAnnotationClassesAttribute(
+			final AnnotationType annotation,
+			final String attribute) {
+		// Classes attribute.
+		Class<?>[] classesAttributeValue = null;
+		// If the annotation is given.
+		if (annotation != null) {
+			// Tries to get the attribute value.
+			try {
+				classesAttributeValue = (Class<?>[]) MethodUtils.invokeExactMethod(annotation, attribute);
+			}
+			// If there is an error with mirrors.
+			catch (final MirroredTypesException exception) {
+				// Tries to get the error from the name.
+				classesAttributeValue = exception.getTypeMirrors().stream().map(type -> {
+					try {
+						return ClassUtils.getClass(((TypeElement) ((DeclaredType) type).asElement()).getQualifiedName().toString());
+					}
+					catch (final ClassNotFoundException exception2) {
+						throw new IntegrationException(new SimpleMessage("class.notfound"));
+					}
+				}).collect(Collectors.toList()).toArray(new Class<?>[] {});
+			}
+			// For any other error.
+			catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+				throw new IntegrationException(new SimpleMessage("method.notfound"));
+			}
+		}
+		// Returns the attribute value.
+		return classesAttributeValue;
+
 	}
 
 }
