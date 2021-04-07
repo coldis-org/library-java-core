@@ -1,8 +1,8 @@
 package org.coldis.library.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.validation.Valid;
 
@@ -30,7 +30,7 @@ public class Verification implements Typable {
 	/**
 	 * Verification items.
 	 */
-	private SortedSet<VerificationItem> items;
+	private List<VerificationItem> items;
 
 	/**
 	 * No arguments constructor.
@@ -44,7 +44,7 @@ public class Verification implements Typable {
 	 *
 	 * @param items Verification items.
 	 */
-	public Verification(final SortedSet<VerificationItem> items) {
+	public Verification(final List<VerificationItem> items) {
 		super();
 		this.items = items;
 	}
@@ -56,9 +56,9 @@ public class Verification implements Typable {
 	 */
 	@Valid
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public SortedSet<VerificationItem> getItems() {
+	public List<VerificationItem> getItems() {
 		// Makes sure the set is initialized.
-		this.items = this.items == null ? new TreeSet<>() : this.items;
+		this.items = this.items == null ? new ArrayList<>() : this.items;
 		// Returns the set.
 		return this.items;
 	}
@@ -68,7 +68,8 @@ public class Verification implements Typable {
 	 *
 	 * @param items New verification items.
 	 */
-	public void setItems(final SortedSet<VerificationItem> items) {
+	public void setItems(
+			final List<VerificationItem> items) {
 		this.items = items;
 	}
 
@@ -92,7 +93,8 @@ public class Verification implements Typable {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
