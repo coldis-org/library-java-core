@@ -15,8 +15,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  * VerificationItem information.
  */
 @JsonTypeName(value = VerificationItem.TYPE_NAME)
-public class VerificationItem extends AbstractExpirable
-implements Typable, Expirable, Comparable<VerificationItem> {
+public class VerificationItem extends AbstractExpirable implements Typable, Expirable {
 
 	/**
 	 * Generated serial.
@@ -68,8 +67,12 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	 * @param expiredAt   Object verification expiration.
 	 * @param description VerificationItem description.
 	 */
-	public VerificationItem(final VerificationStatus status, final Set<String> attributes, final String verifiedBy,
-			final LocalDateTime expiredAt, final SimpleMessage description) {
+	public VerificationItem(
+			final VerificationStatus status,
+			final Set<String> attributes,
+			final String verifiedBy,
+			final LocalDateTime expiredAt,
+			final SimpleMessage description) {
 		super();
 		this.status = status;
 		this.attributes = attributes;
@@ -93,7 +96,8 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	 *
 	 * @param status New status.
 	 */
-	public void setStatus(final VerificationStatus status) {
+	public void setStatus(
+			final VerificationStatus status) {
 		this.status = status;
 	}
 
@@ -115,7 +119,8 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	 *
 	 * @param attributes New attributes.
 	 */
-	public void setAttributes(final Set<String> attributes) {
+	public void setAttributes(
+			final Set<String> attributes) {
 		this.attributes = attributes;
 	}
 
@@ -134,7 +139,8 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	 *
 	 * @param verifiedBy New verified by.
 	 */
-	public void setVerifiedBy(final String verifiedBy) {
+	public void setVerifiedBy(
+			final String verifiedBy) {
 		this.verifiedBy = verifiedBy;
 	}
 
@@ -156,7 +162,8 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	 *
 	 * @param verificationDate New verification date.
 	 */
-	public void setVerifiedAt(final LocalDateTime verificationDate) {
+	public void setVerifiedAt(
+			final LocalDateTime verificationDate) {
 		this.verifiedAt = verificationDate;
 	}
 
@@ -178,7 +185,8 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	 *
 	 * @param description New description.
 	 */
-	public void setDescription(final SimpleMessage description) {
+	public void setDescription(
+			final SimpleMessage description) {
 		this.description = description;
 	}
 
@@ -200,38 +208,48 @@ implements Typable, Expirable, Comparable<VerificationItem> {
 	}
 
 	/**
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(final VerificationItem verificationInfo) {
-		return this.equals(verificationInfo) ? 0 : -(this.getVerifiedAt().compareTo(verificationInfo.getVerifiedAt()));
-	}
-
-	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.attributes, this.description, this.verifiedBy);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = (prime * result) + Objects.hash(this.attributes, this.description, this.status, this.verifiedAt, this.verifiedBy);
+		return result;
 	}
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (!(obj instanceof VerificationItem)) {
 			return false;
 		}
 		final VerificationItem other = (VerificationItem) obj;
-		return Objects.equals(this.attributes, other.attributes) && Objects.equals(this.description, other.description)
-				&& Objects.equals(this.verifiedBy, other.verifiedBy);
+		return Objects.equals(this.attributes, other.attributes) && Objects.equals(this.description, other.description) && (this.status == other.status)
+				&& Objects.equals(this.verifiedAt, other.verifiedAt) && Objects.equals(this.verifiedBy, other.verifiedBy);
+	}
+
+	/**
+	 * Checks if the given objects are similar.
+	 *
+	 * @param  object1 Object 1.
+	 * @param  object2 Object 2.
+	 * @return         If the given object are similar.
+	 */
+	public static Boolean isSimilar(
+			final VerificationItem object1,
+			final VerificationItem object2) {
+		return Objects.equals(object1.attributes, object2.attributes) && Objects.equals(object1.description, object2.description)
+				&& Objects.equals(object1.verifiedBy, object2.verifiedBy);
 	}
 
 }
