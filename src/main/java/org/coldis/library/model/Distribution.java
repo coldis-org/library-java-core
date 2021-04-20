@@ -36,7 +36,8 @@ public interface Distribution extends Serializable {
 	 *
 	 * @param baseSize The base (relative) size for the distribution.
 	 */
-	default void setBaseSize(final Integer baseSize) {
+	default void setBaseSize(
+			final Integer baseSize) {
 	}
 
 	/**
@@ -51,7 +52,8 @@ public interface Distribution extends Serializable {
 	 *
 	 * @param groups The groups of the distribution.
 	 */
-	void setGroups(List<DistributionGroup> groups);
+	void setGroups(
+			List<DistributionGroup> groups);
 
 	/**
 	 * Distributes a sample against groups.
@@ -60,7 +62,8 @@ public interface Distribution extends Serializable {
 	 *                                  item.
 	 * @return                      The selected group for the sample.
 	 */
-	default DistributionGroup distribute(final Long pseudoRandomSampleId) {
+	default DistributionGroup distribute(
+			final Long pseudoRandomSampleId) {
 		return Distribution.distribute(this.getGroups(), this.getBaseSize(), pseudoRandomSampleId);
 	}
 
@@ -73,7 +76,10 @@ public interface Distribution extends Serializable {
 	 *                                  item.
 	 * @return                      The selected group for the sample.
 	 */
-	static DistributionGroup distribute(final List<DistributionGroup> groups, final Integer baseSize, final Long pseudoRandomSampleId) {
+	static DistributionGroup distribute(
+			final List<DistributionGroup> groups,
+			final Integer baseSize,
+			final Long pseudoRandomSampleId) {
 		// Makes sure there is a primary group.
 		Primaryable.autoAssignPrimary(groups);
 		// Gets a list without the primary.
@@ -84,7 +90,7 @@ public interface Distribution extends Serializable {
 		DistributionGroup selectedGroup = null;
 		// Group size sum and group.
 		Integer groupSizeSum = 0;
-		final Long groupSelection = (pseudoRandomSampleId % baseSize);
+		final Long groupSelection = (Math.abs(pseudoRandomSampleId) % baseSize);
 		// For each non-primary group.
 		for (final DistributionGroup currentGroup : nonPrimaryNonExpiredGroups) {
 			// If the current group threshold is greater that the group selection.
