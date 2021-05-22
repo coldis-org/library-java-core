@@ -5,39 +5,60 @@ package org.coldis.library.model.view;
  */
 public class ModelView {
 
+	/* Technical */
+
 	/**
 	 * Persistent view.
 	 */
-	public interface Persistent {
-	}
-
-	/**
-	 * Public view.
-	 */
-	public interface Public {
-	}
-
-	/**
-	 * Lazy view.
-	 */
-	public interface Lazy {
-	}
+	public interface Persistent {}
 
 	/**
 	 * Internal view.
 	 */
-	public interface Internal {
-	}
+	public interface Internal {}
 
 	/**
-	 * Public and lazy view.
+	 * Lazy view.
 	 */
-	public interface PublicAndLazy extends Public, Lazy {
-	}
+	public interface Lazy {}
+
+	/* Content */
+
+	/**
+	 * Public view.
+	 */
+	public interface Public {}
+
+	/**
+	 * Personal view.
+	 */
+	public interface Personal {}
 
 	/**
 	 * Sensitive view.
 	 */
-	public interface Sensitive {
-	}
+	public interface Sensitive extends Personal {}
+
+	/* Combined */
+
+	/**
+	 * Public and lazy view.
+	 */
+	public interface PublicAndLazy extends Public, Lazy {}
+
+	/**
+	 * Public and lazy view.
+	 */
+	public interface PublicAndInternal extends Public, Internal {}
+
+	/**
+	 * Public and personal.
+	 */
+	public interface PublicAndPersonal extends Public, Personal {}
+
+	/**
+	 * Public and personal.
+	 */
+	public interface PublicAndSentive extends Public, Sensitive {}
+
 }
