@@ -16,7 +16,7 @@ public abstract class AbstractDistribution implements Distribution {
 	/**
 	 * Base (relative) size for the distribution. Used to split group samples.
 	 */
-	private Integer baseSize = 100;
+	private Integer baseSize;
 
 	/**
 	 * Groups.
@@ -30,6 +30,8 @@ public abstract class AbstractDistribution implements Distribution {
 	 */
 	@Override
 	public Integer getBaseSize() {
+		this.baseSize = (this.baseSize == null ? this.getGroups().stream().map(DistributionGroup::getDistributionSize).reduce(0, Integer::sum) : this.baseSize);
+		this.baseSize = (this.baseSize > 0 ? this.baseSize : 100);
 		return this.baseSize;
 	}
 
@@ -39,7 +41,8 @@ public abstract class AbstractDistribution implements Distribution {
 	 * @param baseSize New baseSize.
 	 */
 	@Override
-	public void setBaseSize(final Integer baseSize) {
+	public void setBaseSize(
+			final Integer baseSize) {
 		this.baseSize = baseSize;
 	}
 
@@ -62,7 +65,8 @@ public abstract class AbstractDistribution implements Distribution {
 	 * @param groups New groups.
 	 */
 	@Override
-	public void setGroups(final List<DistributionGroup> groups) {
+	public void setGroups(
+			final List<DistributionGroup> groups) {
 		this.groups = groups;
 	}
 
