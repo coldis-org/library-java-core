@@ -1,4 +1,4 @@
-package org.coldis.library.model;
+package org.coldis.library.model.verification;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

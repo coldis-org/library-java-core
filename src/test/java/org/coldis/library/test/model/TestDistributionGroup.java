@@ -2,8 +2,8 @@ package org.coldis.library.test.model;
 
 import java.util.Objects;
 
-import org.coldis.library.model.AbstractDistributionGroup;
 import org.coldis.library.model.Identifiable;
+import org.coldis.library.model.science.AbstractDistributionGroup;
 
 /**
  * Distribution.

@@ -3,6 +3,7 @@ package org.coldis.library.test.model;
 import java.util.List;
 
 import org.coldis.library.helper.DateTimeHelper;
+import org.coldis.library.model.science.SimpleDistribution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ public class DistributionTest {
 	@Test
 	public void testDistribution() {
 		// Creates a new distribution.
-		TestDistribution distribution = new TestDistribution();
+		SimpleDistribution distribution = new SimpleDistribution();
 		distribution.setBaseSize(100);
 		TestDistributionGroup primaryGroup = new TestDistributionGroup();
 		primaryGroup.setId(0L);

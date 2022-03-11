@@ -1,4 +1,4 @@
-package org.coldis.library.model;
+package org.coldis.library.model.science;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -59,7 +59,8 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * @param primary New primary.
 	 */
 	@Override
-	public void setPrimary(final Boolean primary) {
+	public void setPrimary(
+			final Boolean primary) {
 		this.primary = primary;
 	}
 
@@ -82,7 +83,8 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * @param distributionSize New distributionSize.
 	 */
 	@Override
-	public void setDistributionSize(final Integer distributionSize) {
+	public void setDistributionSize(
+			final Integer distributionSize) {
 		this.distributionSize = distributionSize;
 	}
 
@@ -93,9 +95,6 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public Long getAbsoluteLimit() {
-		// Make sure the object is initialized.
-		this.absoluteLimit = (absoluteLimit == null ? 0L : this.absoluteLimit);
-		// Returns the object.
 		return this.absoluteLimit;
 	}
 
@@ -105,7 +104,8 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * @param absoluteLimit New absoluteLimit.
 	 */
 	@Override
-	public void setAbsoluteLimit(final Long absoluteLimit) {
+	public void setAbsoluteLimit(
+			final Long absoluteLimit) {
 		this.absoluteLimit = absoluteLimit;
 	}
 
@@ -128,7 +128,8 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * @param currentSize New currentSize.
 	 */
 	@Override
-	public void setCurrentSize(final Long currentSize) {
+	public void setCurrentSize(
+			final Long currentSize) {
 		this.currentSize = currentSize;
 	}
 
@@ -148,7 +149,8 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * @param expiredAt New expiredAt.
 	 */
 	@Override
-	public void setExpiredAt(final LocalDateTime expiredAt) {
+	public void setExpiredAt(
+			final LocalDateTime expiredAt) {
 		this.expiredAt = expiredAt;
 	}
 
@@ -159,7 +161,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	public Boolean getExpired() {
 		return
 		// If the limit has been reached.
-		(this.getCurrentSize().compareTo(this.getAbsoluteLimit()) >= 0)
+		(this.getAbsoluteLimit() != null && this.getCurrentSize().compareTo(this.getAbsoluteLimit()) >= 0)
 				// Or if the expiration date has been reached.
 				|| ((this.getExpiredAt() != null) && this.getExpiredAt().isBefore(DateTimeHelper.getCurrentLocalDateTime()));
 	}
@@ -176,7 +178,8 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(
+			Object obj) {
 		if (this == obj) {
 			return true;
 		}

@@ -1,4 +1,6 @@
-package org.coldis.library.model;
+package org.coldis.library.model.verification;
+
+import org.coldis.library.model.Identifiable;
 
 /**
  * VerificationItem status.

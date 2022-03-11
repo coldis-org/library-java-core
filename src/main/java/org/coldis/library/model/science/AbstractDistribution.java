@@ -1,4 +1,4 @@
-package org.coldis.library.model;
+package org.coldis.library.model.science;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +30,8 @@ public abstract class AbstractDistribution implements Distribution {
 	 */
 	@Override
 	public Integer getBaseSize() {
-		this.baseSize = (this.baseSize == null ? this.getGroups().stream().map(DistributionGroup::getDistributionSize).reduce(0, Integer::sum) : this.baseSize);
-		this.baseSize = (this.baseSize > 0 ? this.baseSize : 100);
+		this.baseSize = (this.baseSize == null ? Distribution.getBaseSize(this.getGroups()) : this.baseSize);
+		this.baseSize = (this.baseSize != null && this.baseSize > 0 ? this.baseSize : 100);
 		return this.baseSize;
 	}
 

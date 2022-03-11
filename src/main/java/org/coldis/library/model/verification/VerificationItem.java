@@ -1,11 +1,16 @@
-package org.coldis.library.model;
+package org.coldis.library.model.verification;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import org.coldis.library.helper.DateTimeHelper;
+import org.coldis.library.model.AbstractExpirable;
+import org.coldis.library.model.Expirable;
+import org.coldis.library.model.SimpleMessage;
+import org.coldis.library.model.Typable;
 import org.coldis.library.model.view.ModelView;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -51,6 +56,11 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	 * VerificationItem description.
 	 */
 	private SimpleMessage description;
+
+	/**
+	 * Details.
+	 */
+	private Map<String, String> details;
 
 	/**
 	 * No arguments constructor.
@@ -191,6 +201,26 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	}
 
 	/**
+	 * Gets the details.
+	 * 
+	 * @return The details.
+	 */
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	public Map<String, String> getDetails() {
+		return details;
+	}
+
+	/**
+	 * Sets the details.
+	 * 
+	 * @param details New details.
+	 */
+	public void setDetails(
+			Map<String, String> details) {
+		this.details = details;
+	}
+
+	/**
 	 * @see org.coldis.library.model.AbstractExpirable#getExpiredByDefault()
 	 */
 	@Override
@@ -214,7 +244,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = (prime * result) + Objects.hash(this.attributes, this.description, this.status, this.verifiedAt, this.verifiedBy);
+		result = prime * result + Objects.hash(attributes, description, details, status, verifiedAt, verifiedBy);
 		return result;
 	}
 
@@ -223,7 +253,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	 */
 	@Override
 	public boolean equals(
-			final Object obj) {
+			Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -233,9 +263,9 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 		if (!(obj instanceof VerificationItem)) {
 			return false;
 		}
-		final VerificationItem other = (VerificationItem) obj;
-		return Objects.equals(this.attributes, other.attributes) && Objects.equals(this.description, other.description) && (this.status == other.status)
-				&& Objects.equals(this.verifiedAt, other.verifiedAt) && Objects.equals(this.verifiedBy, other.verifiedBy);
+		VerificationItem other = (VerificationItem) obj;
+		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description) && Objects.equals(details, other.details)
+				&& status == other.status && Objects.equals(verifiedAt, other.verifiedAt) && Objects.equals(verifiedBy, other.verifiedBy);
 	}
 
 	/**

@@ -1,9 +1,11 @@
-package org.coldis.library.model;
+package org.coldis.library.model.science;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+
+import org.coldis.library.model.Primaryable;
 
 /**
  * Distribution.
@@ -16,9 +18,16 @@ public interface Distribution extends Serializable {
 	Random RANDOM = new Random();
 
 	/**
-	 * Default base size for the group.
+	 * Gets the base (relative) size for the distribution. Used to split group
+	 * samples.
+	 *
+	 * @param  groups Groups.
+	 * @return        The base (relative) size for the distribution.
 	 */
-	Integer DEFAULT_BASE_SIZE = 100;
+	static Integer getBaseSize(
+			final List<DistributionGroup> groups) {
+		return groups == null ? 100 : groups.stream().map(DistributionGroup::getDistributionSize).reduce(0, Integer::sum);
+	}
 
 	/**
 	 * Gets the base (relative) size for the distribution. Used to split group
@@ -27,7 +36,7 @@ public interface Distribution extends Serializable {
 	 * @return The base (relative) size for the distribution.
 	 */
 	default Integer getBaseSize() {
-		return Distribution.DEFAULT_BASE_SIZE;
+		return Distribution.getBaseSize(this.getGroups());
 	}
 
 	/**
@@ -89,8 +98,8 @@ public interface Distribution extends Serializable {
 		// Group for the sample to be distributed.
 		DistributionGroup selectedGroup = null;
 		// Group size sum and group.
-		Integer groupSizeSum = 0;
-		final Long groupSelection = (Math.abs(pseudoRandomSampleId) % baseSize);
+		int groupSizeSum = 0;
+		final long groupSelection = (Math.abs(pseudoRandomSampleId) % baseSize);
 		// For each non-primary group.
 		for (final DistributionGroup currentGroup : nonPrimaryNonExpiredGroups) {
 			// If the current group threshold is greater that the group selection.

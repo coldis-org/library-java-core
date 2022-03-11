@@ -5,10 +5,10 @@ import java.util.Set;
 
 import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.SimpleMessage;
-import org.coldis.library.model.Verifiable;
-import org.coldis.library.model.Verification;
-import org.coldis.library.model.VerificationItem;
-import org.coldis.library.model.VerificationStatus;
+import org.coldis.library.model.verification.Verifiable;
+import org.coldis.library.model.verification.Verification;
+import org.coldis.library.model.verification.VerificationItem;
+import org.coldis.library.model.verification.VerificationStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

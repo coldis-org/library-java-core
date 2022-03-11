@@ -1,9 +1,9 @@
 package org.coldis.library.test.model;
 
-import org.coldis.library.model.Verifiable;
-import org.coldis.library.model.VerifiableAttribute;
-import org.coldis.library.model.Verification;
-import org.coldis.library.model.VerificationStatus;
+import org.coldis.library.model.verification.Verifiable;
+import org.coldis.library.model.verification.VerifiableAttribute;
+import org.coldis.library.model.verification.Verification;
+import org.coldis.library.model.verification.VerificationStatus;
 
 /**
  * Test object.
@@ -146,7 +146,7 @@ public class TestVerifiableObject implements Verifiable {
 	}
 
 	/**
-	 * @see org.coldis.library.model.Verifiable#getVerificationStatus()
+	 * @see org.coldis.library.model.verification.Verifiable#getVerificationStatus()
 	 */
 	@Override
 	public VerificationStatus getVerificationStatus() {

@@ -1,4 +1,4 @@
-package org.coldis.library.model;
+package org.coldis.library.model.verification;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;

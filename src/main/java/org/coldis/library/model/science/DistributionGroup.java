@@ -1,4 +1,7 @@
-package org.coldis.library.model;
+package org.coldis.library.model.science;
+
+import org.coldis.library.model.Expirable;
+import org.coldis.library.model.Primaryable;
 
 /**
  * Distribution group.
