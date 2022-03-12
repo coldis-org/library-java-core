@@ -48,7 +48,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	@Override
 	public Boolean getPrimary() {
 		// Make sure the object is initialized.
-		this.primary = (primary == null ? false : this.primary);
+		this.primary = (this.primary == null ? false : this.primary);
 		// Returns the object.
 		return this.primary;
 	}
@@ -72,7 +72,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	@Override
 	public Integer getDistributionSize() {
 		// Make sure the object is initialized.
-		this.distributionSize = (distributionSize == null ? 0 : this.distributionSize);
+		this.distributionSize = (this.distributionSize == null ? 0 : this.distributionSize);
 		// Returns the object.
 		return this.distributionSize;
 	}
@@ -117,7 +117,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	@Override
 	public Long getCurrentSize() {
 		// Make sure the object is initialized.
-		this.currentSize = (currentSize == null ? 0L : this.currentSize);
+		this.currentSize = (this.currentSize == null ? 0L : this.currentSize);
 		// Returns the object.
 		return this.currentSize;
 	}
@@ -155,15 +155,30 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	}
 
 	/**
+	 * Returns if the group is expired.
+	 *
+	 * @param  expiredAt     Expired at.
+	 * @param  absoluteLimit Absolute limit.
+	 * @param  currentSize   Current group size.
+	 * @return               If the group is expired.
+	 */
+	public static Boolean getExpired(
+			final LocalDateTime expiredAt,
+			final Long absoluteLimit,
+			final Long currentSize) {
+		return
+		// If the limit has been reached.
+		((absoluteLimit != null) && (currentSize != null) && (currentSize.compareTo(absoluteLimit) >= 0))
+				// Or if the expiration date has been reached.
+				|| ((expiredAt != null) && expiredAt.isBefore(DateTimeHelper.getCurrentLocalDateTime()));
+	}
+
+	/**
 	 * @see org.coldis.library.model.Expirable#getExpired()
 	 */
 	@Override
 	public Boolean getExpired() {
-		return
-		// If the limit has been reached.
-		(this.getAbsoluteLimit() != null && this.getCurrentSize().compareTo(this.getAbsoluteLimit()) >= 0)
-				// Or if the expiration date has been reached.
-				|| ((this.getExpiredAt() != null) && this.getExpiredAt().isBefore(DateTimeHelper.getCurrentLocalDateTime()));
+		return AbstractDistributionGroup.getExpired(this.getExpiredAt(), this.getAbsoluteLimit(), this.getCurrentSize());
 	}
 
 	/**
@@ -171,7 +186,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(absoluteLimit, currentSize, distributionSize, expiredAt, primary);
+		return Objects.hash(this.absoluteLimit, this.currentSize, this.distributionSize, this.expiredAt, this.primary);
 	}
 
 	/**
@@ -179,17 +194,17 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public boolean equals(
-			Object obj) {
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (!(obj instanceof AbstractDistributionGroup)) {
 			return false;
 		}
-		AbstractDistributionGroup other = (AbstractDistributionGroup) obj;
-		return Objects.equals(absoluteLimit, other.absoluteLimit) && Objects.equals(currentSize, other.currentSize)
-				&& Objects.equals(distributionSize, other.distributionSize) && Objects.equals(expiredAt, other.expiredAt)
-				&& Objects.equals(primary, other.primary);
+		final AbstractDistributionGroup other = (AbstractDistributionGroup) obj;
+		return Objects.equals(this.absoluteLimit, other.absoluteLimit) && Objects.equals(this.currentSize, other.currentSize)
+				&& Objects.equals(this.distributionSize, other.distributionSize) && Objects.equals(this.expiredAt, other.expiredAt)
+				&& Objects.equals(this.primary, other.primary);
 	}
 
 }
