@@ -103,13 +103,14 @@ public interface Distribution extends Serializable {
 		// For each non-primary group.
 		for (final DistributionGroup currentGroup : nonPrimaryNonExpiredGroups) {
 			// If the current group threshold is greater that the group selection.
-			if ((groupSizeSum + currentGroup.getDistributionSize()) > groupSelection) {
+			Integer distributionSize = (currentGroup.getDistributionSize() == null ? 0 : currentGroup.getDistributionSize());
+			if ((groupSizeSum + distributionSize) > groupSelection) {
 				// The current group is selected.
 				selectedGroup = currentGroup;
 				break;
 			}
 			// Increments the group size sum.
-			groupSizeSum = groupSizeSum + currentGroup.getDistributionSize();
+			groupSizeSum = (groupSizeSum + distributionSize);
 		}
 		// If none of the non-primary groups was selected.
 		if (selectedGroup == null) {
@@ -117,7 +118,8 @@ public interface Distribution extends Serializable {
 			selectedGroup = primaryGroup;
 		}
 		// Increments the selected group size.
-		selectedGroup.setCurrentSize(selectedGroup.getCurrentSize() + 1);
+		Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
+		selectedGroup.setCurrentSize(currentSize + 1);
 		// Returns the selected group.
 		return selectedGroup;
 	}
