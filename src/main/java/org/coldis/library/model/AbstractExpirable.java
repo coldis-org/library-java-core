@@ -31,7 +31,10 @@ public abstract class AbstractExpirable implements Expirable {
 	 * @return                    The new expiration value using a base date and a
 	 *                            time value.
 	 */
-	public static LocalDateTime getExpirationDate(final LocalDateTime expirationBaseDate, final ChronoUnit plusUnit, final Long plusValue) {
+	public static LocalDateTime getExpirationDate(
+			final LocalDateTime expirationBaseDate,
+			final ChronoUnit plusUnit,
+			final Long plusValue) {
 		return expirationBaseDate == null ? null : expirationBaseDate.plus(plusValue, plusUnit);
 	}
 
@@ -59,7 +62,8 @@ public abstract class AbstractExpirable implements Expirable {
 	 * @see org.coldis.library.model.Expirable#setExpiredAt(java.time.LocalDateTime)
 	 */
 	@Override
-	public void setExpiredAt(final LocalDateTime expiredAt) {
+	public void setExpiredAt(
+			final LocalDateTime expiredAt) {
 		this.expiredAt = expiredAt;
 	}
 
@@ -71,7 +75,7 @@ public abstract class AbstractExpirable implements Expirable {
 	 *         assigned.
 	 */
 	protected Boolean getExpiredByDefault() {
-		return true;
+		return false;
 	}
 
 	/**
@@ -94,7 +98,8 @@ public abstract class AbstractExpirable implements Expirable {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
