@@ -15,14 +15,16 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 @JsonTypeName(value = VerificationQuestion.TYPE_NAME)
 public class VerificationQuestion extends VerificationItem implements Typable {
-	/**
-	 * Type name.
-	 */
-	protected static final String TYPE_NAME = "br.com.supersim.service.party.model.verification.VerificationQuestion";
+
 	/**
 	 * Serial.
 	 */
 	private static final long serialVersionUID = 7777545529572957437L;
+
+	/**
+	 * Type name.
+	 */
+	protected static final String TYPE_NAME = "br.com.supersim.service.party.model.verification.VerificationQuestion";
 
 	/**
 	 * Kind.

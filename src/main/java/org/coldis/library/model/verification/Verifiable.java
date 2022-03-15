@@ -29,10 +29,11 @@ public interface Verifiable {
 	 * Gets the attributes that should be verified for the object to be verified.
 	 *
 	 * @param  verifiable The verifiable object.
-	 * @return                  The attributes that should be verified for the
-	 *                          object to be verified.
+	 * @return            The attributes that should be verified for the object to
+	 *                    be verified.
 	 */
-	static Set<String> getVerifiableAttributes(final Verifiable verifiable) {
+	static Set<String> getVerifiableAttributes(
+			final Verifiable verifiable) {
 		// Set of verifiable attributes.
 		final Set<String> verifiableAttributes = new HashSet<>();
 		// If the verifiable object is given.
@@ -44,8 +45,7 @@ public interface Verifiable {
 					// Gets the attribute name.
 					final String attributeName = ReflectionHelper.getAttributeName(currentMethod.getName());
 					// Gets the verifiable attribute annotation.
-					final VerifiableAttribute veriableAttributeMetadata = currentMethod
-							.getAnnotation(VerifiableAttribute.class);
+					final VerifiableAttribute veriableAttributeMetadata = currentMethod.getAnnotation(VerifiableAttribute.class);
 					// If the attribute should be verified.
 					if (veriableAttributeMetadata != null) {
 						// Adds the attribute to the verifiable set.
@@ -61,17 +61,17 @@ public interface Verifiable {
 	/**
 	 * Returns the verification status for an attribute.
 	 *
-	 * @param  verifiable The verifiable object.
-	 * @param  attributeName    Attribute name.
-	 * @return                  The verification status for an attribute.
+	 * @param  verifiable    The verifiable object.
+	 * @param  attributeName Attribute name.
+	 * @return               The verification status for an attribute.
 	 */
-	static VerificationStatus getVerificationStatus(final Verifiable verifiable,
+	static VerificationStatus getVerificationStatus(
+			final Verifiable verifiable,
 			final String attributeName) {
 		// Attribute status is not verified by default.
 		VerificationStatus status = VerificationStatus.NOT_VERIFIED;
 		// If the object and attribute are given.
-		if ((verifiable != null) && (verifiable.getVerification().getItems() != null)
-				&& (attributeName != null)) {
+		if ((verifiable != null) && (verifiable.getVerification().getItems() != null) && (attributeName != null)) {
 			// For each verification on the object.
 			for (final VerificationItem verificationItem : verifiable.getVerification().getItems()) {
 				// If the verification is for the attribute.
@@ -89,11 +89,10 @@ public interface Verifiable {
 									status = verificationItem.getStatus();
 								}
 								break;
-								// If the current attribute status is valid.
+							// If the current attribute status is valid.
 							case VALID:
 								// If the current verification status is not verified or override.
-								if (!Set.of(VerificationStatus.NOT_VERIFIED, VerificationStatus.OVERRIDE)
-										.contains(verificationItem.getStatus())) {
+								if (!Set.of(VerificationStatus.NOT_VERIFIED, VerificationStatus.OVERRIDE).contains(verificationItem.getStatus())) {
 									// If the current verification status is invalid.
 									if (VerificationStatus.INVALID.equals(verificationItem.getStatus())) {
 										// The status is set to dubious.
@@ -106,7 +105,7 @@ public interface Verifiable {
 									}
 								}
 								break;
-								// If the current attribute status is dubious.
+							// If the current attribute status is dubious.
 							case DUBIOUS:
 								// If the current verification status is invalid.
 								if (VerificationStatus.INVALID.equals(verificationItem.getStatus())) {
@@ -114,7 +113,7 @@ public interface Verifiable {
 									status = verificationItem.getStatus();
 								}
 								break;
-								// If the current attribute status is invalid.
+							// If the current attribute status is invalid.
 							case INVALID:
 								// If the current verification status is valid.
 								if (VerificationStatus.VALID.equals(verificationItem.getStatus())) {
@@ -135,9 +134,10 @@ public interface Verifiable {
 	 * Returns the verification status for an object.
 	 *
 	 * @param  verifiable The verifiable object.
-	 * @return                  The verification status for an object.
+	 * @return            The verification status for an object.
 	 */
-	static VerificationStatus getVerificationStatus(final Verifiable verifiable) {
+	static VerificationStatus getVerificationStatus(
+			final Verifiable verifiable) {
 		// Object status is valid by default.
 		VerificationStatus status = VerificationStatus.VALID;
 		// If there are verifiable attributes.
@@ -153,7 +153,7 @@ public interface Verifiable {
 						// Replaces the current object status.
 						status = attributeStatus;
 						break;
-						// If the current object status is dubious.
+					// If the current object status is dubious.
 					case DUBIOUS:
 						// If the current attribute status is not valid.
 						if (!VerificationStatus.VALID.equals(attributeStatus)) {
@@ -161,7 +161,7 @@ public interface Verifiable {
 							status = attributeStatus;
 						}
 						break;
-						// If the current object status is not verified or override.
+					// If the current object status is not verified or override.
 					case NOT_VERIFIED:
 					case OVERRIDE:
 						// If the current attribute status is invalid.
@@ -170,7 +170,7 @@ public interface Verifiable {
 							status = attributeStatus;
 						}
 						break;
-						// If the current object status is invalid.
+					// If the current object status is invalid.
 					case INVALID:
 						// Nothing to do.
 						break;
