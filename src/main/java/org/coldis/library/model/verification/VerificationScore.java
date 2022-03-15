@@ -1,8 +1,11 @@
 package org.coldis.library.model.verification;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Set;
 
+import org.coldis.library.model.SimpleMessage;
 import org.coldis.library.model.Typable;
 import org.coldis.library.model.view.ModelView;
 
@@ -26,9 +29,65 @@ public class VerificationScore extends VerificationItem implements Typable {
 	protected static final String TYPE_NAME = "br.com.supersim.service.party.model.verification.VerificationScore";
 
 	/**
+	 * Used algorithm.
+	 */
+	private String algorithm;
+
+	/**
 	 * Score.
 	 */
 	private BigDecimal score;
+
+	/**
+	 * No arguments constructor.
+	 */
+	public VerificationScore() {
+		super();
+	}
+
+	/**
+	 * Default constructor.
+	 *
+	 * @param status      Status.
+	 * @param attributes  Attributes.
+	 * @param verifiedBy  VerifiedBy.
+	 * @param expiredAt   Expiration.
+	 * @param description Description.
+	 * @param algorithm   Algorithm.
+	 * @param score       Score.
+	 */
+	public VerificationScore(
+			final VerificationStatus status,
+			final Set<String> attributes,
+			final String verifiedBy,
+			final LocalDateTime expiredAt,
+			final SimpleMessage description,
+			final String algorithm,
+			final BigDecimal score) {
+		super(status, attributes, verifiedBy, expiredAt, description);
+		this.algorithm = algorithm;
+		this.score = score;
+	}
+
+	/**
+	 * Gets the algorithm.
+	 *
+	 * @return The algorithm.
+	 */
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	public String getAlgorithm() {
+		return this.algorithm;
+	}
+
+	/**
+	 * Sets the algorithm.
+	 *
+	 * @param algorithm New algorithm.
+	 */
+	public void setAlgorithm(
+			final String algorithm) {
+		this.algorithm = algorithm;
+	}
 
 	/**
 	 * Gets the score.
@@ -72,7 +131,7 @@ public class VerificationScore extends VerificationItem implements Typable {
 			return false;
 		}
 		final VerificationScore other = (VerificationScore) obj;
-		return Objects.equals(this.score, other.score);
+		return Objects.equals(this.algorithm, other.algorithm) && Objects.equals(this.score, other.score);
 	}
 
 	/**
@@ -82,7 +141,7 @@ public class VerificationScore extends VerificationItem implements Typable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = (prime * result) + Objects.hash(this.score);
+		result = (prime * result) + Objects.hash(this.algorithm, this.score);
 		return result;
 	}
 }
