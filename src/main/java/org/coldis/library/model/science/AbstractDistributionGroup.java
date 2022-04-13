@@ -3,6 +3,7 @@ package org.coldis.library.model.science;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.coldis.library.helper.DateTimeHelper;
 
 /**
@@ -179,6 +180,15 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	@Override
 	public Boolean getExpired() {
 		return AbstractDistributionGroup.getExpired(this.getExpiredAt(), this.getAbsoluteLimit(), this.getCurrentSize());
+	}
+
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(
+			final DistributionGroup group) {
+		return NumberUtils.compare(this.hashCode(), group.hashCode());
 	}
 
 	/**

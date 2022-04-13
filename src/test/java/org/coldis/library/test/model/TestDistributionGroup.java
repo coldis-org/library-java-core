@@ -22,7 +22,7 @@ public class TestDistributionGroup extends AbstractDistributionGroup implements 
 
 	/**
 	 * Gets the id.
-	 * 
+	 *
 	 * @return The id.
 	 */
 	@Override
@@ -32,10 +32,11 @@ public class TestDistributionGroup extends AbstractDistributionGroup implements 
 
 	/**
 	 * Sets the id.
-	 * 
+	 *
 	 * @param id New id.
 	 */
-	public void setId(final Long id) {
+	public void setId(
+			final Long id) {
 		this.id = id;
 	}
 
@@ -46,7 +47,7 @@ public class TestDistributionGroup extends AbstractDistributionGroup implements 
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(id);
+		result = (prime * result) + Objects.hash(this.id);
 		return result;
 	}
 
@@ -54,18 +55,16 @@ public class TestDistributionGroup extends AbstractDistributionGroup implements 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (!super.equals(obj)) {
+		if (!super.equals(obj) || !(obj instanceof TestDistributionGroup)) {
 			return false;
 		}
-		if (!(obj instanceof TestDistributionGroup)) {
-			return false;
-		}
-		TestDistributionGroup other = (TestDistributionGroup) obj;
-		return Objects.equals(id, other.id);
+		final TestDistributionGroup other = (TestDistributionGroup) obj;
+		return Objects.equals(this.id, other.id);
 	}
 
 }

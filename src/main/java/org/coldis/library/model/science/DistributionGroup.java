@@ -6,7 +6,7 @@ import org.coldis.library.model.Primaryable;
 /**
  * Distribution group.
  */
-public interface DistributionGroup extends Primaryable, Expirable {
+public interface DistributionGroup extends Primaryable, Expirable, Comparable<DistributionGroup> {
 
 	/**
 	 * Gets the distribution size.
@@ -20,34 +20,37 @@ public interface DistributionGroup extends Primaryable, Expirable {
 	 *
 	 * @param size The distribution size.
 	 */
-	void setDistributionSize(Integer size);
+	void setDistributionSize(
+			Integer size);
 
 	/**
 	 * Gets the current size.
-	 * 
+	 *
 	 * @return The current size.
 	 */
 	Long getCurrentSize();
 
 	/**
 	 * Sets the current size.
-	 * 
+	 *
 	 * @param currentSize The current size.
 	 */
-	void setCurrentSize(Long currentSize);
+	void setCurrentSize(
+			Long currentSize);
 
 	/**
 	 * Gets the (absolute) limit.
-	 * 
+	 *
 	 * @return The (absolute) limit.
 	 */
 	Long getAbsoluteLimit();
 
 	/**
 	 * Sets the (absolute) limit.
-	 * 
+	 *
 	 * @param absoluteLimit The (absolute) limit.
 	 */
-	void setAbsoluteLimit(Long absoluteLimit);
+	void setAbsoluteLimit(
+			Long absoluteLimit);
 
 }

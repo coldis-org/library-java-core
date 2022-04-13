@@ -2,6 +2,7 @@ package org.coldis.library.model.science;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Distribution group.
@@ -31,7 +32,7 @@ public abstract class AbstractDistribution implements Distribution {
 	@Override
 	public Integer getBaseSize() {
 		this.baseSize = (this.baseSize == null ? Distribution.getBaseSize(this.getGroups()) : this.baseSize);
-		this.baseSize = (this.baseSize != null && this.baseSize > 0 ? this.baseSize : 100);
+		this.baseSize = ((this.baseSize != null) && (this.baseSize > 0) ? this.baseSize : 100);
 		return this.baseSize;
 	}
 
@@ -67,7 +68,31 @@ public abstract class AbstractDistribution implements Distribution {
 	@Override
 	public void setGroups(
 			final List<DistributionGroup> groups) {
-		this.groups = groups;
+		this.groups = new ArrayList<>(groups);
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.baseSize, this.groups);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(
+			final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof AbstractDistribution)) {
+			return false;
+		}
+		final AbstractDistribution other = (AbstractDistribution) obj;
+		return Objects.equals(this.baseSize, other.baseSize) && Objects.equals(this.groups, other.groups);
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.coldis.library.model.science;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -89,6 +90,8 @@ public interface Distribution extends Serializable {
 			final List<DistributionGroup> groups,
 			final Integer baseSize,
 			final Long pseudoRandomSampleId) {
+		// Sorts the list.
+		Collections.sort(groups);
 		// Makes sure there is a primary group.
 		Primaryable.autoAssignPrimary(groups);
 		// Gets a list without the primary.
@@ -103,7 +106,7 @@ public interface Distribution extends Serializable {
 		// For each non-primary group.
 		for (final DistributionGroup currentGroup : nonPrimaryNonExpiredGroups) {
 			// If the current group threshold is greater that the group selection.
-			Integer distributionSize = (currentGroup.getDistributionSize() == null ? 0 : currentGroup.getDistributionSize());
+			final Integer distributionSize = (currentGroup.getDistributionSize() == null ? 0 : currentGroup.getDistributionSize());
 			if ((groupSizeSum + distributionSize) > groupSelection) {
 				// The current group is selected.
 				selectedGroup = currentGroup;
@@ -118,7 +121,7 @@ public interface Distribution extends Serializable {
 			selectedGroup = primaryGroup;
 		}
 		// Increments the selected group size.
-		Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
+		final Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
 		selectedGroup.setCurrentSize(currentSize + 1);
 		// Returns the selected group.
 		return selectedGroup;
