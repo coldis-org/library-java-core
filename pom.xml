@@ -10,7 +10,7 @@
 
 	<groupId>org.coldis.library</groupId>
 	<artifactId>core</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<version>1.0.7</version>
 	<packaging>jar</packaging>
 
 	<name>Core utilities</name>
@@ -36,7 +36,7 @@
 		<url>https://github.com/coldis-org/library-java-core</url>
 		<connection>scm:git:ssh://github.com/coldis-org/library-java-core.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/coldis-org/library-java-core.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>core-1.0.7</tag>
 	</scm>
 
 	<dependencies>
