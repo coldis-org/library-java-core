@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
-import org.coldis.library.model.SimpleMessage;
 import org.coldis.library.model.Typable;
 import org.coldis.library.model.view.ModelView;
 
@@ -61,7 +60,7 @@ public class VerificationScore extends VerificationItem implements Typable {
 			final Set<String> attributes,
 			final String verifiedBy,
 			final LocalDateTime expiredAt,
-			final SimpleMessage description,
+			final String description,
 			final String algorithm,
 			final BigDecimal score) {
 		super(status, attributes, verifiedBy, expiredAt, description);
