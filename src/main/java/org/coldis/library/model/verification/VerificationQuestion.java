@@ -27,11 +27,6 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	protected static final String TYPE_NAME = "br.com.supersim.service.party.model.verification.VerificationQuestion";
 
 	/**
-	 * Kind.
-	 */
-	private String kind;
-
-	/**
 	 * Question.
 	 */
 	private String question;
@@ -55,26 +50,6 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	 * Data sources.
 	 */
 	private String dataSource;
-
-	/**
-	 * Gets the kind.
-	 *
-	 * @return The kind.
-	 */
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public String getKind() {
-		return this.kind;
-	}
-
-	/**
-	 * Sets the kind.
-	 *
-	 * @param kind New kind.
-	 */
-	public void setKind(
-			final String kind) {
-		this.kind = kind;
-	}
 
 	/**
 	 * Gets the question.
@@ -106,13 +81,13 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	}
 
 	/**
-	 * @see org.coldis.library.model.verification.VerificationItem#setDescription(org.coldis.library.model.SimpleMessage)
+	 * @see org.coldis.library.model.verification.VerificationItem#setDescription(java.lang.Object)
 	 */
 	@Override
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public void setDescription(
 			final Object description) {
-		this.setQuestion(getDescriptionFromSimpleMessage(description));
+		this.setQuestion(this.getDescriptionFromSimpleMessage(description));
 	}
 
 	/**
@@ -218,7 +193,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 		}
 		final VerificationQuestion other = (VerificationQuestion) obj;
 		return Objects.equals(this.answer, other.answer) && Objects.equals(this.correctAnswer, other.correctAnswer)
-				&& Objects.equals(this.dataSource, other.dataSource) && Objects.equals(this.kind, other.kind) && Objects.equals(this.options, other.options)
+				&& Objects.equals(this.dataSource, other.dataSource) && Objects.equals(this.options, other.options)
 				&& Objects.equals(this.question, other.question);
 	}
 
@@ -229,7 +204,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = (prime * result) + Objects.hash(this.answer, this.correctAnswer, this.dataSource, this.kind, this.options, this.question);
+		result = (prime * result) + Objects.hash(this.answer, this.correctAnswer, this.dataSource, this.options, this.question);
 		return result;
 	}
 }
