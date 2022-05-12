@@ -97,6 +97,25 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	}
 
 	/**
+	 * @see org.coldis.library.model.verification.VerificationItem#getDescription()
+	 */
+	@Override
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	public String getDescription() {
+		return this.getQuestion();
+	}
+
+	/**
+	 * @see org.coldis.library.model.verification.VerificationItem#setDescription(org.coldis.library.model.SimpleMessage)
+	 */
+	@Override
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	public void setDescription(
+			final Object description) {
+		this.setQuestion(getDescriptionFromSimpleMessage(description));
+	}
+
+	/**
 	 * Gets the options.
 	 *
 	 * @return The options.

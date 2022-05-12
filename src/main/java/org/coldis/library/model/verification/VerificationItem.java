@@ -55,7 +55,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	/**
 	 * VerificationItem description.
 	 */
-	private SimpleMessage description;
+	private String description;
 
 	/**
 	 * Details.
@@ -82,7 +82,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 			final Set<String> attributes,
 			final String verifiedBy,
 			final LocalDateTime expiredAt,
-			final SimpleMessage description) {
+			final String description) {
 		super();
 		this.status = status;
 		this.attributes = attributes;
@@ -183,11 +183,20 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	 * @return The description.
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public SimpleMessage getDescription() {
-		// Makes sure the object is initialized.
-		this.description = this.description == null ? new SimpleMessage() : this.description;
-		// Returns the object.
+	public String getDescription() {
 		return this.description;
+	}
+
+	/**
+	 * Gets the description from a simple message (former type).
+	 * 
+	 * @param  description Description.
+	 * @return             The description from a simple message (former type).
+	 */
+	@Deprecated
+	protected String getDescriptionFromSimpleMessage(
+			final Object description) {
+		return (description instanceof SimpleMessage ? ((SimpleMessage) description).getContent() : this.description);
 	}
 
 	/**
@@ -196,27 +205,27 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	 * @param description New description.
 	 */
 	public void setDescription(
-			final SimpleMessage description) {
-		this.description = description;
+			final Object description) {
+		this.description = this.getDescriptionFromSimpleMessage(description);
 	}
 
 	/**
 	 * Gets the details.
-	 * 
+	 *
 	 * @return The details.
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public Map<String, String> getDetails() {
-		return details;
+		return this.details;
 	}
 
 	/**
 	 * Sets the details.
-	 * 
+	 *
 	 * @param details New details.
 	 */
 	public void setDetails(
-			Map<String, String> details) {
+			final Map<String, String> details) {
 		this.details = details;
 	}
 
@@ -244,7 +253,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(attributes, description, details, status, verifiedAt, verifiedBy);
+		result = (prime * result) + Objects.hash(this.attributes, this.description, this.details, this.status, this.verifiedAt, this.verifiedBy);
 		return result;
 	}
 
@@ -253,19 +262,17 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	 */
 	@Override
 	public boolean equals(
-			Object obj) {
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (!super.equals(obj)) {
+		if (!super.equals(obj) || !(obj instanceof VerificationItem)) {
 			return false;
 		}
-		if (!(obj instanceof VerificationItem)) {
-			return false;
-		}
-		VerificationItem other = (VerificationItem) obj;
-		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description) && Objects.equals(details, other.details)
-				&& status == other.status && Objects.equals(verifiedAt, other.verifiedAt) && Objects.equals(verifiedBy, other.verifiedBy);
+		final VerificationItem other = (VerificationItem) obj;
+		return Objects.equals(this.attributes, other.attributes) && Objects.equals(this.description, other.description)
+				&& Objects.equals(this.details, other.details) && (this.status == other.status) && Objects.equals(this.verifiedAt, other.verifiedAt)
+				&& Objects.equals(this.verifiedBy, other.verifiedBy);
 	}
 
 	/**
