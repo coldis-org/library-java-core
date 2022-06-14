@@ -121,8 +121,10 @@ public interface Distribution extends Serializable {
 			selectedGroup = primaryGroup;
 		}
 		// Increments the selected group size.
-		final Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
-		selectedGroup.setCurrentSize(currentSize + 1);
+		if (selectedGroup != null) {
+			final Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
+			selectedGroup.setCurrentSize(currentSize + 1);
+		}
 		// Returns the selected group.
 		return selectedGroup;
 	}
