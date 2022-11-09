@@ -5,11 +5,7 @@
 	<parent>
 		<groupId>org.coldis</groupId>
 		<artifactId>configuration</artifactId>
-<<<<<<< HEAD
 		<version>1.0.12</version>
-=======
-		<version>1.0.3</version>
->>>>>>> branch 'master' of git@github.com:coldis-org/library-java-core.git
 	</parent>
 
 	<groupId>org.coldis.library</groupId>
