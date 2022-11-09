@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.coldis.library.helper.DateTimeHelper;
-import org.coldis.library.model.SimpleMessage;
 import org.coldis.library.model.verification.Verifiable;
 import org.coldis.library.model.verification.Verification;
 import org.coldis.library.model.verification.VerificationItem;
@@ -22,92 +21,74 @@ public class VerificationTest {
 	 */
 	private static final TestVerifiableObject[] VALID_DATA = {
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute3"), "me", null, new SimpleMessage("desc")),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute3"), "me", null, "desc"),
 					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute1", "attribute2", "attribute3"), "me",
-							DateTimeHelper.getCurrentLocalDateTime().minusWeeks(1), new SimpleMessage("desc"))))),
+							DateTimeHelper.getCurrentLocalDateTime().minusWeeks(1), "desc")))),
 			new TestVerifiableObject(new Verification(List.of(
 					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1", "attribute2", "attribute3"), "me",
-							DateTimeHelper.getCurrentLocalDateTime().plusDays(1), new SimpleMessage("desc")),
+							DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
 					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1", "attribute2"), "me",
-							DateTimeHelper.getCurrentLocalDateTime().minusWeeks(1), new SimpleMessage("desc"))))) };
+							DateTimeHelper.getCurrentLocalDateTime().minusWeeks(1), "desc")))) };
 
 	/**
 	 * Invalid objects.
 	 */
 	private static final TestVerifiableObject[] INVALID_DATA = {
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute3"), "me", null, new SimpleMessage("desc")),
+					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
+					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute3"), "me", null, "desc"),
 					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1", "attribute2", "attribute3"), "me",
-							DateTimeHelper.getCurrentLocalDateTime().plusDays(1), new SimpleMessage("desc"))))),
+							DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc")))),
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
+					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
 					new VerificationItem(VerificationStatus.NOT_VERIFIED, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.OVERRIDE, Set.of("attribute3"), "me", null, new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1", "attribute2", "attribute3"), "me",
-							DateTimeHelper.getCurrentLocalDateTime().minusDays(1), new SimpleMessage("desc"))))) };
+							"desc"),
+					new VerificationItem(VerificationStatus.OVERRIDE, Set.of("attribute3"), "me", null, "desc"), new VerificationItem(VerificationStatus.VALID,
+							Set.of("attribute1", "attribute2", "attribute3"), "me", DateTimeHelper.getCurrentLocalDateTime().minusDays(1), "desc")))) };
 
 	/**
 	 * Not verified objects.
 	 */
-	private static final TestVerifiableObject[] NOT_VERIFIED_DATA = {
-			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.NOT_VERIFIED, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
+	private static final TestVerifiableObject[] NOT_VERIFIED_DATA = { new TestVerifiableObject(new Verification(List
+			.of(new VerificationItem(VerificationStatus.NOT_VERIFIED, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
 					new VerificationItem(VerificationStatus.NOT_VERIFIED, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.OVERRIDE, Set.of("attribute3"), "me", null, new SimpleMessage("desc"))))),
+							"desc"),
+					new VerificationItem(VerificationStatus.OVERRIDE, Set.of("attribute3"), "me", null, "desc")))),
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
 					new VerificationItem(VerificationStatus.VALID, Set.of("attribute3"), "me", DateTimeHelper.getCurrentLocalDateTime().minusDays(1),
-							new SimpleMessage("desc"))))),
+							"desc")))),
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
 					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute3"), "me", DateTimeHelper.getCurrentLocalDateTime().minusMinutes(1),
-							new SimpleMessage("desc"))))),
+							"desc")))),
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
 					new VerificationItem(VerificationStatus.INVALID, Set.of("attribute3"), "me", DateTimeHelper.getCurrentLocalDateTime().minusHours(1),
-							new SimpleMessage("desc"))))),
-			new TestVerifiableObject(new Verification(List.of())), new TestVerifiableObject(new Verification(
-					List.of(new VerificationItem(VerificationStatus.VALID, Set.of("attribute1", "attribute2"), "me", null, new SimpleMessage("desc"))))) };
+							"desc")))),
+			new TestVerifiableObject(new Verification(List.of())), new TestVerifiableObject(
+					new Verification(List.of(new VerificationItem(VerificationStatus.VALID, Set.of("attribute1", "attribute2"), "me", null, "desc")))) };
 
 	/**
 	 * Dubious objects.
 	 */
 	private static final TestVerifiableObject[] DUBIOUS_DATA = {
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute3"), "me", null, new SimpleMessage("desc"))))),
+					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
+					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute3"), "me", null, "desc")))),
 			new TestVerifiableObject(new Verification(List.of(
-					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2),
-							new SimpleMessage("desc")),
-					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute3"), "me", null, new SimpleMessage("desc"))))),
-			new TestVerifiableObject(new Verification(List.of(new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute1", "attribute2", "attribute3"),
-					"me", null, new SimpleMessage("desc"))))) };
+					new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"),
+					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute2"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(2), "desc"),
+					new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute3"), "me", null, "desc")))),
+			new TestVerifiableObject(new Verification(
+					List.of(new VerificationItem(VerificationStatus.DUBIOUS, Set.of("attribute1", "attribute2", "attribute3"), "me", null, "desc")))) };
 
 	/**
 	 * Tests valid objects.
