@@ -1,11 +1,13 @@
 package org.coldis.library.helper;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Set;
-import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,7 @@ public class ObjectHelper {
 			final Class<?> clazz,
 			final Set<String> complexClassesPackages) {
 		// By default the class is not complex.
-		Boolean complexClass = false;
+		boolean complexClass = false;
 		// If the class is not primitive.
 		if (!clazz.isPrimitive() && !clazz.isAnnotation() && !clazz.isArray() && !clazz.isEnum()) {
 			// If the class matches the complex classes packages.
@@ -58,6 +60,47 @@ public class ObjectHelper {
 	public static Boolean isComplexClass(
 			final Class<?> clazz) {
 		return ObjectHelper.isComplexClass(clazz, Set.of(ObjectHelper.NON_JAVA_PACKAGES_REGEX));
+	}
+
+	/**
+	 * Returns if object is empty.
+	 *
+	 * @param  value Value.
+	 * @return       If object is empty.
+	 */
+	public <T> boolean isEmpty(
+			final T value) {
+		return (value == null) || ((value instanceof CharSequence) && StringUtils.isBlank((CharSequence) value))
+				|| (((value instanceof Collection<?>) && CollectionUtils.isEmpty((Collection<?>) value))
+						|| ((value instanceof Object[]) && ArrayUtils.isEmpty((Object[]) value))
+						|| ((value instanceof char[]) && ArrayUtils.isEmpty((char[]) value)) || ((value instanceof int[]) && ArrayUtils.isEmpty((int[]) value))
+						|| ((value instanceof long[]) && ArrayUtils.isEmpty((long[]) value))
+						|| ((value instanceof double[]) && ArrayUtils.isEmpty((double[]) value))
+						|| ((value instanceof float[]) && ArrayUtils.isEmpty((float[]) value))
+						|| ((value instanceof short[]) && ArrayUtils.isEmpty((short[]) value))
+						|| ((value instanceof boolean[]) && ArrayUtils.isEmpty((boolean[]) value))
+						|| ((value instanceof byte[]) && ArrayUtils.isEmpty((byte[]) value)));
+	}
+
+	/**
+	 * Attribute copy conditions predicate.
+	 */
+	@FunctionalInterface
+	public interface AttributeCopyConditionsPredicate<A, B> {
+
+		/**
+		 * Attribute copy conditions predicate.
+		 *
+		 * @param  getter      Getter.
+		 * @param  sourceValue Source value.
+		 * @param  targetValue Target value.
+		 * @return             If the attribute should be copied.
+		 */
+		boolean shouldCopy(
+				Method getter,
+				A sourceValue,
+				B targetValue);
+
 	}
 
 	/**
@@ -87,8 +130,7 @@ public class ObjectHelper {
 			final Boolean deepCopy,
 			final Boolean initializeEmptyAttributes,
 			final Set<String> ignoreAttributes,
-			final BiPredicate<Method, Object> sourceConditions,
-			final BiPredicate<Method, Object> targetConditions) {
+			final AttributeCopyConditionsPredicate<Object, Object> conditions) {
 		// Only if both objects exist.
 		if ((source != null) && (target != null)) {
 			// For each setter in the target.
@@ -148,13 +190,12 @@ public class ObjectHelper {
 														.collect(Collectors.toSet()));
 										// Copies the attributes recursively.
 										ObjectHelper.copyAttributes(sourceAttributeValue, targetAttributeValue, deepCopy, initializeEmptyAttributes,
-												attributeIgnoreAttributes, sourceConditions, targetConditions);
+												attributeIgnoreAttributes, conditions);
 									}
 									// If it is a simple type or no deep copy is set.
 									else {
 										// If the source and target conditions are met.
-										if (((sourceConditions == null) || sourceConditions.test(sourceGetter, sourceAttributeValue))
-												&& ((targetConditions == null) || targetConditions.test(targetGetter, targetAttributeValue))) {
+										if (((conditions == null) || conditions.shouldCopy(sourceGetter, sourceAttributeValue, targetAttributeValue))) {
 											// Copies the attribute.
 											targetSetter.invoke(target, sourceAttributeValue);
 										}
