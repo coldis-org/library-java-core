@@ -68,7 +68,7 @@ public class ObjectHelper {
 	 * @param  value Value.
 	 * @return       If object is empty.
 	 */
-	public <T> boolean isEmpty(
+	public static <T> boolean isEmpty(
 			final T value) {
 		return (value == null) || ((value instanceof CharSequence) && StringUtils.isBlank((CharSequence) value))
 				|| (((value instanceof Collection<?>) && CollectionUtils.isEmpty((Collection<?>) value))
