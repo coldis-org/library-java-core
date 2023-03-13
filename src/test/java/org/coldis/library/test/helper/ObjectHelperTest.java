@@ -62,10 +62,10 @@ public class ObjectHelperTest {
 				BigDecimal.ONE);
 		final TestClass target = new TestClass("target", 2L, new TestClass(), new TestClass("target1", 22L, new TestClass(), null, null), BigDecimal.ZERO);
 		// Shallow copy the attributes.
-		ObjectHelper.copyAttributes(source, target, true, true, null, (
+		ObjectHelper.copyAttributes(source, target, true, true, null, ((
 				getter,
 				sourceValue,
-				targetValue) -> ((sourceValue != null) && (targetValue == null)));
+				targetValue) -> ((sourceValue != null) && (targetValue == null))));
 		// Makes sure the source and target are not equals.
 		Assertions.assertNotEquals(source, target);
 		// Asserts that the source conditions were followed when copying attributes.

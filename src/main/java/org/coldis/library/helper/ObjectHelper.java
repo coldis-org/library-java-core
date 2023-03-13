@@ -86,7 +86,7 @@ public class ObjectHelper {
 	 * Attribute copy conditions predicate.
 	 */
 	@FunctionalInterface
-	public interface AttributeCopyConditionsPredicate {
+	public interface AttributeCopyConditionsPredicate<A, B> {
 
 		/**
 		 * Attribute copy conditions predicate.
@@ -96,7 +96,7 @@ public class ObjectHelper {
 		 * @param  targetValue Target value.
 		 * @return             If the attribute should be copied.
 		 */
-		<A, B> boolean shouldCopy(
+		boolean shouldCopy(
 				Method getter,
 				A sourceValue,
 				B targetValue);
@@ -130,7 +130,7 @@ public class ObjectHelper {
 			final Boolean deepCopy,
 			final Boolean initializeEmptyAttributes,
 			final Set<String> ignoreAttributes,
-			final AttributeCopyConditionsPredicate conditions) {
+			final AttributeCopyConditionsPredicate<Object, Object> conditions) {
 		// Only if both objects exist.
 		if ((source != null) && (target != null)) {
 			// For each setter in the target.
