@@ -2,6 +2,7 @@ package org.coldis.library.helper;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.TypeElement;
@@ -45,9 +46,32 @@ public class ReflectionHelper {
 	 * @return            If a method is a getter.
 	 */
 	public static Boolean isGetter(
-			final String methodName,
-			final Object[] parameters) {
-		return ((parameters == null) || (parameters.length == 0)) && ReflectionHelper.isGetter(methodName);
+			final Method method) {
+		return (ReflectionHelper.isGetter(method.getName()) && ((method.getParameterTypes() == null) || (method.getParameterTypes().length == 0)));
+	}
+
+	/**
+	 * Gets the attribute getter.
+	 *
+	 * @param  <Type>        Type.
+	 * @param  object        Object.
+	 * @param  attributeName Attribute name.
+	 * @return               The attribute getter.
+	 */
+	public static <Type> Method getGetter(
+			final Type object,
+			final String attributeName) {
+		Method attributeGetter = null;
+		// Gets the getter for the type.
+		try {
+			attributeGetter = object.getClass().getMethod(ReflectionHelper.getGetterName(attributeName));
+		}
+		// If the cannot cannot be found.
+		catch (final Exception exception) {
+			// Logs it.
+			ReflectionHelper.LOGGER.debug("Source getter not found for attribute '" + attributeName + "'.", exception);
+		}
+		return attributeGetter;
 	}
 
 	/**
@@ -59,6 +83,41 @@ public class ReflectionHelper {
 	public static Boolean isSetter(
 			final String methodName) {
 		return (methodName.startsWith("set"));
+	}
+
+	/**
+	 * If a method is a setter.
+	 *
+	 * @param  methodName Method name.
+	 * @return            If a method is a setter.
+	 */
+	public static Boolean isSetter(
+			final Method method) {
+		return (ReflectionHelper.isSetter(method.getName()) && ((method.getParameterTypes() != null) && (method.getParameterTypes().length == 1)));
+	}
+
+	/**
+	 * Gets the attribute getter. FIXME Fix before making public
+	 *
+	 * @param  <Type>        Type.
+	 * @param  object        Object.
+	 * @param  attributeName Attribute name.
+	 * @return               The attribute getter.
+	 */
+	private static <Type> Method getSetter(
+			final Type object,
+			final String attributeName) {
+		Method attributeSetter = null;
+		// Gets the setter for the type.
+		try {
+			attributeSetter = object.getClass().getMethod(ReflectionHelper.getSetterName(attributeName));
+		}
+		// If the cannot cannot be found.
+		catch (final Exception exception) {
+			// Logs it.
+			ReflectionHelper.LOGGER.debug("Source setter not found for attribute '" + attributeName + "'.", exception);
+		}
+		return attributeSetter;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package org.coldis.library.test.helper;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,6 +35,11 @@ public class TestClass {
 	private BigDecimal test5;
 
 	/**
+	 * Test atribute.
+	 */
+	private Map<String, Object> test6;
+
+	/**
 	 * Empty constructor.
 	 */
 	public TestClass() {
@@ -48,14 +54,22 @@ public class TestClass {
 	 * @param test3 Test attribute.
 	 * @param test4 Test attribute.
 	 * @param test5 Test attribute.
+	 * @param test6 Test attribute.
 	 */
-	public TestClass(final String test1, final Long test2, final TestClass test3, final TestClass test4, final BigDecimal test5) {
+	public TestClass(
+			final String test1,
+			final Long test2,
+			final TestClass test3,
+			final TestClass test4,
+			final BigDecimal test5,
+			final Map<String, Object> test6) {
 		super();
 		this.test1 = test1;
 		this.test2 = test2;
 		this.test3 = test3;
 		this.test4 = test4;
 		this.test5 = test5;
+		this.test6 = test6;
 	}
 
 	/**
@@ -72,7 +86,8 @@ public class TestClass {
 	 *
 	 * @param test1 New test1.
 	 */
-	public void setTest1(final String test1) {
+	public void setTest1(
+			final String test1) {
 		this.test1 = test1;
 	}
 
@@ -90,7 +105,8 @@ public class TestClass {
 	 *
 	 * @param test2 New test2.
 	 */
-	public void setTest2(final Long test2) {
+	public void setTest2(
+			final Long test2) {
 		this.test2 = test2;
 	}
 
@@ -108,7 +124,8 @@ public class TestClass {
 	 *
 	 * @param test3 New test3.
 	 */
-	public void setTest3(final TestClass test3) {
+	public void setTest3(
+			final TestClass test3) {
 		this.test3 = test3;
 	}
 
@@ -126,7 +143,8 @@ public class TestClass {
 	 *
 	 * @param test4 New test4.
 	 */
-	public void setTest4(final TestClass test4) {
+	public void setTest4(
+			final TestClass test4) {
 		this.test4 = test4;
 	}
 
@@ -144,8 +162,28 @@ public class TestClass {
 	 *
 	 * @param test5 New test5.
 	 */
-	public void setTest5(final BigDecimal test5) {
+	public void setTest5(
+			final BigDecimal test5) {
 		this.test5 = test5;
+	}
+
+	/**
+	 * Gets the test6.
+	 *
+	 * @return The test6.
+	 */
+	public Map<String, Object> getTest6() {
+		return this.test6;
+	}
+
+	/**
+	 * Sets the test6.
+	 *
+	 * @param test6 New test6.
+	 */
+	public void setTest6(
+			final Map<String, Object> test6) {
+		this.test6 = test6;
 	}
 
 	/**
@@ -160,11 +198,12 @@ public class TestClass {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof TestClass)) {
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
 			return false;
 		}
 		final TestClass other = (TestClass) obj;

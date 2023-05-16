@@ -41,7 +41,7 @@ public interface Verifiable {
 			// For each method.
 			for (final Method currentMethod : verifiable.getClass().getMethods()) {
 				// If it is a getter.
-				if (ReflectionHelper.isGetter(currentMethod.getName(), currentMethod.getParameters())) {
+				if (ReflectionHelper.isGetter(currentMethod)) {
 					// Gets the attribute name.
 					final String attributeName = ReflectionHelper.getAttributeName(currentMethod.getName());
 					// Gets the verifiable attribute annotation.

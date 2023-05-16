@@ -1,13 +1,21 @@
 package org.coldis.library.helper;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +112,150 @@ public class ObjectHelper {
 	}
 
 	/**
+	 * TODO Javadoc
+	 *
+	 * @param  <SourceType>              Source type.
+	 * @param  <TargetType>              Target type.
+	 * @param  source                    Source.
+	 * @param  target                    Target.
+	 * @param  deepCopy                  If deep copy should be made (complex
+	 *                                       objects attributes should be copied
+	 *                                       individually).
+	 * @param  initializeEmptyAttributes If empty attributes should be initialized
+	 *                                       with empty constructors for complex
+	 *                                       objects on deep copy (if target
+	 *                                       attribute value is currently null).
+	 * @param  ignoreAttributes          Attributes names to be ignored when copied.
+	 * @param  conditions                Conditions to copy the attribute.
+	 * @param  targetAttributeSetter
+	 * @param  attributeType
+	 * @param  attributeName
+	 * @param  sourceAttributeGetter
+	 * @param  targetAttributeGetter
+	 * @param  sourceAttributeValue
+	 * @param  targetAttributeValue
+	 * @throws NoSuchMethodException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws InstantiationException    Javadoc
+	 */
+	private static <SourceType, TargetType> void copyAttribute(
+			final SourceType source,
+			final TargetType target,
+			final Boolean deepCopy,
+			final Boolean initializeEmptyAttributes,
+			final Set<String> ignoreAttributes,
+			final AttributeCopyConditionsPredicate<Object, Object> conditions,
+			final Method targetAttributeSetter,
+			final String attributeName) {
+		// Only if both objects exist.
+		if ((source != null) && (target != null)) {
+			// Tries to copy the properties.
+			try {
+
+				// Checks if the type is a map.
+				final boolean isSourceMap = Map.class.isAssignableFrom(source.getClass());
+				final boolean isTargetMap = Map.class.isAssignableFrom(target.getClass());
+
+				// Gets the source and target attribute values and types.
+				final Method sourceAttributeGetter = (isSourceMap ? MethodUtils.getMatchingMethod(Map.class, "get", Object.class)
+						: ReflectionHelper.getGetter(source, attributeName));
+				final Method targetAttributeGetter = (isTargetMap ? MethodUtils.getMatchingMethod(Map.class, "get", Object.class)
+						: ReflectionHelper.getGetter(target, attributeName));
+
+				if ((targetAttributeGetter != null) && (targetAttributeSetter != null)) {
+
+					final Object sourceAttributeValue = (isSourceMap ? sourceAttributeGetter.invoke(source, attributeName)
+							: sourceAttributeGetter.invoke(source));
+					Object targetAttributeValue = (isTargetMap ? targetAttributeGetter.invoke(source, attributeName) : targetAttributeGetter.invoke(target));
+					final Class<?> sourceAttributeType = (sourceAttributeValue == null ? sourceAttributeGetter.getReturnType()
+							: sourceAttributeValue.getClass());
+					final Class<?> targetAttributeType = (targetAttributeValue == null ? targetAttributeGetter.getReturnType()
+							: targetAttributeValue.getClass());
+
+					// If the attribute should not be ignored.
+					if (CollectionUtils.isEmpty(ignoreAttributes) || !ignoreAttributes.contains(attributeName)) {
+
+						// Gets the attributes to ignore from the current attribute.
+						final String attributePrefix = attributeName + ".";
+						final Set<String> attributeIgnoreAttributes = (CollectionUtils.isEmpty(ignoreAttributes) ? null
+								: ignoreAttributes.stream().filter(ignoredAttribute -> ignoredAttribute.startsWith(attributePrefix))
+										.map(ignoreAttribute -> ignoreAttribute.substring(attributePrefix.length())).collect(Collectors.toSet()));
+
+						// If the attribute type is complex.
+						if (deepCopy && (sourceAttributeValue != null)
+								&& (ObjectHelper.isComplexClass(targetAttributeType) || (Map.class.isAssignableFrom(sourceAttributeValue.getClass())
+										&& ((Map<?, ?>) sourceAttributeValue).keySet().stream().allMatch(key -> key instanceof String)))) {
+							if (targetAttributeValue == null) {
+								final Constructor<?> targetAttributeConstructor = Arrays.stream(sourceAttributeValue.getClass().getConstructors())
+										.filter(constructor -> constructor.getParameterCount() == 0).findAny().orElse(null);
+								if (initializeEmptyAttributes && (targetAttributeValue == null) && (targetAttributeConstructor != null)
+										&& targetAttributeConstructor.canAccess(null) && (targetAttributeConstructor.getParameterCount() == 0)) {
+									// Tries creating a new object before copying the attributes.
+									if (isTargetMap) {
+										targetAttributeSetter.invoke(target, attributeName, targetAttributeConstructor.newInstance());
+										targetAttributeValue = targetAttributeGetter.invoke(source, attributeName);
+									}
+									else {
+										targetAttributeSetter.invoke(target, targetAttributeConstructor.newInstance());
+										targetAttributeValue = targetAttributeGetter.invoke(target);
+									}
+								}
+								else if (SortedMap.class.isAssignableFrom(targetAttributeType)) {
+									// Tries creating a new object before copying the attributes.
+									if (isTargetMap) {
+										targetAttributeSetter.invoke(target, attributeName, new TreeMap<>());
+										targetAttributeValue = targetAttributeGetter.invoke(source, attributeName);
+									}
+									else {
+										targetAttributeSetter.invoke(target, new TreeMap<>());
+										targetAttributeValue = targetAttributeGetter.invoke(target);
+									}
+								}
+								else if (Map.class.isAssignableFrom(targetAttributeType)) {
+									// Tries creating a new object before copying the attributes.
+									if (isTargetMap) {
+										targetAttributeSetter.invoke(target, attributeName, new HashMap<>());
+										targetAttributeValue = targetAttributeGetter.invoke(source, attributeName);
+									}
+									else {
+										targetAttributeSetter.invoke(target, new HashMap<>());
+										targetAttributeValue = targetAttributeGetter.invoke(target);
+									}
+								}
+							}
+							// Copies the attributes recursively.
+							if (targetAttributeValue != null) {
+								ObjectHelper.copyAttributes(sourceAttributeValue, targetAttributeValue, deepCopy, initializeEmptyAttributes,
+										attributeIgnoreAttributes, conditions);
+							}
+						}
+						// If it is a simple type or no deep copy is set.
+						else {
+							// If the source and target conditions are met.
+							if (((conditions == null) || conditions.shouldCopy(targetAttributeGetter, sourceAttributeValue, targetAttributeValue))) {
+								// Copies the attribute.
+								if (isTargetMap) {
+									targetAttributeSetter.invoke(target, attributeName, sourceAttributeValue);
+								}
+								else {
+									targetAttributeSetter.invoke(target, sourceAttributeValue);
+								}
+							}
+						}
+					}
+				}
+			}
+			// If the attribute cannot be copied.
+			catch (final Exception exception) {
+				// Logs it.
+				ObjectHelper.LOGGER.debug("Attribute '" + attributeName + "' could not be copied.", exception);
+			}
+		}
+
+	}
+
+	/**
 	 * Copies properties from a source to a target object.
 	 *
 	 * @param  <SourceType>              Source type.
@@ -118,12 +270,10 @@ public class ObjectHelper {
 	 *                                       objects on deep copy (if target
 	 *                                       attribute value is currently null).
 	 * @param  ignoreAttributes          Attributes names to be ignored when copied.
-	 * @param  sourceConditions          Conditions using the source getter and
-	 *                                       value to copy the attribute.
-	 * @param  targetConditions          Conditions using the target getter and
-	 *                                       value to copy the attribute.
+	 * @param  conditions                Conditions to copy the attribute.
 	 * @return                           The target object after the copy.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <SourceType, TargetType> TargetType copyAttributes(
 			final SourceType source,
 			final TargetType target,
@@ -133,81 +283,25 @@ public class ObjectHelper {
 			final AttributeCopyConditionsPredicate<Object, Object> conditions) {
 		// Only if both objects exist.
 		if ((source != null) && (target != null)) {
-			// For each setter in the target.
-			for (final Method targetSetter : target.getClass().getMethods()) {
-				if (ReflectionHelper.isSetter(targetSetter.getName())) {
-					// If the setter has one parameter.
-					if (targetSetter.getParameterTypes().length == 1) {
+			// If it is a map.
+			if (Map.class.isAssignableFrom(target.getClass())) {
+				// For each entry in the map.
+				for (final Map.Entry<?, ?> entry : ((Map<?, ?>) source).entrySet()) {
+					// Gets the attribute name and type.
+					if (entry.getKey() instanceof String) {
+						ObjectHelper.copyAttribute(source, target, deepCopy, initializeEmptyAttributes, ignoreAttributes, conditions,
+								MethodUtils.getMatchingMethod(Map.class, "put", Object.class, Object.class), (String) entry.getKey());
+					}
+				}
+			}
+			else {
+				// For each setter in the target.
+				for (final Method targetSetter : target.getClass().getMethods()) {
+					if (ReflectionHelper.isSetter(targetSetter)) {
 						// Gets the attribute name and type.
 						final String attributeName = ReflectionHelper.getAttributeName(targetSetter.getName());
-						final Class<?> attributeType = targetSetter.getParameterTypes()[0];
-						// Source getter.
-						Method sourceGetter = null;
-						// Gets the getter for the me type.
-						try {
-							sourceGetter = source.getClass().getMethod(ReflectionHelper.getGetterName(attributeName));
-						}
-						// If the cannot cannot be found.
-						catch (final Exception exception) {
-							// Logs it.
-							ObjectHelper.LOGGER.debug("Source getter not found for attribute '" + attributeName + "'.", exception);
-						}
-						// Target getter.
-						Method targetGetter = null;
-						// Gets the getter for the me type.
-						try {
-							targetGetter = target.getClass().getMethod(ReflectionHelper.getGetterName(attributeName));
-						}
-						// If the cannot cannot be found.
-						catch (final Exception exception) {
-							// Logs it.
-							ObjectHelper.LOGGER.debug("Target getter not found for attribute '" + attributeName + "'.", exception);
-						}
-
-						// If there is a getter.
-						if ((targetGetter != null) && targetGetter.getReturnType().equals(attributeType)) {
-							// Tries to copy the properties.
-							try {
-								// Gets both the source and target attribute values.
-								final Object sourceAttributeValue = sourceGetter.invoke(source);
-								Object targetAttributeValue = targetGetter.invoke(target);
-								// If the attribute should not be ignored.
-								if (CollectionUtils.isEmpty(ignoreAttributes) || !ignoreAttributes.contains(attributeName)) {
-									// If the attribute type is complex.
-									if (deepCopy && ObjectHelper.isComplexClass(attributeType)) {
-										// If the target attribute value is null, the source is not and it should be
-										// created.
-										if (initializeEmptyAttributes && (targetAttributeValue == null) && (sourceAttributeValue != null)) {
-											// Tries creating a new object before copying the attributes.
-											targetSetter.invoke(target, targetGetter.getReturnType().getConstructor().newInstance());
-											targetAttributeValue = targetGetter.invoke(target);
-										}
-										// Gets the attributes to ignore from the current attribute.
-										final String attributePrefix = attributeName + ".";
-										final Set<String> attributeIgnoreAttributes = (CollectionUtils.isEmpty(ignoreAttributes) ? null
-												: ignoreAttributes.stream().filter(ignoredAttribute -> ignoredAttribute.startsWith(attributePrefix))
-														.map(ignoreAttribute -> ignoreAttribute.substring(attributePrefix.length()))
-														.collect(Collectors.toSet()));
-										// Copies the attributes recursively.
-										ObjectHelper.copyAttributes(sourceAttributeValue, targetAttributeValue, deepCopy, initializeEmptyAttributes,
-												attributeIgnoreAttributes, conditions);
-									}
-									// If it is a simple type or no deep copy is set.
-									else {
-										// If the source and target conditions are met.
-										if (((conditions == null) || conditions.shouldCopy(sourceGetter, sourceAttributeValue, targetAttributeValue))) {
-											// Copies the attribute.
-											targetSetter.invoke(target, sourceAttributeValue);
-										}
-									}
-								}
-							}
-							// If the attribute cannot be copied.
-							catch (final Exception exception) {
-								// Logs it.
-								ObjectHelper.LOGGER.debug("Attribute '" + attributeName + "' could not be copied.", exception);
-							}
-						}
+						ObjectHelper.copyAttribute(source, target, deepCopy, initializeEmptyAttributes, ignoreAttributes, conditions, targetSetter,
+								attributeName);
 					}
 				}
 			}
