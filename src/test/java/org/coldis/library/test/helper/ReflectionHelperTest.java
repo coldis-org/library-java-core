@@ -15,10 +15,10 @@ public class ReflectionHelperTest {
 	 * Test data.
 	 */
 	private static final List<TestClass> TEST_DATA = List.of(
-			new TestClass("1", 1l, new TestClass("1", 1L, new TestClass("1", 1L, null, null, null), null, null),
-					new TestClass("1", 1L, null, null, null), null),
-			new TestClass("2", 2l, new TestClass("2", 2L, new TestClass("2", 2L, null, null, null), null, null),
-					new TestClass("2", 2L, null, null, null), null));
+			new TestClass("1", 1l, new TestClass("1", 1L, new TestClass("1", 1L, null, null, null, null), null, null, null),
+					new TestClass("1", 1L, null, null, null, null), null, null),
+			new TestClass("2", 2l, new TestClass("2", 2L, new TestClass("2", 2L, null, null, null, null), null, null, null),
+					new TestClass("2", 2L, null, null, null, null), null, null));
 
 	/**
 	 * Tests setting attributes in complex object trees.
