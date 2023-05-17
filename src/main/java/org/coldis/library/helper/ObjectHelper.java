@@ -194,7 +194,7 @@ public class ObjectHelper {
 									// Tries creating a new object before copying the attributes.
 									if (isTargetMap) {
 										targetAttributeSetter.invoke(target, attributeName, targetAttributeConstructor.newInstance());
-										targetAttributeValue = targetAttributeGetter.invoke(source, attributeName);
+										targetAttributeValue = targetAttributeGetter.invoke(target, attributeName);
 									}
 									else {
 										targetAttributeSetter.invoke(target, targetAttributeConstructor.newInstance());
@@ -205,7 +205,7 @@ public class ObjectHelper {
 									// Tries creating a new object before copying the attributes.
 									if (isTargetMap) {
 										targetAttributeSetter.invoke(target, attributeName, new TreeMap<>());
-										targetAttributeValue = targetAttributeGetter.invoke(source, attributeName);
+										targetAttributeValue = targetAttributeGetter.invoke(target, attributeName);
 									}
 									else {
 										targetAttributeSetter.invoke(target, new TreeMap<>());
@@ -216,7 +216,7 @@ public class ObjectHelper {
 									// Tries creating a new object before copying the attributes.
 									if (isTargetMap) {
 										targetAttributeSetter.invoke(target, attributeName, new HashMap<>());
-										targetAttributeValue = targetAttributeGetter.invoke(source, attributeName);
+										targetAttributeValue = targetAttributeGetter.invoke(target, attributeName);
 									}
 									else {
 										targetAttributeSetter.invoke(target, new HashMap<>());
