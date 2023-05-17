@@ -167,7 +167,7 @@ public class ObjectHelper {
 
 					final Object sourceAttributeValue = (isSourceMap ? sourceAttributeGetter.invoke(source, attributeName)
 							: sourceAttributeGetter.invoke(source));
-					Object targetAttributeValue = (isTargetMap ? targetAttributeGetter.invoke(source, attributeName) : targetAttributeGetter.invoke(target));
+					Object targetAttributeValue = (isTargetMap ? targetAttributeGetter.invoke(target, attributeName) : targetAttributeGetter.invoke(target));
 					final Class<?> sourceAttributeType = (sourceAttributeValue == null ? sourceAttributeGetter.getReturnType()
 							: sourceAttributeValue.getClass());
 					final Class<?> targetAttributeType = (targetAttributeValue == null ? targetAttributeGetter.getReturnType()
