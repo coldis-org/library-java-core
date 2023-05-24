@@ -112,7 +112,41 @@ public class ObjectHelper {
 	}
 
 	/**
-	 * TODO Javadoc
+	 * Gets a new instance for an object from another.
+	 *
+	 * @param  <Type>       Type.
+	 * @param  sourceObject Value from the object will be created.
+	 * @param  targetType   Object type.
+	 * @return              A new instance for an object from another.
+	 * @throws Exception    If a new instance cannot be created.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <SourceType, TargetType> TargetType getNewInstance(
+			final Object sourceObject,
+			final Class<SourceType> sourceType,
+			final Class<TargetType> targetType) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		TargetType newInstance = null;
+		final Constructor<?> newInstanceConstructor = Arrays.stream(sourceObject.getClass().getConstructors())
+				.filter(constructor -> constructor.getParameterCount() == 0).findAny().orElse(null);
+		if ((newInstanceConstructor != null) && newInstanceConstructor.canAccess(null) && (newInstanceConstructor.getParameterCount() == 0)) {
+			// Tries creating a new object before copying the attributes.
+			newInstance = (TargetType) newInstanceConstructor.newInstance();
+		}
+		else if (SortedMap.class.isAssignableFrom(targetType)) {
+			newInstance = (TargetType) new TreeMap();
+		}
+		else if (Map.class.isAssignableFrom(targetType)) {
+			newInstance = (TargetType) new HashMap();
+		}
+		else if ((sourceType != null) && Object.class.isAssignableFrom(targetType)) {
+			newInstance = (TargetType) ObjectHelper.getNewInstance(sourceObject, null, sourceType);
+		}
+		// Returns the new instance.
+		return newInstance;
+	}
+
+	/**
+	 * Copies a property from a source to a target object.
 	 *
 	 * @param  <SourceType>              Source type.
 	 * @param  <TargetType>              Target type.
@@ -127,17 +161,7 @@ public class ObjectHelper {
 	 *                                       attribute value is currently null).
 	 * @param  ignoreAttributes          Attributes names to be ignored when copied.
 	 * @param  conditions                Conditions to copy the attribute.
-	 * @param  targetAttributeSetter
-	 * @param  attributeType
-	 * @param  attributeName
-	 * @param  sourceAttributeGetter
-	 * @param  targetAttributeGetter
-	 * @param  sourceAttributeValue
-	 * @param  targetAttributeValue
-	 * @throws NoSuchMethodException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 * @throws InstantiationException    Javadoc
+	 * @return                           The target object after the copy.
 	 */
 	private static <SourceType, TargetType> void copyAttribute(
 			final SourceType source,
@@ -187,39 +211,15 @@ public class ObjectHelper {
 								&& (ObjectHelper.isComplexClass(targetAttributeType) || (Map.class.isAssignableFrom(sourceAttributeValue.getClass())
 										&& ((Map<?, ?>) sourceAttributeValue).keySet().stream().allMatch(key -> key instanceof String)))) {
 							if (targetAttributeValue == null) {
-								final Constructor<?> targetAttributeConstructor = Arrays.stream(sourceAttributeValue.getClass().getConstructors())
-										.filter(constructor -> constructor.getParameterCount() == 0).findAny().orElse(null);
-								if (initializeEmptyAttributes && (targetAttributeValue == null) && (targetAttributeConstructor != null)
-										&& targetAttributeConstructor.canAccess(null) && (targetAttributeConstructor.getParameterCount() == 0)) {
+								if (initializeEmptyAttributes && (targetAttributeValue == null)) {
+									final Object newInstance = ObjectHelper.getNewInstance(sourceAttributeValue, sourceAttributeType, targetAttributeType);
 									// Tries creating a new object before copying the attributes.
 									if (isTargetMap) {
-										targetAttributeSetter.invoke(target, attributeName, targetAttributeConstructor.newInstance());
+										targetAttributeSetter.invoke(target, attributeName, newInstance);
 										targetAttributeValue = targetAttributeGetter.invoke(target, attributeName);
 									}
 									else {
-										targetAttributeSetter.invoke(target, targetAttributeConstructor.newInstance());
-										targetAttributeValue = targetAttributeGetter.invoke(target);
-									}
-								}
-								else if (SortedMap.class.isAssignableFrom(targetAttributeType)) {
-									// Tries creating a new object before copying the attributes.
-									if (isTargetMap) {
-										targetAttributeSetter.invoke(target, attributeName, new TreeMap<>());
-										targetAttributeValue = targetAttributeGetter.invoke(target, attributeName);
-									}
-									else {
-										targetAttributeSetter.invoke(target, new TreeMap<>());
-										targetAttributeValue = targetAttributeGetter.invoke(target);
-									}
-								}
-								else if (Map.class.isAssignableFrom(targetAttributeType)) {
-									// Tries creating a new object before copying the attributes.
-									if (isTargetMap) {
-										targetAttributeSetter.invoke(target, attributeName, new HashMap<>());
-										targetAttributeValue = targetAttributeGetter.invoke(target, attributeName);
-									}
-									else {
-										targetAttributeSetter.invoke(target, new HashMap<>());
+										targetAttributeSetter.invoke(target, newInstance);
 										targetAttributeValue = targetAttributeGetter.invoke(target);
 									}
 								}
