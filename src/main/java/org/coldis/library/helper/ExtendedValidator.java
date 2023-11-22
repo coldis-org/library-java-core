@@ -2,11 +2,11 @@ package org.coldis.library.helper;
 
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
-import javax.validation.executable.ExecutableValidator;
-import javax.validation.metadata.BeanDescriptor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
+import jakarta.validation.executable.ExecutableValidator;
+import jakarta.validation.metadata.BeanDescriptor;
 
 /**
  * Extended validator.
@@ -32,7 +32,8 @@ public class ExtendedValidator implements Validator {
 	 * @see javax.validation.Validator#validate(java.lang.Object, java.lang.Class[])
 	 */
 	@Override
-	public <ObjectType> Set<ConstraintViolation<ObjectType>> validate(final ObjectType object,
+	public <ObjectType> Set<ConstraintViolation<ObjectType>> validate(
+			final ObjectType object,
 			final Class<?>... groups) {
 		return this.validator.validate(object, groups);
 	}
@@ -42,8 +43,10 @@ public class ExtendedValidator implements Validator {
 	 *      java.lang.String, java.lang.Class[])
 	 */
 	@Override
-	public <ObjectType> Set<ConstraintViolation<ObjectType>> validateProperty(final ObjectType object,
-			final String propertyName, final Class<?>... groups) {
+	public <ObjectType> Set<ConstraintViolation<ObjectType>> validateProperty(
+			final ObjectType object,
+			final String propertyName,
+			final Class<?>... groups) {
 		return this.validator.validateProperty(object, propertyName, groups);
 	}
 
@@ -52,8 +55,11 @@ public class ExtendedValidator implements Validator {
 	 *      java.lang.String, java.lang.Object, java.lang.Class[])
 	 */
 	@Override
-	public <ObjectType> Set<ConstraintViolation<ObjectType>> validateValue(final Class<ObjectType> beanType,
-			final String propertyName, final Object value, final Class<?>... groups) {
+	public <ObjectType> Set<ConstraintViolation<ObjectType>> validateValue(
+			final Class<ObjectType> beanType,
+			final String propertyName,
+			final Object value,
+			final Class<?>... groups) {
 		return this.validator.validateValue(beanType, propertyName, value, groups);
 	}
 
@@ -61,7 +67,8 @@ public class ExtendedValidator implements Validator {
 	 * @see javax.validation.Validator#getConstraintsForClass(java.lang.Class)
 	 */
 	@Override
-	public BeanDescriptor getConstraintsForClass(final Class<?> clazz) {
+	public BeanDescriptor getConstraintsForClass(
+			final Class<?> clazz) {
 		return this.validator.getConstraintsForClass(clazz);
 	}
 
@@ -69,7 +76,8 @@ public class ExtendedValidator implements Validator {
 	 * @see javax.validation.Validator#unwrap(java.lang.Class)
 	 */
 	@Override
-	public <ObjectType> ObjectType unwrap(final Class<ObjectType> type) {
+	public <ObjectType> ObjectType unwrap(
+			final Class<ObjectType> type) {
 		return this.validator.unwrap(type);
 	}
 
@@ -88,7 +96,9 @@ public class ExtendedValidator implements Validator {
 	 * @param object       Object to be validated.
 	 * @param groups       Groups to be used in the validation.
 	 */
-	public <ObjectType> void validateAndThrowViolations(final ObjectType object, final Class<?>... groups) {
+	public <ObjectType> void validateAndThrowViolations(
+			final ObjectType object,
+			final Class<?>... groups) {
 		// Validates the object.
 		final Set<ConstraintViolation<ObjectType>> violations = this.validate(object, groups);
 		// Violations message.

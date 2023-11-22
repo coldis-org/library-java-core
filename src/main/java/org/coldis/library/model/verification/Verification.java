@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.validation.Valid;
-
 import org.coldis.library.model.Typable;
 import org.coldis.library.model.view.ModelView;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.validation.Valid;
 
 /**
  * Verification information.
