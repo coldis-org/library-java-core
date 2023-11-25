@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.coldis</groupId>
 		<artifactId>configuration</artifactId>
-		<version>2.0.20</version>
+		<version>2.0.21</version>
 	</parent>
 
 	<groupId>org.coldis.library</groupId>
@@ -30,6 +30,7 @@
 	<properties>
 		<project.config.source.main.aspect.phase>none</project.config.source.main.aspect.phase>
 		<project.config.source.test.aspect.phase>none</project.config.source.test.aspect.phase>
+		<project.config.release.arguments>-Dnet.bytebuddy.experimental=true</project.config.release.arguments>
 	</properties>
 
 	<scm>
