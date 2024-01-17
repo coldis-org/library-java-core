@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.lang.model.element.TypeElement;
-import jakarta.lang.model.type.DeclaredType;
-import jakarta.lang.model.type.MirroredTypeException;
-import jakarta.lang.model.type.MirroredTypesException;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.coldis.library.exception.IntegrationException;
