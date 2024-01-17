@@ -29,7 +29,7 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see javax.validation.Validator#validate(java.lang.Object, java.lang.Class[])
+	 * @see jakarta.validation.Validator#validate(java.lang.Object, java.lang.Class[])
 	 */
 	@Override
 	public <ObjectType> Set<ConstraintViolation<ObjectType>> validate(
@@ -39,7 +39,7 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see javax.validation.Validator#validateProperty(java.lang.Object,
+	 * @see jakarta.validation.Validator#validateProperty(java.lang.Object,
 	 *      java.lang.String, java.lang.Class[])
 	 */
 	@Override
@@ -51,7 +51,7 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see javax.validation.Validator#validateValue(java.lang.Class,
+	 * @see jakarta.validation.Validator#validateValue(java.lang.Class,
 	 *      java.lang.String, java.lang.Object, java.lang.Class[])
 	 */
 	@Override
@@ -64,7 +64,7 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see javax.validation.Validator#getConstraintsForClass(java.lang.Class)
+	 * @see jakarta.validation.Validator#getConstraintsForClass(java.lang.Class)
 	 */
 	@Override
 	public BeanDescriptor getConstraintsForClass(
@@ -73,7 +73,7 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see javax.validation.Validator#unwrap(java.lang.Class)
+	 * @see jakarta.validation.Validator#unwrap(java.lang.Class)
 	 */
 	@Override
 	public <ObjectType> ObjectType unwrap(
@@ -82,7 +82,7 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see javax.validation.Validator#forExecutables()
+	 * @see jakarta.validation.Validator#forExecutables()
 	 */
 	@Override
 	public ExecutableValidator forExecutables() {
