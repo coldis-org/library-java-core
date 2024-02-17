@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Random content helper.
@@ -48,25 +49,25 @@ public class RandomHelper {
 	}
 
 	/**
-	 * Gets a positive random number (integer).
-	 *
-	 * @param  maximum Maximum value.
-	 * @return         a positive random number (integer).
-	 */
-	public Integer getPositiveRandomInteger(
-			final Integer maximum) {
-		return Math.abs(maximum == null ? RandomHelper.RANDOM.nextInt() : RandomHelper.RANDOM.nextInt(maximum));
-	}
-
-	/**
 	 * Gets a positive random number (long).
 	 *
 	 * @param  maximum Maximum value.
 	 * @return         a positive random number (long).
 	 */
-	public Long getPositiveRandomLong(
+	public static Long getPositiveRandomLong(
 			final Long maximum) {
 		return Math.abs(maximum == null ? RandomHelper.RANDOM.nextLong() : RandomHelper.RANDOM.nextLong(maximum));
+	}
+
+	/**
+	 * Gets a positive random number (long) as a string.
+	 *
+	 * @param  maximum Maximum value.
+	 * @return         a positive random number (long) as a string.
+	 */
+	public static String getPositiveRandomLongAsString(
+			final Long maximum) {
+		return StringUtils.leftPad(RandomHelper.getPositiveRandomLong(maximum).toString(), maximum.toString().length(), '0');
 	}
 
 	/**
