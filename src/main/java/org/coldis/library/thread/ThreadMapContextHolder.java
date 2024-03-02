@@ -19,7 +19,7 @@ public class ThreadMapContextHolder {
 	 * @return The thread attributes.
 	 */
 	@SuppressWarnings("unchecked")
-	private static Map<String, Object> getAttributes() {
+	public static Map<String, Object> getAttributes() {
 		final Map<String, Object> attributes = (ThreadMapContextHolder.THREAD_LOCAL_MAP_CONTEXT.get() == null ? new HashMap<>()
 				: (Map<String, Object>) ThreadMapContextHolder.THREAD_LOCAL_MAP_CONTEXT.get());
 		ThreadMapContextHolder.THREAD_LOCAL_MAP_CONTEXT.set(attributes);
