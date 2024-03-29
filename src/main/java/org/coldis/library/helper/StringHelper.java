@@ -1,6 +1,8 @@
 package org.coldis.library.helper;
 
 import java.text.Collator;
+import java.text.Normalizer;
+import java.util.regex.Pattern;
 
 /**
  * String helper.
@@ -43,8 +45,8 @@ public class StringHelper {
 	 * Brazilian phone number regular expression.
 	 */
 	public static final String BR_PHONE_NUMBER_REGEX = StringHelper.BR_PHONE_NUMBER_REGION_PREFIX_REGEX + "("
-			+ StringHelper.BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX + "|"
-			+ StringHelper.BR_MOBILE_PHONE_NUMBER_PREFIX_REGEX + ")" + StringHelper.BR_PHONE_NUMBER_SUFFIX_REGEX;
+			+ StringHelper.BR_LANDLINE_PHONE_NUMBER_PREFIX_REGEX + "|" + StringHelper.BR_MOBILE_PHONE_NUMBER_PREFIX_REGEX + ")"
+			+ StringHelper.BR_PHONE_NUMBER_SUFFIX_REGEX;
 
 	/**
 	 * Compares if two strings are equal considering a given strength
@@ -56,7 +58,10 @@ public class StringHelper {
 	 * @return          If two strings are the equal considering a given strength
 	 *                  ({@link Collator}).
 	 */
-	public static Boolean equals(final String source, final String target, final Integer strength) {
+	public static Boolean equals(
+			final String source,
+			final String target,
+			final Integer strength) {
 		// Creates a new collator.
 		final Collator collator = Collator.getInstance();
 		// Sets the collator strength.
@@ -74,7 +79,10 @@ public class StringHelper {
 	 *                      truncated.
 	 * @return          The truncated string.
 	 */
-	public static String truncate(final Object original, final Integer limit, final String append) {
+	public static String truncate(
+			final Object original,
+			final Integer limit,
+			final String append) {
 		// The truncated string is, initially, the original object (as string).
 		String truncatedString = original == null ? null : original.toString();
 		// Default append string is "" if none is given.
@@ -83,9 +91,8 @@ public class StringHelper {
 		final Integer actualLimit = limit - actualAppend.length();
 		// If the string size is greater than the size limit, truncates it and adds the
 		// append.
-		truncatedString = ((truncatedString != null) && (truncatedString.length() > actualLimit))
-				? truncatedString.substring(0, actualLimit) + actualAppend
-						: truncatedString;
+		truncatedString = ((truncatedString != null) && (truncatedString.length() > actualLimit)) ? truncatedString.substring(0, actualLimit) + actualAppend
+				: truncatedString;
 		// Returns the truncated string.
 		return truncatedString;
 	}
@@ -96,7 +103,8 @@ public class StringHelper {
 	 * @param  stringValue The original string.
 	 * @return             The updated string.
 	 */
-	public static final String removeMultipleBlankSpaces(final String stringValue) {
+	public static final String removeMultipleBlankSpaces(
+			final String stringValue) {
 		return stringValue.trim().replaceAll("\\s\\s+", " ");
 	}
 
@@ -108,18 +116,44 @@ public class StringHelper {
 	 * @param  acceptOneMoreDomainCN If one more domain common name is accepted.
 	 * @return                       If a URL is from a given domain.
 	 */
-	public static Boolean isFromDomain(final String url, final String domainPattern,
+	public static Boolean isFromDomain(
+			final String url,
+			final String domainPattern,
 			final Boolean acceptOneMoreDomainCN) {
 		// By default, the URL is not from the given domain.
 		Boolean isFromDomain = false;
 		// If both the URL and the domain pattern are given.
 		if ((url != null) && (domainPattern != null)) {
 			// If the URL matches the domain pattern.
-			isFromDomain = url.matches("http[s]{0,1}://[^ /\\?]*" + domainPattern
-					+ (acceptOneMoreDomainCN ? ".[^ ./\\?]*" : "") + "($|[ /\\?].*)");
+			isFromDomain = url.matches("http[s]{0,1}://[^ /\\?]*" + domainPattern + (acceptOneMoreDomainCN ? ".[^ ./\\?]*" : "") + "($|[ /\\?].*)");
 		}
 		// Returns if the URL is from the given domain.
 		return isFromDomain;
+	}
+
+	/**
+	 * Removes accents from string.
+	 *
+	 * @param  stringValue The string value.
+	 * @return             The string without accents.
+	 */
+	public static String removeAccents(
+			final String stringValue) {
+		final String normalizedString = Normalizer.normalize(stringValue, Normalizer.Form.NFD);
+		final Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+		return pattern.matcher(normalizedString).replaceAll("");
+	}
+
+	/**
+	 * Removes non-alphanumeric characters from string.
+	 *
+	 * @param  stringValue The string value.
+	 * @return             The string without non-alphanumeric characters.
+	 */
+	public static String removeNonAlphaNumericCharacters(
+			final String stringValue) {
+		final Pattern pattern = Pattern.compile("[^(\\w|\\s)]");
+		return pattern.matcher(stringValue).replaceAll("");
 	}
 
 }
