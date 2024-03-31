@@ -13,14 +13,19 @@ import org.apache.commons.lang3.StringUtils;
 public class RandomHelper {
 
 	/**
-	 * Distinguishable alpha numeric characters.
+	 * Alpha-numeric characters.
 	 */
-	public static final String CLEAR_APLHANUMERIC_CHARS = "234679ACDEFGHJKMNPQRTVWXYZ";
+	public static final String ALPHA_NUMERIC_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 	/**
-	 * Characters.
+	 * Distinguishable alpha-numeric characters.
 	 */
-	public static final String CHARS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ234567890";
+	public static final String CLEAR_ALPHA_NUMERIC_CHARS = "234679ACDEFGHJKMNPQRTVWXYZ";
+
+	/**
+	 * Numbers.
+	 */
+	public static final String NUMBERIC_CHARS = "1234567890";
 
 	/**
 	 * Random.
