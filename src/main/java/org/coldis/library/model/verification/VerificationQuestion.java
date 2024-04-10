@@ -24,7 +24,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	/**
 	 * Type name.
 	 */
-	protected static final String TYPE_NAME = "br.com.supersim.service.party.model.verification.VerificationQuestion";
+	protected static final String TYPE_NAME = "org.coldis.library.model.verification.VerificationQuestion";
 
 	/**
 	 * Question.

@@ -30,7 +30,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	/**
 	 * Type name.
 	 */
-	public static final String TYPE_NAME = "org.coldis.library.model.VerificationItem";
+	public static final String TYPE_NAME = "org.coldis.library.model.verification.VerificationItem";
 
 	/**
 	 * VerificationItem status.
