@@ -2,8 +2,10 @@ package org.coldis.library.model.verification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import org.coldis.library.helper.ObjectHelper;
 import org.coldis.library.model.Typable;
 import org.coldis.library.model.view.ModelView;
 
@@ -71,7 +73,28 @@ public class Verification implements Typable {
 	 */
 	public void setItems(
 			final List<VerificationItem> items) {
-		this.items = items;
+		final List<VerificationItem> actualItems = new ArrayList<>();
+		if (items != null) {
+			for (final VerificationItem item : items) {
+				if (item != null) {
+					Object actualItem = item;
+					if ((item != null) && (item instanceof Map)) {
+						final String typeName = (String) ((Map) item).get("typeName");
+						if ((typeName != null) && typeName.contains(VerificationQuestion.class.getSimpleName())) {
+							actualItem = new VerificationQuestion();
+						}
+						else {
+							actualItem = new VerificationItem();
+						}
+						ObjectHelper.copyAttributes(item, actualItem, true, true, null, null);
+					}
+					actualItems.add((VerificationItem) actualItem);
+				}
+			}
+		}
+		// Sets the items.
+		this.items = actualItems;
+
 	}
 
 	/**
