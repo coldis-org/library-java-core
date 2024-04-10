@@ -77,7 +77,7 @@ public class Verification implements Typable {
 		if (items != null) {
 			for (final VerificationItem item : items) {
 				if (item != null) {
-					Object actualItem = item;
+					Object actualItem = null;
 					if ((item != null) && (item instanceof Map)) {
 						final String typeName = (String) ((Map) item).get("typeName");
 						if ((typeName != null) && typeName.contains(VerificationQuestion.class.getSimpleName())) {
@@ -88,7 +88,12 @@ public class Verification implements Typable {
 						}
 						ObjectHelper.copyAttributes(item, actualItem, true, true, null, null);
 					}
-					actualItems.add((VerificationItem) actualItem);
+					else if ((item != null) && (item instanceof VerificationItem)) {
+						actualItem = item;
+					}
+					if ((actualItem != null) && (actualItem instanceof VerificationItem)) {
+						actualItems.add((VerificationItem) actualItem);
+					}
 				}
 			}
 		}
