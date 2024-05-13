@@ -11,17 +11,19 @@ public class PooledThreadFactory implements ThreadFactory {
 	private final ThreadGroup group;
 	private final AtomicInteger threadNumber = new AtomicInteger(1);
 	private final String namePrefix;
-	private final Boolean useVirtualThreads;
+	private final Boolean daemon;
 	private final Integer priority;
+	private final Boolean useVirtualThreads;
 
 	/**
 	 * Constructor.
 	 */
-	PooledThreadFactory(final Integer priority, final Boolean useVirtualThreads) {
+	public PooledThreadFactory(final String namePrefix, final Boolean daemon, final Integer priority, final Boolean useVirtualThreads) {
 		@SuppressWarnings("removal")
 		final SecurityManager securityManager = System.getSecurityManager();
 		this.group = ((securityManager != null) ? securityManager.getThreadGroup() : Thread.currentThread().getThreadGroup());
-		this.namePrefix = "pool-log-thread-";
+		this.namePrefix = namePrefix;
+		this.daemon = daemon;
 		this.priority = priority;
 		this.useVirtualThreads = useVirtualThreads;
 	}
@@ -34,14 +36,15 @@ public class PooledThreadFactory implements ThreadFactory {
 			final Runnable runnable) {
 		Thread thread = null;
 		if (this.useVirtualThreads) {
-			thread = Thread.ofVirtual().unstarted(runnable);
+			final ThreadFactory threadFactory = Thread.ofVirtual().factory();
+			thread = threadFactory.newThread(runnable);
 			thread.setName(this.namePrefix + this.threadNumber.getAndIncrement());
 		}
 		else {
 			thread = new Thread(this.group, runnable, this.namePrefix + this.threadNumber.getAndIncrement(), 0);
+			thread.setDaemon(this.daemon);
 		}
-		thread.setDaemon(false);
-		thread.setPriority(priority);
+		thread.setPriority(this.priority);
 		return thread;
 	}
 }
