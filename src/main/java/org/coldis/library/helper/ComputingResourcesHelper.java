@@ -35,7 +35,7 @@ public class ComputingResourcesHelper {
 				cpuQuota = Long.valueOf(FileUtils.readFileToString(new File("/sys/fs/cgroup/cpu/cpu.cfs_quota_us"), Charset.defaultCharset()));
 			}
 			catch (final Exception exception) {
-				ComputingResourcesHelper.LOGGER.debug("CPU quota could be red from disk", exception);
+				ComputingResourcesHelper.LOGGER.debug("CPU quota could be read from cgroup.", exception);
 			}
 		}
 		return cpuQuota;
