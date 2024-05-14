@@ -4,9 +4,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Pooled thread factory.
+ * Simple thread factory.
  */
-public class PooledThreadFactory implements ThreadFactory {
+public class SimpleThreadFactory implements ThreadFactory {
 
 	private final ThreadGroup group;
 	private final AtomicInteger threadNumber = new AtomicInteger(1);
@@ -18,7 +18,7 @@ public class PooledThreadFactory implements ThreadFactory {
 	/**
 	 * Constructor.
 	 */
-	public PooledThreadFactory(final String namePrefix, final Boolean daemon, final Integer priority, final Boolean useVirtualThreads) {
+	public SimpleThreadFactory(final String namePrefix, final Boolean daemon, final Integer priority, final Boolean useVirtualThreads) {
 		@SuppressWarnings("removal")
 		final SecurityManager securityManager = System.getSecurityManager();
 		this.group = ((securityManager != null) ? securityManager.getThreadGroup() : Thread.currentThread().getThreadGroup());
