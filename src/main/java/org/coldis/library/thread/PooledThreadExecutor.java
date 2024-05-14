@@ -49,7 +49,7 @@ public class PooledThreadExecutor implements ExecutorService {
 			final Boolean daemon,
 			final Boolean useVirtualThreads,
 			final Integer corePoolSize,
-			final Integer corePoolSizeCpuMultiplier,
+			final Double corePoolSizeCpuMultiplier,
 			final Integer maxPoolSize,
 			final Double maxPoolSizeCpuMultiplier,
 			final Integer queueSize,
