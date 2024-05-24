@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -23,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Pooled executor.
  */
-public class DynamicPooledThreadExecutor implements ExecutorService {
+public class DynamicPooledThreadExecutor implements ScheduledExecutorService {
 
 	/**
 	 * Logger.
@@ -212,6 +214,76 @@ public class DynamicPooledThreadExecutor implements ExecutorService {
 			final long timeout,
 			final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		return this.executor.invokeAny(tasks, timeout, unit);
+	}
+
+	/**
+	 * @see java.util.concurrent.ScheduledExecutorService#schedule(java.lang.Runnable,
+	 *      long, java.util.concurrent.TimeUnit)
+	 */
+	@Override
+	public ScheduledFuture<?> schedule(
+			final Runnable command,
+			final long delay,
+			final TimeUnit unit) {
+		if (this.executor instanceof ScheduledExecutorService) {
+			return ((ScheduledExecutorService) this.executor).schedule(command, delay, unit);
+		}
+		else {
+			throw new UnsupportedOperationException("Executor is not a scheduled executor.");
+		}
+	}
+
+	/**
+	 * @see java.util.concurrent.ScheduledExecutorService#schedule(java.util.concurrent.Callable,
+	 *      long, java.util.concurrent.TimeUnit)
+	 */
+	@Override
+	public <V> ScheduledFuture<V> schedule(
+			final Callable<V> callable,
+			final long delay,
+			final TimeUnit unit) {
+		if (this.executor instanceof ScheduledExecutorService) {
+			return ((ScheduledExecutorService) this.executor).schedule(callable, delay, unit);
+		}
+		else {
+			throw new UnsupportedOperationException("Executor is not a scheduled executor.");
+		}
+	}
+
+	/**
+	 * @see java.util.concurrent.ScheduledExecutorService#scheduleAtFixedRate(java.lang.Runnable,
+	 *      long, long, java.util.concurrent.TimeUnit)
+	 */
+	@Override
+	public ScheduledFuture<?> scheduleAtFixedRate(
+			final Runnable command,
+			final long initialDelay,
+			final long period,
+			final TimeUnit unit) {
+		if (this.executor instanceof ScheduledExecutorService) {
+			return ((ScheduledExecutorService) this.executor).scheduleAtFixedRate(command, initialDelay, period, unit);
+		}
+		else {
+			throw new UnsupportedOperationException("Executor is not a scheduled executor.");
+		}
+	}
+
+	/**
+	 * @see java.util.concurrent.ScheduledExecutorService#scheduleWithFixedDelay(java.lang.Runnable,
+	 *      long, long, java.util.concurrent.TimeUnit)
+	 */
+	@Override
+	public ScheduledFuture<?> scheduleWithFixedDelay(
+			final Runnable command,
+			final long initialDelay,
+			final long delay,
+			final TimeUnit unit) {
+		if (this.executor instanceof ScheduledExecutorService) {
+			return ((ScheduledExecutorService) this.executor).scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		}
+		else {
+			throw new UnsupportedOperationException("Executor is not a scheduled executor.");
+		}
 	}
 
 }
