@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -22,12 +23,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Pooled executor.
  */
-public class PooledThreadExecutor implements ExecutorService {
+public class DynamicPooledThreadExecutor implements ExecutorService {
 
 	/**
 	 * Logger.
 	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(PooledThreadExecutor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DynamicPooledThreadExecutor.class);
 
 	/**
 	 * Executor.
@@ -43,11 +44,12 @@ public class PooledThreadExecutor implements ExecutorService {
 	 * @param queueSize        Queue size.
 	 * @param keepAliveSeconds Keep alive.
 	 */
-	public PooledThreadExecutor(
+	public DynamicPooledThreadExecutor(
 			final String name,
 			final Integer priority,
 			final Boolean daemon,
-			final Boolean useVirtualThreads,
+			final Boolean virtual,
+			final Boolean scheduled,
 			final Integer corePoolSize,
 			final Double corePoolSizeCpuMultiplier,
 			final Integer maxPoolSize,
@@ -55,6 +57,7 @@ public class PooledThreadExecutor implements ExecutorService {
 			final Integer queueSize,
 			final Duration keepAlive) {
 		super();
+		final String actualName = (name + (scheduled ? "-scheduled" : ""));
 		if (((corePoolSize != null) && (corePoolSize > 0)) || ((corePoolSizeCpuMultiplier != null) && (corePoolSizeCpuMultiplier > 0))) {
 			final Integer actualCorePoolSize = ((corePoolSize == null) || (corePoolSize < 0)
 					? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * corePoolSizeCpuMultiplier)).intValue()
@@ -62,18 +65,29 @@ public class PooledThreadExecutor implements ExecutorService {
 			final Integer actualMaxPoolSize = ((maxPoolSize == null) || (maxPoolSize < 0)
 					? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * maxPoolSizeCpuMultiplier)).intValue()
 					: maxPoolSize);
-			PooledThreadExecutor.LOGGER
+			DynamicPooledThreadExecutor.LOGGER
 					.info("Thread pool '" + name + "' created with core size '" + actualCorePoolSize + "' and max size '" + actualMaxPoolSize + "'.");
-			final ThreadFactory factory = new SimpleThreadFactory(name + "-", daemon, priority, useVirtualThreads);
-			final BlockingQueue<Runnable> queue = ((queueSize == null) || (queueSize <= 0) ? new SynchronousQueue<>(true)
-					: new ArrayBlockingQueue<>(queueSize, true));
-			final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(actualCorePoolSize, actualMaxPoolSize, keepAlive.toMillis(),
-					TimeUnit.MILLISECONDS, queue, factory);
+			final ThreadFactory factory = new SimpleThreadFactory(actualName, daemon, priority, virtual);
+			ThreadPoolExecutor threadPoolExecutor = null;
+			if (scheduled) {
+				threadPoolExecutor = new ScheduledThreadPoolExecutor(actualCorePoolSize, factory);
+			}
+			else {
+				final BlockingQueue<Runnable> queue = ((queueSize == null) || (queueSize <= 0) ? new SynchronousQueue<>(true)
+						: new ArrayBlockingQueue<>(queueSize, true));
+				threadPoolExecutor = new ThreadPoolExecutor(actualCorePoolSize, actualMaxPoolSize, keepAlive.toMillis(), TimeUnit.MILLISECONDS, queue, factory);
+			}
 			threadPoolExecutor.allowCoreThreadTimeOut(true);
 			this.executor = threadPoolExecutor;
 		}
 		else {
-			this.executor = (useVirtualThreads ? Executors.newVirtualThreadPerTaskExecutor() : Executors.newCachedThreadPool());
+			if (scheduled) {
+				this.executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
+						new SimpleThreadFactory(actualName, daemon, priority, virtual));
+			}
+			else {
+				this.executor = (virtual ? Executors.newVirtualThreadPerTaskExecutor() : Executors.newCachedThreadPool());
+			}
 		}
 	}
 
