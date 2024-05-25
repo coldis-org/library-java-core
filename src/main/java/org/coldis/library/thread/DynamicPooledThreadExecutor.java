@@ -68,7 +68,7 @@ public class DynamicPooledThreadExecutor implements ScheduledExecutorService {
 					? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * maxPoolSizeCpuMultiplier)).intValue()
 					: maxPoolSize);
 			DynamicPooledThreadExecutor.LOGGER
-					.info("Thread pool '" + name + "' created with core size '" + actualCorePoolSize + "' and max size '" + actualMaxPoolSize + "'.");
+					.info("Thread pool '" + actualName + "' created with core size '" + actualCorePoolSize + "' and max size '" + actualMaxPoolSize + "'.");
 			final ThreadFactory factory = new SimpleThreadFactory(actualName, daemon, priority, virtual);
 			ThreadPoolExecutor threadPoolExecutor = null;
 			if (scheduled) {
