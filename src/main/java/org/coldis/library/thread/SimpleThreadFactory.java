@@ -38,7 +38,9 @@ public class SimpleThreadFactory implements ThreadFactory {
 	public static Integer calculateThreadPoolSize(
 			final Integer size,
 			final Double sizeCpuMultiplier) {
-		return ((size == null) || (size < 0) ? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * sizeCpuMultiplier)).intValue()
+		return ((size == null) || (size < 1)
+				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue()
+						* ((sizeCpuMultiplier == null) || (sizeCpuMultiplier < 1) ? 1 : sizeCpuMultiplier))).intValue()
 				: size);
 	}
 
