@@ -28,6 +28,20 @@ public class SimpleThreadFactory implements ThreadFactory {
 		this.virtual = virtual;
 	}
 
+	/**
+	 * Calculates the thread pool size.
+	 *
+	 * @param  size              Size.
+	 * @param  sizeCpuMultiplier Size CPU multiplier.
+	 * @return                   Thread pool size.
+	 */
+	public static Integer calculateThreadPoolSize(
+			final Integer size,
+			final Double sizeCpuMultiplier) {
+		return ((size == null) || (size < 0) ? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * sizeCpuMultiplier)).intValue()
+				: size);
+	}
+
 	/*
 	 * Gets a new thread.
 	 */
