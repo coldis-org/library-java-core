@@ -431,12 +431,14 @@ public class DynamicThreadPoolFactory {
 				? (this.getParallelismCpuMultiplier() == null ? null
 						: ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getParallelismCpuMultiplier())).intValue())
 				: this.getParallelism());
-		final Integer actualCorePoolSize = ((this.getCorePoolSize() == null) || (this.getCorePoolSize() < 0)
+		Integer actualCorePoolSize = ((this.getCorePoolSize() == null) || (this.getCorePoolSize() < 0)
 				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getCorePoolSizeCpuMultiplier())).intValue()
 				: this.getCorePoolSize());
-		final Integer actualMaxPoolSize = ((this.getMaxPoolSize() == null) || (this.getMaxPoolSize() < 0)
+		actualCorePoolSize = (actualParallelism == null ? actualCorePoolSize : Math.max(actualParallelism, actualCorePoolSize));
+		Integer actualMaxPoolSize = ((this.getMaxPoolSize() == null) || (this.getMaxPoolSize() < 0)
 				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMaxPoolSizeCpuMultiplier())).intValue()
 				: this.getMaxPoolSize());
+		actualMaxPoolSize = (Math.max(actualCorePoolSize, actualMaxPoolSize));
 		final Long actualKeepAliveMillis = this.getKeepAlive().toMillis();
 		final TimeUnit actualKeepAliveUnit = TimeUnit.MILLISECONDS;
 		final ThreadFactory factory = (this.getVirtual() ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory());
