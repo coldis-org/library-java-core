@@ -53,7 +53,7 @@ public class DynamicThreadPoolFactory {
 	private Integer parallelism;
 
 	/** Parallelism CPU multiplier. */
-	private Integer parallelismCpuMultiplier;
+	private Double parallelismCpuMultiplier;
 
 	/** Core pool size. */
 	private Integer corePoolSize;
@@ -199,7 +199,7 @@ public class DynamicThreadPoolFactory {
 	 * @param parallelismCpuMultiplier New parallelismCpuMultiplier.
 	 */
 	public DynamicThreadPoolFactory withParallelismCpuMultiplier(
-			final Integer parallelismCpuMultiplier) {
+			final Double parallelismCpuMultiplier) {
 		this.parallelismCpuMultiplier = parallelismCpuMultiplier;
 		return this;
 	}
@@ -209,7 +209,7 @@ public class DynamicThreadPoolFactory {
 	 *
 	 * @return The parallelismCpuMultiplier.
 	 */
-	private Integer getParallelismCpuMultiplier() {
+	private Double getParallelismCpuMultiplier() {
 		return this.parallelismCpuMultiplier;
 	}
 
