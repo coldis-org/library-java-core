@@ -366,7 +366,7 @@ public class DynamicThreadPoolFactory {
 	 * @return The max pool size CPU multiplier.
 	 */
 	private Double getMaxPoolSizeCpuMultiplier() {
-		return (this.maxPoolSizeCpuMultiplier == null ? Integer.MAX_VALUE : this.maxPoolSizeCpuMultiplier);
+		return this.maxPoolSizeCpuMultiplier;
 	}
 
 	/**
@@ -516,7 +516,8 @@ public class DynamicThreadPoolFactory {
 				: this.getCorePoolSize());
 		actualCorePoolSize = (actualParallelism == null ? actualCorePoolSize : Math.max(actualParallelism, actualCorePoolSize));
 		Integer actualMaxPoolSize = ((this.getMaxPoolSize() == null) || (this.getMaxPoolSize() < 0)
-				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMaxPoolSizeCpuMultiplier())).intValue()
+				? (this.getMaxPoolSizeCpuMultiplier() == null ? Integer.MAX_VALUE
+						: ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMaxPoolSizeCpuMultiplier())).intValue())
 				: this.getMaxPoolSize());
 		actualMaxPoolSize = (Math.max(actualCorePoolSize, actualMaxPoolSize));
 		final Long actualKeepAliveMillis = this.getKeepAlive().toMillis();
