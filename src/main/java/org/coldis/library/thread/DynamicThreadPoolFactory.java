@@ -80,6 +80,35 @@ public class DynamicThreadPoolFactory {
 	private Duration keepAlive;
 
 	/**
+	 * Default constructor.
+	 */
+	public DynamicThreadPoolFactory() {
+		super();
+	}
+
+	/**
+	 * Constructor with another factory instance.
+	 */
+	public DynamicThreadPoolFactory(final DynamicThreadPoolFactory factory) {
+		super();
+		this.name = factory.getName();
+		this.priority = factory.getPriority();
+		this.scheduled = factory.getScheduled();
+		this.virtual = factory.getVirtual();
+		this.daemon = factory.getDaemon();
+		this.parallelism = factory.getParallelism();
+		this.parallelismCpuMultiplier = factory.getParallelismCpuMultiplier();
+		this.minRunnable = factory.getMinRunnable();
+		this.minRunnableCpuMultiplier = factory.getMinRunnableCpuMultiplier();
+		this.corePoolSize = factory.getCorePoolSize();
+		this.corePoolSizeCpuMultiplier = factory.getCorePoolSizeCpuMultiplier();
+		this.maxPoolSize = factory.getMaxPoolSize();
+		this.maxPoolSizeCpuMultiplier = factory.getMaxPoolSizeCpuMultiplier();
+		this.maxQueueSize = factory.getMaxQueueSize();
+		this.keepAlive = factory.getKeepAlive();
+	}
+
+	/**
 	 * Sets the name of the thread pool.
 	 *
 	 * @param
@@ -474,10 +503,11 @@ public class DynamicThreadPoolFactory {
 	public Executor build() {
 		Executor executor = null;
 		// Gets the parameters.
-		final Integer actualParallelism = ((this.getParallelism() == null) || (this.getParallelism() < 0)
+		Integer actualParallelism = ((this.getParallelism() == null) || (this.getParallelism() < 0)
 				? (this.getParallelismCpuMultiplier() == null ? null
 						: ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getParallelismCpuMultiplier())).intValue())
 				: this.getParallelism());
+		actualParallelism = (actualParallelism == null ? null : Math.min(actualParallelism, 1));
 		final Integer actualMinRunnable = ((this.getMinRunnable() == null) || (this.getMinRunnable() < 0)
 				? (((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMinRunnableCpuMultiplier())).intValue())
 				: this.getMinRunnable());
@@ -518,7 +548,9 @@ public class DynamicThreadPoolFactory {
 		}
 
 		// Returns the executor.
-		DynamicThreadPoolFactory.LOGGER.info("Thread pool '" + this.getName() + "' created: '" + ToStringBuilder.reflectionToString(this) + "'.");
+		final DynamicThreadPoolFactory actualFactory = new DynamicThreadPoolFactory(this).withParallelism(actualParallelism).withMinRunnable(actualMinRunnable)
+				.withCorePoolSize(actualCorePoolSize).withMaxPoolSize(actualMaxPoolSize));
+		DynamicThreadPoolFactory.LOGGER.info("Thread pool '" + this.getName() + "' created: '" + ToStringBuilder.reflectionToString(actualFactory) + "'.");
 		return executor;
 	}
 
