@@ -55,6 +55,12 @@ public class DynamicThreadPoolFactory {
 	/** Parallelism CPU multiplier. */
 	private Double parallelismCpuMultiplier;
 
+	/** Minimum runnable. */
+	private Integer minRunnable;
+
+	/** Minimum runnable CPU multiplier. */
+	private Double minRunnableCpuMultiplier;
+
 	/** Core pool size. */
 	private Integer corePoolSize;
 
@@ -191,6 +197,47 @@ public class DynamicThreadPoolFactory {
 	 */
 	private Integer getParallelism() {
 		return this.parallelism;
+	}
+
+	/**
+	 * Sets the minRunnable.
+	 *
+	 * @param minRunnable New minRunnable.
+	 */
+	public DynamicThreadPoolFactory withMinRunnable(
+			final Integer minRunnable) {
+		this.minRunnable = minRunnable;
+		return this;
+	}
+
+	/**
+	 * Gets the minRunnable.
+	 *
+	 * @return The minRunnable.
+	 */
+	private Integer getMinRunnable() {
+		return (this.minRunnable == null ? (this.getParallelism() == null ? null : this.getParallelism() / 5) : this.minRunnable);
+	}
+
+	/**
+	 * Sets the minRunnableCpuMultiplier.
+	 *
+	 * @param minRunnableCpuMultiplier New minRunnableCpuMultiplier.
+	 */
+	public DynamicThreadPoolFactory withMinRunnableCpuMultiplier(
+			final Double minRunnableCpuMultiplier) {
+		this.minRunnableCpuMultiplier = minRunnableCpuMultiplier;
+		return this;
+	}
+
+	/**
+	 * Gets the minRunnableCpuMultiplier.
+	 *
+	 * @return The minRunnableCpuMultiplier.
+	 */
+	private Double getMinRunnableCpuMultiplier() {
+		return (this.minRunnableCpuMultiplier == null ? (this.getParallelismCpuMultiplier() == null ? 1D : this.getParallelismCpuMultiplier() / 5D)
+				: this.minRunnableCpuMultiplier);
 	}
 
 	/**
@@ -431,6 +478,9 @@ public class DynamicThreadPoolFactory {
 				? (this.getParallelismCpuMultiplier() == null ? null
 						: ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getParallelismCpuMultiplier())).intValue())
 				: this.getParallelism());
+		final Integer actualMinRunnable = ((this.getMinRunnable() == null) || (this.getMinRunnable() < 0)
+				? (((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMinRunnableCpuMultiplier())).intValue())
+				: this.getMinRunnable());
 		Integer actualCorePoolSize = ((this.getCorePoolSize() == null) || (this.getCorePoolSize() < 0)
 				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getCorePoolSizeCpuMultiplier())).intValue()
 				: this.getCorePoolSize());
@@ -447,7 +497,7 @@ public class DynamicThreadPoolFactory {
 		if (actualParallelism != null) {
 			final ForkJoinPool forkJoinPool = new ForkJoinPool(actualParallelism,
 					new ConfigurableForkJoinWorkerThreadFactory(ForkJoinPool.defaultForkJoinWorkerThreadFactory, this.getName(), this.getPriority()), null,
-					true, actualParallelism, actualMaxPoolSize, actualParallelism / 2, null, actualKeepAliveMillis, actualKeepAliveUnit);
+					true, actualParallelism, actualMaxPoolSize, actualMinRunnable, null, actualKeepAliveMillis, actualKeepAliveUnit);
 			executor = forkJoinPool;
 		}
 
