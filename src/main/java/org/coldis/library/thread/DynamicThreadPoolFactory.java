@@ -366,7 +366,7 @@ public class DynamicThreadPoolFactory {
 	 * @return The max pool size CPU multiplier.
 	 */
 	private Double getMaxPoolSizeCpuMultiplier() {
-		return (this.maxPoolSizeCpuMultiplier == null ? 1 : this.maxPoolSizeCpuMultiplier);
+		return (this.maxPoolSizeCpuMultiplier == null ? Integer.MAX_VALUE : this.maxPoolSizeCpuMultiplier);
 	}
 
 	/**
