@@ -549,7 +549,7 @@ public class DynamicThreadPoolFactory {
 
 		// Returns the executor.
 		final DynamicThreadPoolFactory actualFactory = new DynamicThreadPoolFactory(this).withParallelism(actualParallelism).withMinRunnable(actualMinRunnable)
-				.withCorePoolSize(actualCorePoolSize).withMaxPoolSize(actualMaxPoolSize));
+				.withCorePoolSize(actualCorePoolSize).withMaxPoolSize(actualMaxPoolSize);
 		DynamicThreadPoolFactory.LOGGER.info("Thread pool '" + this.getName() + "' created: '" + ToStringBuilder.reflectionToString(actualFactory) + "'.");
 		return executor;
 	}
