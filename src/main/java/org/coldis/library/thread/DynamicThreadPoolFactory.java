@@ -507,11 +507,11 @@ public class DynamicThreadPoolFactory {
 				? (this.getParallelismCpuMultiplier() == null ? null
 						: ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getParallelismCpuMultiplier())).intValue())
 				: this.getParallelism());
-		actualParallelism = (actualParallelism == null ? null : Math.min(actualParallelism, 1));
+		actualParallelism = (actualParallelism == null ? null : Math.max(actualParallelism, 1));
 		Integer actualMinRunnable = ((this.getMinRunnable() == null) || (this.getMinRunnable() < 0)
 				? (((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMinRunnableCpuMultiplier())).intValue())
 				: this.getMinRunnable());
-		actualMinRunnable = (actualMinRunnable == null ? null : Math.min(actualMinRunnable, 1));
+		actualMinRunnable = (actualMinRunnable == null ? null : Math.max(actualMinRunnable, 1));
 		Integer actualCorePoolSize = ((this.getCorePoolSize() == null) || (this.getCorePoolSize() < 0)
 				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getCorePoolSizeCpuMultiplier())).intValue()
 				: this.getCorePoolSize());
