@@ -526,6 +526,7 @@ public class DynamicThreadPoolFactory {
 		final ThreadFactory factory = (this.getVirtual() ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory());
 		final DynamicThreadPoolFactory actualFactory = new DynamicThreadPoolFactory(this).withParallelism(actualParallelism).withMinRunnable(actualMinRunnable)
 				.withCorePoolSize(actualCorePoolSize).withMaxPoolSize(actualMaxPoolSize);
+		DynamicThreadPoolFactory.LOGGER.info("Thread pool '" + this.getName() + "' created: '" + ToStringBuilder.reflectionToString(actualFactory) + "'.");
 
 		// If parallelism is set.
 		if (actualParallelism != null) {
@@ -552,7 +553,6 @@ public class DynamicThreadPoolFactory {
 		}
 
 		// Returns the executor.
-		DynamicThreadPoolFactory.LOGGER.info("Thread pool '" + this.getName() + "' created: '" + ToStringBuilder.reflectionToString(actualFactory) + "'.");
 		return executor;
 	}
 
