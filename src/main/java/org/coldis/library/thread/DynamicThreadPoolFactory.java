@@ -508,9 +508,10 @@ public class DynamicThreadPoolFactory {
 						: ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getParallelismCpuMultiplier())).intValue())
 				: this.getParallelism());
 		actualParallelism = (actualParallelism == null ? null : Math.min(actualParallelism, 1));
-		final Integer actualMinRunnable = ((this.getMinRunnable() == null) || (this.getMinRunnable() < 0)
+		Integer actualMinRunnable = ((this.getMinRunnable() == null) || (this.getMinRunnable() < 0)
 				? (((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getMinRunnableCpuMultiplier())).intValue())
 				: this.getMinRunnable());
+		actualMinRunnable = (actualMinRunnable == null ? null : Math.min(actualMinRunnable, 1));
 		Integer actualCorePoolSize = ((this.getCorePoolSize() == null) || (this.getCorePoolSize() < 0)
 				? ((Double) (((Integer) Runtime.getRuntime().availableProcessors()).doubleValue() * this.getCorePoolSizeCpuMultiplier())).intValue()
 				: this.getCorePoolSize());
@@ -523,12 +524,14 @@ public class DynamicThreadPoolFactory {
 		final Long actualKeepAliveMillis = this.getKeepAlive().toMillis();
 		final TimeUnit actualKeepAliveUnit = TimeUnit.MILLISECONDS;
 		final ThreadFactory factory = (this.getVirtual() ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory());
+		final DynamicThreadPoolFactory actualFactory = new DynamicThreadPoolFactory(this).withParallelism(actualParallelism).withMinRunnable(actualMinRunnable)
+				.withCorePoolSize(actualCorePoolSize).withMaxPoolSize(actualMaxPoolSize);
 
 		// If parallelism is set.
 		if (actualParallelism != null) {
 			final ForkJoinPool forkJoinPool = new ForkJoinPool(actualParallelism,
 					new ConfigurableForkJoinWorkerThreadFactory(ForkJoinPool.defaultForkJoinWorkerThreadFactory, this.getName(), this.getPriority()), null,
-					true, actualParallelism, actualMaxPoolSize, actualMinRunnable, null, actualKeepAliveMillis, actualKeepAliveUnit);
+					true, actualCorePoolSize, actualMaxPoolSize, actualMinRunnable, null, actualKeepAliveMillis, actualKeepAliveUnit);
 			executor = forkJoinPool;
 		}
 
@@ -549,8 +552,6 @@ public class DynamicThreadPoolFactory {
 		}
 
 		// Returns the executor.
-		final DynamicThreadPoolFactory actualFactory = new DynamicThreadPoolFactory(this).withParallelism(actualParallelism).withMinRunnable(actualMinRunnable)
-				.withCorePoolSize(actualCorePoolSize).withMaxPoolSize(actualMaxPoolSize);
 		DynamicThreadPoolFactory.LOGGER.info("Thread pool '" + this.getName() + "' created: '" + ToStringBuilder.reflectionToString(actualFactory) + "'.");
 		return executor;
 	}
