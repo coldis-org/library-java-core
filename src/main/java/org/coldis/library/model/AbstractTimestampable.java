@@ -28,6 +28,7 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 */
 	@Override
 	public LocalDateTime getCreatedAt() {
+		this.createdAt = (this.createdAt == null ? LocalDateTime.now() : this.createdAt);
 		return this.createdAt;
 	}
 
@@ -35,7 +36,8 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 * @see org.coldis.library.model.Timestampable#setCreatedAt(java.time.LocalDateTime)
 	 */
 	@Override
-	public void setCreatedAt(final LocalDateTime createdAt) {
+	public void setCreatedAt(
+			final LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
@@ -44,6 +46,7 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 */
 	@Override
 	public LocalDateTime getUpdatedAt() {
+		this.updatedAt = (this.updatedAt == null ? LocalDateTime.now() : this.updatedAt);
 		return this.updatedAt;
 	}
 
@@ -51,7 +54,8 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 * @see org.coldis.library.model.Timestampable#setUpdatedAt(java.time.LocalDateTime)
 	 */
 	@Override
-	public void setUpdatedAt(final LocalDateTime updatedAt) {
+	public void setUpdatedAt(
+			final LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 
@@ -67,7 +71,8 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
