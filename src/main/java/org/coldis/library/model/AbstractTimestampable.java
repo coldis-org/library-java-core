@@ -3,6 +3,8 @@ package org.coldis.library.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.coldis.library.helper.DateTimeHelper;
+
 /**
  * Abstract time-stamped object.
  */
@@ -28,7 +30,7 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 */
 	@Override
 	public LocalDateTime getCreatedAt() {
-		this.createdAt = (this.createdAt == null ? LocalDateTime.now() : this.createdAt);
+		this.createdAt = (this.createdAt == null ? DateTimeHelper.getCurrentLocalDateTime() : this.createdAt);
 		return this.createdAt;
 	}
 
@@ -46,7 +48,7 @@ public abstract class AbstractTimestampable implements Timestampable {
 	 */
 	@Override
 	public LocalDateTime getUpdatedAt() {
-		this.updatedAt = (this.updatedAt == null ? LocalDateTime.now() : this.updatedAt);
+		this.updatedAt = (this.updatedAt == null ? DateTimeHelper.getCurrentLocalDateTime() : this.updatedAt);
 		return this.updatedAt;
 	}
 
