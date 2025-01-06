@@ -1,12 +1,11 @@
 package org.coldis.library.model.science;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-
-import org.coldis.library.model.Primaryable;
 
 /**
  * Distribution.
@@ -16,7 +15,7 @@ public interface Distribution extends Serializable {
 	/**
 	 * Random.
 	 */
-	Random RANDOM = new Random();
+	public Random RANDOM = new SecureRandom();
 
 	/**
 	 * Gets the base (relative) size for the distribution. Used to split group
@@ -27,7 +26,7 @@ public interface Distribution extends Serializable {
 	 */
 	static Integer getBaseSize(
 			final List<DistributionGroup> groups) {
-		return groups == null ? 100 : groups.stream().map(DistributionGroup::getDistributionSize).reduce(0, Integer::sum);
+		return (groups == null ? 100 : groups.stream().map(DistributionGroup::getDistributionSize).reduce(0, Integer::sum));
 	}
 
 	/**
@@ -68,18 +67,6 @@ public interface Distribution extends Serializable {
 	/**
 	 * Distributes a sample against groups.
 	 *
-	 * @param  pseudoRandomSampleId The (pseudo) random identification of the sample
-	 *                                  item.
-	 * @return                      The selected group for the sample.
-	 */
-	default DistributionGroup distribute(
-			final Long pseudoRandomSampleId) {
-		return Distribution.distribute(this.getGroups(), this.getBaseSize(), pseudoRandomSampleId);
-	}
-
-	/**
-	 * Distributes a sample against groups.
-	 *
 	 * @param  groups               The available groups.
 	 * @param  baseSize             The base (relative) size of distribution.
 	 * @param  pseudoRandomSampleId The (pseudo) random identification of the sample
@@ -92,11 +79,7 @@ public interface Distribution extends Serializable {
 			final Long pseudoRandomSampleId) {
 		// Sorts the list.
 		Collections.sort(groups);
-		// Makes sure there is a primary group.
-		Primaryable.autoAssignPrimary(groups);
-		// Gets a list without the primary.
-		final DistributionGroup primaryGroup = Primaryable.getPrimary(groups);
-		final List<DistributionGroup> nonPrimaryNonExpiredGroups = groups.stream().filter(group -> !group.getPrimary() && !group.getExpired())
+		final List<DistributionGroup> nonZeroNonExpiredGroups = groups.stream().filter(group -> !group.getExpired() && (group.getDistributionSize() >= 0))
 				.collect(Collectors.toList());
 		// Group for the sample to be distributed.
 		DistributionGroup selectedGroup = null;
@@ -104,7 +87,7 @@ public interface Distribution extends Serializable {
 		int groupSizeSum = 0;
 		final long groupSelection = (Math.abs(pseudoRandomSampleId) % baseSize);
 		// For each non-primary group.
-		for (final DistributionGroup currentGroup : nonPrimaryNonExpiredGroups) {
+		for (final DistributionGroup currentGroup : nonZeroNonExpiredGroups) {
 			// If the current group threshold is greater that the group selection.
 			final Integer distributionSize = (currentGroup.getDistributionSize() == null ? 0 : currentGroup.getDistributionSize());
 			if ((groupSizeSum + distributionSize) > groupSelection) {
@@ -115,11 +98,6 @@ public interface Distribution extends Serializable {
 			// Increments the group size sum.
 			groupSizeSum = (groupSizeSum + distributionSize);
 		}
-		// If none of the non-primary groups was selected.
-		if (selectedGroup == null) {
-			// The selected group is the primary group.
-			selectedGroup = primaryGroup;
-		}
 		// Increments the selected group size.
 		if (selectedGroup != null) {
 			final Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
@@ -128,4 +106,17 @@ public interface Distribution extends Serializable {
 		// Returns the selected group.
 		return selectedGroup;
 	}
+
+	/**
+	 * Distributes a sample against groups.
+	 *
+	 * @param  pseudoRandomSampleId The (pseudo) random identification of the sample
+	 *                                  item.
+	 * @return                      The selected group for the sample.
+	 */
+	default DistributionGroup distribute(
+			final Long pseudoRandomSampleId) {
+		return Distribution.distribute(this.getGroups(), this.getBaseSize(), pseudoRandomSampleId);
+	}
+
 }

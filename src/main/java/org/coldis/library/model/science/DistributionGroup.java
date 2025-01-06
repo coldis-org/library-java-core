@@ -1,12 +1,11 @@
 package org.coldis.library.model.science;
 
 import org.coldis.library.model.Expirable;
-import org.coldis.library.model.Primaryable;
 
 /**
  * Distribution group.
  */
-public interface DistributionGroup extends Primaryable, Expirable, Comparable<DistributionGroup> {
+public interface DistributionGroup extends Expirable, Comparable<DistributionGroup> {
 
 	/**
 	 * Gets the distribution size.

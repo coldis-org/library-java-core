@@ -29,7 +29,6 @@ public class SimpleDistribution extends AbstractDistribution {
 	public SimpleDistribution(final List<DistributionGroup> groups) {
 		super();
 		this.setGroups(groups);
-		Primaryable.autoAssignPrimary(this.getGroups());
 	}
 
 }

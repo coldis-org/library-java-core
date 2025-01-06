@@ -17,11 +17,6 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	private static final long serialVersionUID = -5340111054555130647L;
 
 	/**
-	 * If is the primary group.
-	 */
-	private Boolean primary;
-
-	/**
 	 * Distribution size.
 	 */
 	private Integer distributionSize;
@@ -40,30 +35,6 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 * When group expires.
 	 */
 	private LocalDateTime expiredAt;
-
-	/**
-	 * Gets the primary.
-	 *
-	 * @return The primary.
-	 */
-	@Override
-	public Boolean getPrimary() {
-		// Make sure the object is initialized.
-		this.primary = (this.primary == null ? false : this.primary);
-		// Returns the object.
-		return this.primary;
-	}
-
-	/**
-	 * Sets the primary.
-	 *
-	 * @param primary New primary.
-	 */
-	@Override
-	public void setPrimary(
-			final Boolean primary) {
-		this.primary = primary;
-	}
 
 	/**
 	 * Gets the distributionSize.
@@ -196,7 +167,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.absoluteLimit, this.currentSize, this.distributionSize, this.expiredAt, this.primary);
+		return Objects.hash(this.absoluteLimit, this.currentSize, this.distributionSize, this.expiredAt);
 	}
 
 	/**
@@ -213,8 +184,7 @@ public abstract class AbstractDistributionGroup implements DistributionGroup {
 		}
 		final AbstractDistributionGroup other = (AbstractDistributionGroup) obj;
 		return Objects.equals(this.absoluteLimit, other.absoluteLimit) && Objects.equals(this.currentSize, other.currentSize)
-				&& Objects.equals(this.distributionSize, other.distributionSize) && Objects.equals(this.expiredAt, other.expiredAt)
-				&& Objects.equals(this.primary, other.primary);
+				&& Objects.equals(this.distributionSize, other.distributionSize) && Objects.equals(this.expiredAt, other.expiredAt);
 	}
 
 }
