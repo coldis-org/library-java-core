@@ -45,9 +45,9 @@ public interface Verifiable {
 					// Gets the attribute name.
 					final String attributeName = ReflectionHelper.getAttributeName(currentMethod.getName());
 					// Gets the verifiable attribute annotation.
-					final VerifiableAttribute veriableAttributeMetadata = currentMethod.getAnnotation(VerifiableAttribute.class);
+					final VerifiableAttribute verifiableAttributeMetadata = currentMethod.getAnnotation(VerifiableAttribute.class);
 					// If the attribute should be verified.
-					if (veriableAttributeMetadata != null) {
+					if (verifiableAttributeMetadata != null) {
 						// Adds the attribute to the verifiable set.
 						verifiableAttributes.add(attributeName);
 					}

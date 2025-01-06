@@ -59,6 +59,6 @@ public class ModelView {
 	/**
 	 * Public and personal.
 	 */
-	public interface PublicAndSentive extends Public, Sensitive {}
+	public interface PublicAndSensitive extends Public, Sensitive {}
 
 }
