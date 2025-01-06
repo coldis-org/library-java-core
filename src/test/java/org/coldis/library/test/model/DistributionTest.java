@@ -18,24 +18,29 @@ public class DistributionTest {
 	@Test
 	public void testDistribution() {
 		// Creates a new distribution.
-		SimpleDistribution distribution = new SimpleDistribution();
+		final SimpleDistribution distribution = new SimpleDistribution();
 		distribution.setBaseSize(100);
-		TestDistributionGroup firstGroup = new TestDistributionGroup();
+		final TestDistributionGroup firstGroup = new TestDistributionGroup();
 		firstGroup.setId(1L);
 		firstGroup.setDistributionSize(2);
 		firstGroup.setAbsoluteLimit(2L);
-		TestDistributionGroup secondGroup = new TestDistributionGroup();
+		final TestDistributionGroup secondGroup = new TestDistributionGroup();
 		secondGroup.setId(2L);
 		secondGroup.setDistributionSize(3);
 		secondGroup.setAbsoluteLimit(3L);
-		TestDistributionGroup expiredGroup = new TestDistributionGroup();
+		final TestDistributionGroup expiredGroup = new TestDistributionGroup();
 		expiredGroup.setId(3L);
 		expiredGroup.setDistributionSize(10);
 		expiredGroup.setAbsoluteLimit(100L);
 		expiredGroup.setExpiredAt(DateTimeHelper.getCurrentLocalDateTime());
 		distribution.setGroups(List.of(firstGroup, secondGroup, expiredGroup));
+		final TestDistributionGroup zeroDistributionGroup = new TestDistributionGroup();
+		expiredGroup.setId(3L);
+		expiredGroup.setDistributionSize(0);
+		expiredGroup.setAbsoluteLimit(100L);
+		distribution.setGroups(List.of(firstGroup, secondGroup, expiredGroup, zeroDistributionGroup));
 		// Distributes a few samples to groups one and two.
-		Assertions.assertEquals(secondGroup, distribution.distribute(4L));
+		Assertions.assertEquals(secondGroup, distribution.distribute(1004L));
 		Assertions.assertEquals(secondGroup, distribution.distribute(2L));
 		Assertions.assertEquals(firstGroup, distribution.distribute(0L));
 		Assertions.assertEquals(firstGroup, distribution.distribute(0L));
