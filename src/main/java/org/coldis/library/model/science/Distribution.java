@@ -15,7 +15,7 @@ public interface Distribution extends Serializable {
 	/**
 	 * Random.
 	 */
-	public Random RANDOM = new SecureRandom();
+	Random RANDOM = new SecureRandom();
 
 	/**
 	 * Gets the base (relative) size for the distribution. Used to split group
@@ -79,7 +79,7 @@ public interface Distribution extends Serializable {
 			final Long pseudoRandomSampleId) {
 		// Sorts the list.
 		Collections.sort(groups);
-		final List<DistributionGroup> nonZeroNonExpiredGroups = groups.stream().filter(group -> !group.getExpired() && (group.getDistributionSize() >= 0))
+		final List<DistributionGroup> nonZeroNonExpiredGroups = groups.stream().filter(group -> !group.getExpired() && (group.getDistributionSize() > 0))
 				.collect(Collectors.toList());
 		// Group for the sample to be distributed.
 		DistributionGroup selectedGroup = null;
