@@ -3,6 +3,7 @@ package org.coldis.library.helper;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.TypeElement;
@@ -182,11 +183,15 @@ public class ReflectionHelper {
 				if (attributePathValue != null) {
 					// Tries to get the next path value.
 					try {
-						attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
+						if (attributePathValue instanceof Map) {
+							attributePathValue = ((Map<?, ?>) attributePathValue).get(attributePathPart);
+						}
+						else {
+							attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
+						}
 					}
 					// If the attribute path cannot be retrieved.
 					catch (final Exception exception) {
-						// Logs it.
 						ReflectionHelper.LOGGER.debug("Attribute path part value cannot be retrieved.", exception);
 					}
 				}
@@ -223,11 +228,14 @@ public class ReflectionHelper {
 					if ((attributePathPartIndex + 1) == attributePath.length) {
 						// Tries to set the attribute value.
 						try {
+							if (attributePathValue instanceof Map) {
+								((Map<String, Object>) attributePathValue).put(attributePathPart, newValue);
+							}
+							else {
 							MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getSetterName(attributePathPart), newValue);
-						}
-						// If the method cannot be found.
+						}}
+						// If the method cannot be found, logs it.
 						catch (final Exception exception) {
-							// Logs it.
 							ReflectionHelper.LOGGER.debug("Attribute value cannot be updated.", exception);
 						}
 					}

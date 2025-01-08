@@ -1,6 +1,8 @@
 package org.coldis.library.test.helper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.coldis.library.helper.ReflectionHelper;
 import org.junit.jupiter.api.Assertions;
@@ -16,9 +18,9 @@ public class ReflectionHelperTest {
 	 */
 	private static final List<TestClass> TEST_DATA = List.of(
 			new TestClass("1", 1l, new TestClass("1", 1L, new TestClass("1", 1L, null, null, null, null), null, null, null),
-					new TestClass("1", 1L, null, null, null, null), null, null),
+					new TestClass("1", 1L, null, null, null, null), null, new HashMap<>(Map.of("test1", 1))),
 			new TestClass("2", 2l, new TestClass("2", 2L, new TestClass("2", 2L, null, null, null, null), null, null, null),
-					new TestClass("2", 2L, null, null, null, null), null, null));
+					new TestClass("2", 2L, null, null, null, null), null, new HashMap<>(Map.of("test1", 1))));
 
 	/**
 	 * Tests setting attributes in complex object trees.
@@ -57,6 +59,11 @@ public class ReflectionHelperTest {
 			// Makes sure the attribute has been updated.
 			Assertions.assertEquals(100L, test.getTest3().getTest3().getTest2().longValue());
 			Assertions.assertEquals(100L, ReflectionHelper.getAttribute(test, "test3.test3.test2"));
+			// Sets an attribute value.
+			ReflectionHelper.setAttribute(test, "test6.test1", 2);
+			// Makes sure the attribute has been updated.
+			Assertions.assertEquals(2, test.getTest6().get("test1"));
+			Assertions.assertEquals(2, ReflectionHelper.getAttribute(test, "test6.test1"));
 		}
 	}
 
