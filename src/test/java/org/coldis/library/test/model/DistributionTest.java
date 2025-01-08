@@ -40,13 +40,13 @@ public class DistributionTest {
 		expiredGroup.setAbsoluteLimit(100L);
 		distribution.setGroups(List.of(firstGroup, secondGroup, expiredGroup, zeroDistributionGroup));
 		// Distributes a few samples to groups one and two.
-		Assertions.assertEquals(secondGroup, distribution.distribute(1004L));
-		Assertions.assertEquals(secondGroup, distribution.distribute(2L));
-		Assertions.assertEquals(firstGroup, distribution.distribute(0L));
-		Assertions.assertEquals(firstGroup, distribution.distribute(0L));
+		Assertions.assertEquals(secondGroup, distribution.distribute(1004L, true));
+		Assertions.assertEquals(secondGroup, distribution.distribute(2L, true));
+		Assertions.assertEquals(firstGroup, distribution.distribute(0L, true));
+		Assertions.assertEquals(firstGroup, distribution.distribute(0L, true));
 		Assertions.assertEquals(2, firstGroup.getCurrentSize());
 		Assertions.assertEquals(2, secondGroup.getCurrentSize());
-		Assertions.assertEquals(secondGroup, distribution.distribute(0L));
+		Assertions.assertEquals(secondGroup, distribution.distribute(0L, true));
 		Assertions.assertEquals(3, secondGroup.getCurrentSize());
 
 	}

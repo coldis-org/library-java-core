@@ -76,7 +76,8 @@ public interface Distribution extends Serializable {
 	static DistributionGroup distribute(
 			final List<DistributionGroup> groups,
 			final Integer baseSize,
-			final Long pseudoRandomSampleId) {
+			final Long pseudoRandomSampleId,
+			final Boolean incrementGroupSize) {
 		// Sorts the list.
 		Collections.sort(groups);
 		final List<DistributionGroup> nonZeroNonExpiredGroups = groups.stream().filter(group -> !group.getExpired() && (group.getDistributionSize() > 0))
@@ -99,7 +100,7 @@ public interface Distribution extends Serializable {
 			groupSizeSum = (groupSizeSum + distributionSize);
 		}
 		// Increments the selected group size.
-		if (selectedGroup != null) {
+		if (incrementGroupSize && (selectedGroup != null)) {
 			final Long currentSize = (selectedGroup.getCurrentSize() == null ? 0 : selectedGroup.getCurrentSize());
 			selectedGroup.setCurrentSize(currentSize + 1);
 		}
@@ -115,8 +116,9 @@ public interface Distribution extends Serializable {
 	 * @return                      The selected group for the sample.
 	 */
 	default DistributionGroup distribute(
-			final Long pseudoRandomSampleId) {
-		return Distribution.distribute(this.getGroups(), this.getBaseSize(), pseudoRandomSampleId);
+			final Long pseudoRandomSampleId,
+			final Boolean incrementGroupSize) {
+		return Distribution.distribute(this.getGroups(), this.getBaseSize(), pseudoRandomSampleId, incrementGroupSize);
 	}
 
 }
