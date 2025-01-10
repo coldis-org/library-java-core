@@ -52,14 +52,19 @@ public class ModelView {
 	/* Combined */
 
 	/**
-	 * Public and lazy view.
+	 * Personal and personal view.
 	 */
-	public interface PublicAndLazy extends Public, Lazy {}
+	public interface PersonalAndPersonal extends Personal {}
+
+	/**
+	 * Personal and sensitive view.
+	 */
+	public interface PersonalAndSensitive extends Personal, Sensitive {}
 
 	/**
 	 * Public and lazy view.
 	 */
-	public interface PublicAndInternal extends Public, Internal {}
+	public interface PublicAndLazy extends Public, Lazy {}
 
 	/**
 	 * Public and personal.
@@ -80,15 +85,5 @@ public class ModelView {
 	 * Public and masked sensitive.
 	 */
 	public interface PublicAndMaskedSensitive extends Public, MaskedSensitive {}
-
-	/**
-	 * Public and internal and personal.
-	 */
-	public interface PublicAndInternalAndPersonal extends Public, Internal, Personal {}
-
-	/**
-	 * Public and internal and sensitive.
-	 */
-	public interface PublicAndInternalAndSensitive extends Public, Internal, Sensitive {}
 
 }
