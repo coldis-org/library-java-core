@@ -32,7 +32,7 @@ public class ModelView {
 	/**
 	 * Personal view.
 	 */
-	public interface Personal {}
+	public interface Personal extends Public {}
 
 	/**
 	 * Sensitive view.
