@@ -39,32 +39,17 @@ public class ModelView {
 	 */
 	public interface Sensitive extends Personal {}
 
-	/**
-	 * Masked personal view.
-	 */
-	public interface MaskedPersonal extends Personal {}
-
-	/**
-	 * Masked sensitive view.
-	 */
-	public interface MaskedSensitive extends Sensitive, MaskedPersonal {}
-
 	/* Combined */
 
 	/**
-	 * Personal and personal view.
+	 * Persistent and personal view.
 	 */
-	public interface PersonalAndPersonal extends Personal {}
+	public interface PersistentAndPersonal extends Persistent {}
 
 	/**
-	 * Personal and sensitive view.
+	 * Persistent and sensitive view.
 	 */
-	public interface PersonalAndSensitive extends Personal, Sensitive {}
-
-	/**
-	 * Public and lazy view.
-	 */
-	public interface PublicAndLazy extends Public, Lazy {}
+	public interface PersistentAndSensitive extends Persistent, Sensitive {}
 
 	/**
 	 * Public and personal.
@@ -75,15 +60,5 @@ public class ModelView {
 	 * Public and personal.
 	 */
 	public interface PublicAndSensitive extends Public, Sensitive {}
-
-	/**
-	 * Public and masked personal.
-	 */
-	public interface PublicAndMaskedPersonal extends Public, MaskedPersonal {}
-
-	/**
-	 * Public and masked sensitive.
-	 */
-	public interface PublicAndMaskedSensitive extends Public, MaskedSensitive {}
 
 }
