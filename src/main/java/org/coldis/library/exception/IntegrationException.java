@@ -1,5 +1,6 @@
 package org.coldis.library.exception;
 
+import org.apache.commons.lang3.StringUtils;
 import org.coldis.library.model.SimpleMessage;
 
 /**
@@ -90,7 +91,8 @@ public class IntegrationException extends RuntimeException {
 	 *
 	 * @param internalMessage New internalMessage.
 	 */
-	public void setInternalMessage(final SimpleMessage internalMessage) {
+	public void setInternalMessage(
+			final SimpleMessage internalMessage) {
 		this.internalMessage = internalMessage;
 	}
 
@@ -114,7 +116,8 @@ public class IntegrationException extends RuntimeException {
 	 *
 	 * @param statusCode New statusCode.
 	 */
-	public void setStatusCode(final Integer statusCode) {
+	public void setStatusCode(
+			final Integer statusCode) {
 		this.statusCode = statusCode;
 	}
 
@@ -123,7 +126,9 @@ public class IntegrationException extends RuntimeException {
 	 */
 	@Override
 	public String getMessage() {
-		return this.getInternalMessage() != null ? this.getInternalMessage().getContent() : null;
+		String message = (this.getInternalMessage() != null ? this.getInternalMessage().toString() : null);
+		message = (StringUtils.isBlank(message) ? ("Status: " + this.getStatusCode()) : message);
+		return message;
 	}
 
 }

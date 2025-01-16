@@ -94,7 +94,8 @@ public class SimpleMessage implements Typable {
 	 * @param  otherSimpleMessage SimpleMessage.
 	 * @return                    If the message has the same code.
 	 */
-	public static Predicate<SimpleMessage> hasSameCode(final SimpleMessage otherSimpleMessage) {
+	public static Predicate<SimpleMessage> hasSameCode(
+			final SimpleMessage otherSimpleMessage) {
 		return message -> otherSimpleMessage.getCode().equals(message.getCode());
 	}
 
@@ -104,7 +105,8 @@ public class SimpleMessage implements Typable {
 	 * @param  otherSimpleMessages SimpleMessages.
 	 * @return                     If the message has the same code.
 	 */
-	public static Predicate<SimpleMessage> hasOneOfCodes(final SimpleMessage... otherSimpleMessages) {
+	public static Predicate<SimpleMessage> hasOneOfCodes(
+			final SimpleMessage... otherSimpleMessages) {
 		return message -> (otherSimpleMessages != null) && Arrays.asList(otherSimpleMessages).stream().anyMatch(SimpleMessage.hasSameCode(message));
 	}
 
@@ -123,7 +125,8 @@ public class SimpleMessage implements Typable {
 	 *
 	 * @param code New code.
 	 */
-	public void setCode(final String code) {
+	public void setCode(
+			final String code) {
 		this.code = code;
 	}
 
@@ -142,7 +145,8 @@ public class SimpleMessage implements Typable {
 	 *
 	 * @param content New content.
 	 */
-	public void setContent(final String content) {
+	public void setContent(
+			final String content) {
 		this.content = content;
 	}
 
@@ -161,7 +165,8 @@ public class SimpleMessage implements Typable {
 	 *
 	 * @param parameters New parameters.
 	 */
-	public void setParameters(final Object[] parameters) {
+	public void setParameters(
+			final Object[] parameters) {
 		this.parameters = parameters;
 	}
 
@@ -190,7 +195,8 @@ public class SimpleMessage implements Typable {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(
+			final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -199,6 +205,14 @@ public class SimpleMessage implements Typable {
 		}
 		final SimpleMessage other = (SimpleMessage) obj;
 		return Objects.equals(this.code, other.code) && Objects.equals(this.content, other.content) && Arrays.deepEquals(this.parameters, other.parameters);
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.getContent() == null ? this.getCode() : this.getContent();
 	}
 
 }

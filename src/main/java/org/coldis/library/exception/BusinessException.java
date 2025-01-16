@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.coldis.library.model.SimpleMessage;
 
 /**
@@ -38,8 +40,7 @@ public class BusinessException extends Exception {
 	 * @param statusCode Exception status code.
 	 * @param cause      Exception cause.
 	 */
-	public BusinessException(final Collection<SimpleMessage> messages, final Integer statusCode,
-			final Throwable cause) {
+	public BusinessException(final Collection<SimpleMessage> messages, final Integer statusCode, final Throwable cause) {
 		super(cause);
 		this.messages = messages;
 		this.statusCode = statusCode;
@@ -141,7 +142,8 @@ public class BusinessException extends Exception {
 	 *
 	 * @param messages New exception messages.
 	 */
-	public void setMessages(final Collection<SimpleMessage> messages) {
+	public void setMessages(
+			final Collection<SimpleMessage> messages) {
 		this.messages = messages;
 	}
 
@@ -165,7 +167,8 @@ public class BusinessException extends Exception {
 	 *
 	 * @param statusCode New statusCode.
 	 */
-	public void setStatusCode(final Integer statusCode) {
+	public void setStatusCode(
+			final Integer statusCode) {
 		this.statusCode = statusCode;
 	}
 
@@ -175,9 +178,7 @@ public class BusinessException extends Exception {
 	 * @return The first message code, or null if there is no code for the message.
 	 */
 	public String getCode() {
-		return (this.getMessages() != null) && !this.getMessages().isEmpty()
-				? this.getMessages().iterator().next().getCode()
-						: null;
+		return (this.getMessages() != null) && !this.getMessages().isEmpty() ? this.getMessages().iterator().next().getCode() : null;
 	}
 
 	/**
@@ -185,9 +186,9 @@ public class BusinessException extends Exception {
 	 */
 	@Override
 	public String getMessage() {
-		return (this.getMessages() != null) && !this.getMessages().isEmpty()
-				? this.getMessages().iterator().next().getContent()
-						: null;
+		String message = (CollectionUtils.isNotEmpty(this.getMessages()) ? StringUtils.join(this.getMessages(), " ") : null);
+		message = (StringUtils.isBlank(message) ? ("Status: " + this.getStatusCode()) : message);
+		return message;
 	}
 
 }
