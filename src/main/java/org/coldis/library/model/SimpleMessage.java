@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.StringUtils;
 import org.coldis.library.model.view.ModelView;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -212,7 +213,7 @@ public class SimpleMessage implements Typable {
 	 */
 	@Override
 	public String toString() {
-		return this.getContent() == null ? this.getCode() : this.getContent();
+		return StringUtils.isBlank(this.getContent()) ? this.getCode() : this.getContent();
 	}
 
 }
