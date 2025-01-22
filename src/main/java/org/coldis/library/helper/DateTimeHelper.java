@@ -109,4 +109,30 @@ public class DateTimeHelper {
 		return (dateTime == null ? null : dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 	}
 
+	/**
+	 * Gets the minimum date time.
+	 *
+	 * @param  dateTime1 Date time 1.
+	 * @param  dateTime2 Date time 2.
+	 * @return           The minimum date time.
+	 */
+	public static LocalDateTime mininum(
+			final LocalDateTime dateTime1,
+			final LocalDateTime dateTime2) {
+		return (dateTime1 == null ? dateTime2 : (dateTime2 == null ? dateTime1 : (dateTime1.isBefore(dateTime2) ? dateTime1 : dateTime2)));
+	}
+
+	/**
+	 * Gets the maximum date time.
+	 *
+	 * @param  dateTime1 Date time 1.
+	 * @param  dateTime2 Date time 2.
+	 * @return           The maximum date time.
+	 */
+	public static LocalDateTime maximum(
+			final LocalDateTime dateTime1,
+			final LocalDateTime dateTime2) {
+		return (dateTime1 == null ? dateTime2 : (dateTime2 == null ? dateTime1 : (dateTime1.isAfter(dateTime2) ? dateTime1 : dateTime2)));
+	}
+
 }
