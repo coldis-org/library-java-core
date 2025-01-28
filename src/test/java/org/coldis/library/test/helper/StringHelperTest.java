@@ -99,9 +99,9 @@ public class StringHelperTest {
 		Assertions.assertTrue(StringHelper.hasValidEmailDomain("romulo@gamil.com"));
 		Assertions.assertFalse(StringHelper.hasValidEmailDomain("romulo@gmail.comn"));
 		Assertions.assertFalse(StringHelper.hasValidEmailDomain("romulo@gmail.con"));
-		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.com", false));
-		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.comn", false));
-		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.con", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.com"));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.comn"));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.con"));
 		Assertions.assertEquals("romulo@gmail.com.br", StringHelper.fixEmailDomainTypos("romulo@gmail.combr", false));
 		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gail.con", false));
 		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmil.con", false));

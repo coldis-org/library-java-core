@@ -330,6 +330,17 @@ public class StringHelper {
 	}
 
 	/**
+	 * Fix email domain typos.
+	 *
+	 * @param  emailAddress The email address.
+	 * @return              The fixed email address.
+	 */
+	public static final String fixEmailDomainTypos(
+			final String emailAddress) {
+		return StringHelper.fixEmailDomainTypos(emailAddress, false);
+	}
+
+	/**
 	 * Removes accents from string.
 	 *
 	 * @param  stringValue The string value.
