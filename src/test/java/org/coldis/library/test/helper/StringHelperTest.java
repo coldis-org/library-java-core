@@ -90,4 +90,24 @@ public class StringHelperTest {
 		Assertions.assertEquals(expected, StringHelper.removeNonAlphaNumericCharacters(expected));
 	}
 
+	/**
+	 * Tests the removal of non-alphanumeric characters.
+	 */
+	@Test
+	public void testEmailValidation() {
+		Assertions.assertTrue(StringHelper.hasValidEmailDomain("romulo@gmail.com"));
+		Assertions.assertTrue(StringHelper.hasValidEmailDomain("romulo@gamil.com"));
+		Assertions.assertFalse(StringHelper.hasValidEmailDomain("romulo@gmail.comn"));
+		Assertions.assertFalse(StringHelper.hasValidEmailDomain("romulo@gmail.con"));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.com", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.comn", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.con", false));
+		Assertions.assertEquals("romulo@gmail.com.br", StringHelper.fixEmailDomainTypos("romulo@gmail.combr", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gail.con", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmil.con", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.con", false));
+		Assertions.assertEquals("romulo@gamil.com", StringHelper.fixEmailDomainTypos("romulo@gamil.com", false));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gamil.com", true));
+	}
+
 }
