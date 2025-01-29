@@ -22,8 +22,6 @@ public class ModelView {
 	 */
 	public interface Lazy {}
 
-	/* Content */
-
 	/**
 	 * Public view.
 	 */
@@ -52,13 +50,28 @@ public class ModelView {
 	public interface PersistentAndSensitive extends Persistent, Sensitive {}
 
 	/**
+	 * Public and internal view.
+	 */
+	public interface PublicAndLazy extends Public, Lazy {}
+
+	/**
 	 * Public and personal.
 	 */
 	public interface PublicAndPersonal extends Public, Personal {}
 
 	/**
+	 * Public and lazy and personal.
+	 */
+	public interface PublicAndLazyAndPersonal extends Public, Lazy, Personal {}
+
+	/**
 	 * Public and personal.
 	 */
 	public interface PublicAndSensitive extends Public, Sensitive {}
+
+	/**
+	 * Public and lazy and personal.
+	 */
+	public interface PublicAndLazyAndSensitive extends Public, Lazy, Sensitive {}
 
 }
