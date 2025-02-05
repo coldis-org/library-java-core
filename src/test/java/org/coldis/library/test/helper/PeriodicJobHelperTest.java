@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import org.coldis.library.helper.DateTimeHelper;
-import org.coldis.library.helper.PeriodicJobHelper;
+import org.coldis.library.helper.LocalPeriodicJobHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ public class PeriodicJobHelperTest {
 	 */
 	@BeforeEach
 	public void setUp() {
-		PeriodicJobHelper.clear("kind");
+		LocalPeriodicJobHelper.clear("kind");
 	}
 
 	/**
@@ -30,27 +30,27 @@ public class PeriodicJobHelperTest {
 		final Duration wait = Duration.ofSeconds(2L);
 
 		// Should run if the last run was not found.
-		Assertions.assertTrue(PeriodicJobHelper.shouldRun("kind", "value", wait, null));
-		PeriodicJobHelper.clearExpired();
-		Assertions.assertNotNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value"));
-		Assertions.assertNotNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getKey());
-		Assertions.assertNotNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getValue());
+		Assertions.assertTrue(LocalPeriodicJobHelper.shouldRun("kind", "value", wait, null));
+		LocalPeriodicJobHelper.clearExpired();
+		Assertions.assertNotNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value"));
+		Assertions.assertNotNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getKey());
+		Assertions.assertNotNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getValue());
 
 		// Should not run if duration has not passed.
-		Assertions.assertFalse(PeriodicJobHelper.shouldRun("kind", "value", wait, null));
+		Assertions.assertFalse(LocalPeriodicJobHelper.shouldRun("kind", "value", wait, null));
 
 		// Should run if duration has passed.
 		Thread.sleep(wait.toMillis());
-		Assertions.assertNotNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value"));
-		Assertions.assertNotNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getKey());
-		Assertions.assertNotNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getValue());
-		Assertions.assertTrue(PeriodicJobHelper.shouldRun("kind", "value", wait, null));
+		Assertions.assertNotNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value"));
+		Assertions.assertNotNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getKey());
+		Assertions.assertNotNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getValue());
+		Assertions.assertTrue(LocalPeriodicJobHelper.shouldRun("kind", "value", wait, null));
 
 		// Should run if duration has passed.
 		Thread.sleep(wait.toMillis());
-		PeriodicJobHelper.clearExpired();
-		Assertions.assertNull(PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value"));
-		Assertions.assertTrue(PeriodicJobHelper.shouldRun("kind", "value", wait, null));
+		LocalPeriodicJobHelper.clearExpired();
+		Assertions.assertNull(LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value"));
+		Assertions.assertTrue(LocalPeriodicJobHelper.shouldRun("kind", "value", wait, null));
 	}
 
 	/**
@@ -63,9 +63,9 @@ public class PeriodicJobHelperTest {
 		final ChronoUnit maximumWaitUnit = ChronoUnit.DAYS;
 
 		// Should run if the last run was not found.
-		Assertions.assertTrue(PeriodicJobHelper.shouldRun("kind", "value", wait, maximumWaitUnit));
+		Assertions.assertTrue(LocalPeriodicJobHelper.shouldRun("kind", "value", wait, maximumWaitUnit));
 		Assertions.assertTrue(
-				PeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getValue().isEqual(DateTimeHelper.getCurrentLocalDate().plusDays(1).atStartOfDay()));
+				LocalPeriodicJobHelper.LAST_JOB_RUNS.get("kind").get("value").getValue().isEqual(DateTimeHelper.getCurrentLocalDate().plusDays(1).atStartOfDay()));
 
 	}
 

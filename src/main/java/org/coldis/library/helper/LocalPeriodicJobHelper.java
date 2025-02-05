@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Helper for jobs running periodically. */
-public class PeriodicJobHelper {
+public class LocalPeriodicJobHelper {
 
 	/** Last job runs. */
 	public static final Map<String, Map<String, Map.Entry<LocalDateTime, LocalDateTime>>> LAST_JOB_RUNS = new ConcurrentHashMap<>();
@@ -21,7 +21,7 @@ public class PeriodicJobHelper {
 	public static void clear(
 			final String kind) {
 		synchronized (LockHelper.getStringLockKey(kind)) {
-			PeriodicJobHelper.LAST_JOB_RUNS.remove(kind);
+			LocalPeriodicJobHelper.LAST_JOB_RUNS.remove(kind);
 		}
 	}
 
@@ -30,12 +30,12 @@ public class PeriodicJobHelper {
 	 */
 	public static void clearExpired() {
 		final LocalDateTime now = DateTimeHelper.getCurrentLocalDateTime();
-		for (final String kind : PeriodicJobHelper.LAST_JOB_RUNS.keySet()) {
-			for (final String value : PeriodicJobHelper.LAST_JOB_RUNS.get(kind).keySet()) {
+		for (final String kind : LocalPeriodicJobHelper.LAST_JOB_RUNS.keySet()) {
+			for (final String value : LocalPeriodicJobHelper.LAST_JOB_RUNS.get(kind).keySet()) {
 				synchronized (LockHelper.getStringLockKey(kind + "-" + value)) {
-					final Entry<LocalDateTime, LocalDateTime> lastRun = PeriodicJobHelper.LAST_JOB_RUNS.get(kind).get(value);
+					final Entry<LocalDateTime, LocalDateTime> lastRun = LocalPeriodicJobHelper.LAST_JOB_RUNS.get(kind).get(value);
 					if ((lastRun.getKey() == null) || (lastRun.getValue() == null) || now.isAfter(lastRun.getValue())) {
-						PeriodicJobHelper.LAST_JOB_RUNS.get(kind).remove(value);
+						LocalPeriodicJobHelper.LAST_JOB_RUNS.get(kind).remove(value);
 					}
 				}
 			}
@@ -59,9 +59,9 @@ public class PeriodicJobHelper {
 
 		// Makes sure the entry for the kind exists.
 		synchronized (LockHelper.getStringLockKey(kind)) {
-			PeriodicJobHelper.LAST_JOB_RUNS.put(kind, PeriodicJobHelper.LAST_JOB_RUNS.getOrDefault(kind, new ConcurrentHashMap<>()));
+			LocalPeriodicJobHelper.LAST_JOB_RUNS.put(kind, LocalPeriodicJobHelper.LAST_JOB_RUNS.getOrDefault(kind, new ConcurrentHashMap<>()));
 		}
-		final Map<String, Map.Entry<LocalDateTime, LocalDateTime>> kindChecks = PeriodicJobHelper.LAST_JOB_RUNS.get(kind);
+		final Map<String, Map.Entry<LocalDateTime, LocalDateTime>> kindChecks = LocalPeriodicJobHelper.LAST_JOB_RUNS.get(kind);
 
 		// Tries to get the time for the checked value.
 		synchronized (LockHelper.getStringLockKey(kind + "-" + value)) {
