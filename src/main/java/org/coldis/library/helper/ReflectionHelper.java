@@ -12,6 +12,7 @@ import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.MirroredTypesException;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.coldis.library.exception.IntegrationException;
 import org.coldis.library.model.SimpleMessage;
@@ -105,7 +106,7 @@ public class ReflectionHelper {
 	 * @param  attributeName Attribute name.
 	 * @return               The attribute getter.
 	 */
-	private static <Type> Method getSetter(
+	public static <Type> Method getSetter(
 			final Type object,
 			final String attributeName) {
 		Method attributeSetter = null;
@@ -166,6 +167,7 @@ public class ReflectionHelper {
 	 */
 	public static Object getAttribute(
 			final Object object,
+			final Boolean fieldAccess,
 			final String attributeNamePath) {
 		// Attribute path value.
 		Object attributePathValue = null;
@@ -186,6 +188,9 @@ public class ReflectionHelper {
 						if (attributePathValue instanceof Map) {
 							attributePathValue = ((Map<?, ?>) attributePathValue).get(attributePathPart);
 						}
+						else if (fieldAccess) {
+							attributePathValue = FieldUtils.getField(attributePathValue.getClass(), attributePathPart, true).get(attributePathValue);
+						}
 						else {
 							attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
 						}
@@ -202,6 +207,59 @@ public class ReflectionHelper {
 	}
 
 	/**
+	 * Gets an object attribute.
+	 *
+	 * @param  object            Object.
+	 * @param  attributeNamePath Attribute name path.
+	 * @return                   The object attribute value.
+	 */
+	public static Object getAttribute(
+			final Object object,
+			final String attributeNamePath) {
+		return ReflectionHelper.getAttribute(object, false, attributeNamePath);
+	}
+
+	/**
+	 * Replace an object attribute.
+	 *
+	 * @param object            Object.
+	 * @param attributeNamePath Attribute name path.
+	 * @param newValue          New attribute value.
+	 */
+	public static void setAttribute(
+			final Object object,
+			final Boolean fieldAccess,
+			final String attributeNamePath,
+			final Object newValue) {
+		// If the object and attribute name are given.
+		if ((object != null) && (attributeNamePath != null)) {
+			// Splits the last attribute.
+			final String setAttributePath = attributeNamePath.substring(attributeNamePath.lastIndexOf('.') + 1);
+			final String getAttributePath = attributeNamePath.substring(0, attributeNamePath.length() - setAttributePath.length());
+			if (setAttributePath != null) {
+				// Gets the attribute path.
+				final Object attributeObject = ReflectionHelper.getAttribute(object, fieldAccess, getAttributePath);
+				// Tries to set the attribute value.
+				try {
+					if (attributeObject instanceof Map) {
+						((Map<String, Object>) attributeObject).put(setAttributePath, newValue);
+					}
+					else if (fieldAccess) {
+						FieldUtils.getField(attributeObject.getClass(), setAttributePath, true).set(attributeObject, newValue);
+					}
+					else {
+						MethodUtils.invokeMethod(attributeObject, ReflectionHelper.getSetterName(setAttributePath), newValue);
+					}
+				}
+				// If the method cannot be found, logs it.
+				catch (final Exception exception) {
+					ReflectionHelper.LOGGER.debug("Attribute value cannot be updated.", exception);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Replace an object attribute.
 	 *
 	 * @param object            Object.
@@ -212,48 +270,7 @@ public class ReflectionHelper {
 			final Object object,
 			final String attributeNamePath,
 			final Object newValue) {
-		// If the object and attribute name are given.
-		if ((object != null) && (attributeNamePath != null)) {
-			// Splits the attributes.
-			final String[] attributePath = attributeNamePath.split("\\.");
-			// Current attribute path value.
-			Object attributePathValue = object;
-			// For each attribute in the path.
-			for (Integer attributePathPartIndex = 0; attributePathPartIndex < attributePath.length; attributePathPartIndex++) {
-				// Gets the attribute path part.
-				final String attributePathPart = attributePath[attributePathPartIndex];
-				// If the attribute value path is still valid.
-				if (attributePathValue != null) {
-					// If it is the last attribute.
-					if ((attributePathPartIndex + 1) == attributePath.length) {
-						// Tries to set the attribute value.
-						try {
-							if (attributePathValue instanceof Map) {
-								((Map<String, Object>) attributePathValue).put(attributePathPart, newValue);
-							}
-							else {
-							MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getSetterName(attributePathPart), newValue);
-						}}
-						// If the method cannot be found, logs it.
-						catch (final Exception exception) {
-							ReflectionHelper.LOGGER.debug("Attribute value cannot be updated.", exception);
-						}
-					}
-					// If it is not the last attribute.
-					else {
-						// Tries to get the next path value.
-						try {
-							attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
-						}
-						// If the attribute path cannot be retrieved.
-						catch (final Exception exception) {
-							// Logs it.
-							ReflectionHelper.LOGGER.debug("Attribute path part value cannot be retrieved.", exception);
-						}
-					}
-				}
-			}
-		}
+		ReflectionHelper.setAttribute(object, false, attributeNamePath, newValue);
 	}
 
 	/**
@@ -295,7 +312,6 @@ public class ReflectionHelper {
 		}
 		// Returns the attribute value.
 		return classAttributeValue;
-
 	}
 
 	/**
