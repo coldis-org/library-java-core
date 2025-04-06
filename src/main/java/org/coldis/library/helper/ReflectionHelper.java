@@ -12,6 +12,7 @@ import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.MirroredTypesException;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.coldis.library.exception.IntegrationException;
@@ -170,13 +171,11 @@ public class ReflectionHelper {
 			final Boolean fieldAccess,
 			final String attributeNamePath) {
 		// Attribute path value.
-		Object attributePathValue = null;
+		Object attributePathValue = object;
 		// If the object and attribute name are given.
-		if ((object != null) && (attributeNamePath != null)) {
+		if ((object != null) && (StringUtils.isNotBlank(attributeNamePath))) {
 			// Splits the attributes.
 			final String[] attributePath = attributeNamePath.split("\\.");
-			// Current attribute path value.
-			attributePathValue = object;
 			// For each attribute in the path.
 			for (Integer attributePathPartIndex = 0; attributePathPartIndex < attributePath.length; attributePathPartIndex++) {
 				// Gets the attribute path part.
@@ -226,6 +225,7 @@ public class ReflectionHelper {
 	 * @param attributeNamePath Attribute name path.
 	 * @param newValue          New attribute value.
 	 */
+	@SuppressWarnings("unchecked")
 	public static void setAttribute(
 			final Object object,
 			final Boolean fieldAccess,
