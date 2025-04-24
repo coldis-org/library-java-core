@@ -8,6 +8,7 @@ import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +77,9 @@ public class DynamicThreadPoolFactory {
 	/** Max queue size. */
 	private Integer maxQueueSize;
 
+	/** Fair queue */
+	private Boolean fairQueue;
+
 	/** Keep alive. */
 	private Duration keepAlive;
 
@@ -105,6 +109,7 @@ public class DynamicThreadPoolFactory {
 		this.maxPoolSize = factory.getMaxPoolSize();
 		this.maxPoolSizeCpuMultiplier = factory.getMaxPoolSizeCpuMultiplier();
 		this.maxQueueSize = factory.getMaxQueueSize();
+		this.fairQueue = factory.getFairQueue();
 		this.keepAlive = factory.getKeepAlive();
 	}
 
@@ -390,6 +395,27 @@ public class DynamicThreadPoolFactory {
 	}
 
 	/**
+	 * Gets the fairQueue.
+	 *
+	 * @return The fairQueue.
+	 */
+	public Boolean getFairQueue() {
+		return (this.fairQueue == null ? false : this.fairQueue);
+	}
+
+	/**
+	 * Sets the fairQueue.
+	 *
+	 * @param  fairQueue New fairQueue.
+	 * @return           The factory.
+	 */
+	public DynamicThreadPoolFactory withFairQueue(
+			final Boolean fairQueue) {
+		this.fairQueue = fairQueue;
+		return this;
+	}
+
+	/**
 	 * Sets the keepAlive.
 	 *
 	 * @param keepAlive New keepAlive.
@@ -545,7 +571,9 @@ public class DynamicThreadPoolFactory {
 
 		// Otherwise, uses a common pool.
 		else {
-			final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.getMaxQueueSize());
+			final BlockingQueue<Runnable> queue = ((actualMaxPoolSize == null) || (actualMaxPoolSize == Integer.MAX_VALUE)
+					? new SynchronousQueue<>(this.getFairQueue())
+					: new LinkedBlockingQueue<>(this.getMaxQueueSize()));
 			final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(actualCorePoolSize, actualMaxPoolSize, actualKeepAliveMillis,
 					actualKeepAliveUnit, queue, new ConfigurableThreadFactory(factory, this.getName(), this.getPriority()));
 			threadPoolExecutor.allowCoreThreadTimeOut(true);
