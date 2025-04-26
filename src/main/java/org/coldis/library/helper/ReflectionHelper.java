@@ -197,6 +197,8 @@ public class ReflectionHelper {
 					// If the attribute path cannot be retrieved.
 					catch (final Exception exception) {
 						ReflectionHelper.LOGGER.debug("Attribute path part value cannot be retrieved.", exception);
+						attributePathValue = null;
+						break;
 					}
 				}
 			}
