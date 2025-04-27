@@ -11,8 +11,10 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.MirroredTypesException;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.coldis.library.exception.IntegrationException;
@@ -186,6 +188,9 @@ public class ReflectionHelper {
 					try {
 						if (attributePathValue instanceof Map) {
 							attributePathValue = ((Map<?, ?>) attributePathValue).get(attributePathPart);
+						}
+						else if ((attributePathValue instanceof Object[]) && NumberUtils.isDigits(attributePathPart)) {
+							attributePathValue = ArrayUtils.get((Object[]) attributePathValue, Integer.parseInt(attributePathPart));
 						}
 						else if (fieldAccess) {
 							attributePathValue = FieldUtils.getField(attributePathValue.getClass(), attributePathPart, true).get(attributePathValue);

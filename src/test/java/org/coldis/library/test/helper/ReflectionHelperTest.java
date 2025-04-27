@@ -18,9 +18,9 @@ public class ReflectionHelperTest {
 	 */
 	private static final List<TestClass> TEST_DATA = List.of(
 			new TestClass("1", 1l, new TestClass("1", 1L, new TestClass("1", 1L, null, null, null, null), null, null, null),
-					new TestClass("1", 1L, null, null, null, null), null, new HashMap<>(Map.of("test1", 1))),
+					new TestClass("1", 1L, null, null, null, null), null, new HashMap<>(Map.of("test1", 1, "test2", new TestClass[] {new TestClass("1", 1L, null, null, null, null)}))),
 			new TestClass("2", 2l, new TestClass("2", 2L, new TestClass("2", 2L, null, null, null, null), null, null, null),
-					new TestClass("2", 2L, null, null, null, null), null, new HashMap<>(Map.of("test1", 1))));
+					new TestClass("2", 2L, null, null, null, null), null, new HashMap<>(Map.of("test1", 1, "test2", new TestClass[] {new TestClass("2", 2L, null, null, null, null)}))));
 
 	/**
 	 * Tests setting attributes in complex object trees.
@@ -60,10 +60,15 @@ public class ReflectionHelperTest {
 			Assertions.assertEquals(100L, test.getTest3().getTest3().getTest2().longValue());
 			Assertions.assertEquals(100L, ReflectionHelper.getAttribute(test, useFieldAccess, "test3.test3.test2"));
 			// Sets an attribute value.
-			ReflectionHelper.setAttribute(test, useFieldAccess, "test6.test1", 2);
+			ReflectionHelper.setAttribute(test, useFieldAccess, "test6.test1", 100);
 			// Makes sure the attribute has been updated.
-			Assertions.assertEquals(2, test.getTest6().get("test1"));
-			Assertions.assertEquals(2, ReflectionHelper.getAttribute(test, useFieldAccess, "test6.test1"));
+			Assertions.assertEquals(100, test.getTest6().get("test1"));
+			Assertions.assertEquals(100, ReflectionHelper.getAttribute(test, useFieldAccess, "test6.test1"));
+			// Sets an attribute value.
+			ReflectionHelper.setAttribute(test, useFieldAccess, "test6.test2.0.test1", "100");
+			// Makes sure the attribute has been updated.
+			Assertions.assertEquals("100", ((TestClass[])test.getTest6().get("test2"))[0].getTest1());
+			Assertions.assertEquals("100", ReflectionHelper.getAttribute(test, useFieldAccess, "test6.test2.0.test1"));
 		}
 	}
 

@@ -38,6 +38,7 @@ public class TestClass {
 	 * Test atribute.
 	 */
 	private Map<String, Object> test6;
+	
 
 	/**
 	 * Empty constructor.
