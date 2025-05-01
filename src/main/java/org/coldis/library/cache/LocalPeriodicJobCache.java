@@ -4,14 +4,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalUnit;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.coldis.library.helper.DateTimeHelper;
-import org.coldis.library.helper.LockHelper;
 
 /** Helper for jobs running periodically. */
 public class LocalPeriodicJobCache {
@@ -25,9 +23,6 @@ public class LocalPeriodicJobCache {
 	/** Cache lock. */
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-	/** Lob id. */
-	private final String id;
-
 	/** Number of times to run before clearing expired. */
 	private final Long timesToRunBeforeClearingExpired;
 
@@ -37,41 +32,19 @@ public class LocalPeriodicJobCache {
 	/**
 	 * Creates a new instance of the class.
 	 *
-	 * @param id                              Lob id.
 	 * @param timesToRunBeforeClearingExpired Number of times to run before clearing
 	 *                                            expired.
 	 */
-	public LocalPeriodicJobCache(final String id, final Long timesToRunBeforeClearingExpired) {
+	public LocalPeriodicJobCache(final Long timesToRunBeforeClearingExpired) {
 		super();
-		this.id = id;
 		this.timesToRunBeforeClearingExpired = timesToRunBeforeClearingExpired;
-	}
-
-	/**
-	 * Creates a new instance of the class.
-	 *
-	 * @param id Lob id.
-	 */
-	public LocalPeriodicJobCache(final String id) {
-		this(id, 10000L);
 	}
 
 	/**
 	 * Creates a new instance of the class.
 	 */
 	public LocalPeriodicJobCache() {
-		this(UUID.randomUUID().toString());
-	}
-
-	/**
-	 * Gets the lock key for a given key.
-	 *
-	 * @param  key Key.
-	 * @return     Lock key.
-	 */
-	private Object getKeyLock(
-			final String key) {
-		return LockHelper.getStringLockKey(LocalPeriodicJobCache.class.getSimpleName() + "-" + this.id + "-" + key);
+		this(10000L);
 	}
 
 	/**
@@ -85,8 +58,8 @@ public class LocalPeriodicJobCache {
 		try {
 			// Gets the read lock.
 			this.lock.readLock().lock();
-			synchronized (this.getKeyLock(key)) {
-				return new LocalPeriodicJobCacheEntry(this.lastJobRuns.getOrDefault(key, new LocalPeriodicJobCacheEntry()));
+			synchronized (this.lastJobRuns.computeIfAbsent(key, k -> new LocalPeriodicJobCacheEntry())) {
+				return new LocalPeriodicJobCacheEntry(this.lastJobRuns.get(key));
 			}
 		}
 		// Releases the read lock.
@@ -116,7 +89,6 @@ public class LocalPeriodicJobCache {
 	public void clearExpired() {
 		try {
 			this.lock.writeLock().lock();
-
 			final LocalDateTime now = DateTimeHelper.getCurrentLocalDateTime();
 			for (final String key : this.lastJobRuns.keySet()) {
 				final LocalPeriodicJobCacheEntry lastRun = this.lastJobRuns.get(key);
@@ -151,8 +123,8 @@ public class LocalPeriodicJobCache {
 
 			// Tries to get the time for the checked key.
 			boolean shouldRun = false;
-			synchronized (this.getKeyLock(key)) {
-				final LocalPeriodicJobCacheEntry lastRun = this.lastJobRuns.computeIfAbsent(key, k -> new LocalPeriodicJobCacheEntry());
+			synchronized (this.lastJobRuns.computeIfAbsent(key, k -> new LocalPeriodicJobCacheEntry())) {
+				final LocalPeriodicJobCacheEntry lastRun = this.lastJobRuns.get(key);
 
 				// Should run if the last run was not found or is before the expiration.
 				shouldRun = (lastRun.getLastRunAt().isBefore(expiration));
