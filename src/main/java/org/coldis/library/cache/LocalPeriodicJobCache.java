@@ -6,6 +6,8 @@ import java.time.temporal.TemporalUnit;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.coldis.library.helper.DateTimeHelper;
@@ -13,6 +15,9 @@ import org.coldis.library.helper.LockHelper;
 
 /** Helper for jobs running periodically. */
 public class LocalPeriodicJobCache {
+
+	/** Clear executor. */
+	private final ExecutorService CLEAR_EXECUTOR = Executors.newSingleThreadExecutor();
 
 	/** Last job runs. */
 	private final Map<String, LocalPeriodicJobCacheEntry> lastJobRuns = new ConcurrentHashMap<>();
@@ -23,14 +28,32 @@ public class LocalPeriodicJobCache {
 	/** Lob id. */
 	private final String id;
 
+	/** Number of times to run before clearing expired. */
+	private final Long timesToRunBeforeClearingExpired;
+
+	/** Number of times the job was run. */
+	private Long tryRunCount = 0L;
+
+	/**
+	 * Creates a new instance of the class.
+	 *
+	 * @param id                              Lob id.
+	 * @param timesToRunBeforeClearingExpired Number of times to run before clearing
+	 *                                            expired.
+	 */
+	public LocalPeriodicJobCache(final String id, final Long timesToRunBeforeClearingExpired) {
+		super();
+		this.id = id;
+		this.timesToRunBeforeClearingExpired = timesToRunBeforeClearingExpired;
+	}
+
 	/**
 	 * Creates a new instance of the class.
 	 *
 	 * @param id Lob id.
 	 */
 	public LocalPeriodicJobCache(final String id) {
-		super();
-		this.id = id;
+		this(id, 10000L);
 	}
 
 	/**
@@ -103,6 +126,7 @@ public class LocalPeriodicJobCache {
 			}
 		}
 		finally {
+			this.tryRunCount = 0L;
 			this.lock.writeLock().unlock();
 		}
 	}
@@ -147,8 +171,29 @@ public class LocalPeriodicJobCache {
 		// Releases the read lock.
 		finally {
 			this.lock.readLock().unlock();
+			this.tryRunCount++;
+			if (this.tryRunCount >= this.timesToRunBeforeClearingExpired) {
+				this.CLEAR_EXECUTOR.execute(() -> this.clearExpired());
+			}
 		}
 	}
-	
+
+	/**
+	 * Runs a job if it should run.
+	 *
+	 * @param job         Job to run.
+	 * @param key         Job key.
+	 * @param waitPeriod  Wait period.
+	 * @param maximumWait Maximum wait unit.
+	 */
+	public void run(
+			final Runnable job,
+			final String key,
+			final Duration waitPeriod,
+			final TemporalUnit maximumWaitUnit) {
+		if (this.shouldRun(key, waitPeriod, maximumWaitUnit)) {
+			job.run();
+		}
+	}
 
 }

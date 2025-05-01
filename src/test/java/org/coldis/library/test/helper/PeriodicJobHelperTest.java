@@ -54,31 +54,12 @@ public class PeriodicJobHelperTest {
 	 */
 	private class TestJob implements Runnable {
 
-		/** Job cache. */
-		private final LocalPeriodicJobCache jobCache;
-
-		/** Wait. */
-		private final Duration wait;
-
 		/** Count. */
 		private int count;
 
-		/**
-		 * Creates a new instance of the class.
-		 *
-		 * @param jobCache Job cache.
-		 * @param wait     Wait.
-		 */
-		public TestJob(final LocalPeriodicJobCache jobCache, final Duration wait) {
-			this.jobCache = jobCache;
-			this.wait = wait;
-		}
-
 		@Override
 		public void run() {
-			if (this.jobCache.shouldRun("value", this.wait, null)) {
-				this.count++;
-			}
+			this.count++;
 		}
 
 	}
@@ -93,20 +74,37 @@ public class PeriodicJobHelperTest {
 		final Duration wait = Duration.ofSeconds(2L);
 
 		// Run some tasks in parallel.
-		final TestJob job = new TestJob(jobCache, wait);
-		final CompletableFuture<Void> run1 = CompletableFuture.runAsync(job);
-		final CompletableFuture<Void> run2 = CompletableFuture.runAsync(job);
-		final CompletableFuture<Void> run3 = CompletableFuture.runAsync(job);
-		final CompletableFuture<Void> run4 = CompletableFuture.runAsync(job);
-		final CompletableFuture<Void> run5 = CompletableFuture.runAsync(job);
-		final CompletableFuture<Void> run6 = CompletableFuture.runAsync(job);
-		final CompletableFuture<Void> run7 = CompletableFuture.runAsync(job);
+		final TestJob job = new TestJob();
+		final CompletableFuture<Void> run1 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run2 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run3 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run4 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run5 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run6 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run7 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
 		CompletableFuture.allOf(run1, run2, run3, run4, run5, run6, run7).join();
 
 		// Assert that the job was executed only once.
-		Assertions.assertTrue(jobCache.getLastRun("value").getLastRunAt().isAfter(LocalDateTime.MIN));
-		Assertions.assertTrue(jobCache.getLastRun("value").getNextRunAfter().isAfter(LocalDateTime.MIN));
+		final LocalPeriodicJobCacheEntry firstRun = jobCache.getLastRun("value");
+		Assertions.assertTrue(firstRun.getLastRunAt().isAfter(LocalDateTime.MIN));
+		Assertions.assertTrue(firstRun.getNextRunAfter().isAfter(LocalDateTime.MIN));
 		Assertions.assertEquals(1, job.count);
+
+		// Should run if duration has passed.
+		Thread.sleep(wait.toMillis());
+		final CompletableFuture<Void> run8 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run9 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run10 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run11 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run12 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		final CompletableFuture<Void> run13 = CompletableFuture.runAsync(() -> jobCache.run(job, "value", wait, null));
+		CompletableFuture.allOf(run8, run9, run10, run11, run12, run13).join();
+		final LocalPeriodicJobCacheEntry lastRun = jobCache.getLastRun("value");
+
+		Assertions.assertNotNull(jobCache.getLastRun("value"));
+		Assertions.assertTrue(lastRun.getLastRunAt().isAfter(firstRun.getLastRunAt()));
+		Assertions.assertTrue(lastRun.getNextRunAfter().isAfter(firstRun.getNextRunAfter()));
+		Assertions.assertEquals(2, job.count);
 
 	}
 
