@@ -576,7 +576,6 @@ public class DynamicThreadPoolFactory {
 					: new LinkedBlockingQueue<>(this.getMaxQueueSize()));
 			final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(actualCorePoolSize, actualMaxPoolSize, actualKeepAliveMillis,
 					actualKeepAliveUnit, queue, new ConfigurableThreadFactory(factory, this.getName(), this.getPriority()));
-			threadPoolExecutor.allowCoreThreadTimeOut(true);
 			executor = threadPoolExecutor;
 		}
 
