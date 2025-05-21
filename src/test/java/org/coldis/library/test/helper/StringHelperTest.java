@@ -108,6 +108,8 @@ public class StringHelperTest {
 		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail.con", false));
 		Assertions.assertEquals("romulo@gamil.com", StringHelper.fixEmailDomainTypos("romulo@gamil.com", false));
 		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gamil.com", true));
+		Assertions.assertEquals("romulo@gmail.com", StringHelper.fixEmailDomainTypos("romulo@gmail", false));
+		Assertions.assertEquals(null, StringHelper.fixEmailDomainTypos(null, false));
 	}
 
 }

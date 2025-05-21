@@ -190,5 +190,6 @@ public class BusinessException extends Exception {
 		message = (StringUtils.isBlank(message) ? ("Status: " + this.getStatusCode()) : message);
 		return message;
 	}
+	
 
 }

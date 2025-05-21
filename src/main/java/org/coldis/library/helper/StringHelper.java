@@ -319,7 +319,7 @@ public class StringHelper {
 			final String emailAddress,
 			final Boolean assumeInvalidDomain) {
 		String actualEmailAddress = emailAddress;
-		if (emailAddress.contains("@") && (assumeInvalidDomain || !StringHelper.hasValidEmailDomain(actualEmailAddress))) {
+		if ((emailAddress != null) && emailAddress.contains("@") && (assumeInvalidDomain || !StringHelper.hasValidEmailDomain(actualEmailAddress))) {
 			StringHelper.LOGGER
 					.debug(Objects.toString(StringHelper.POPULAR_EMAIL_DOMAINS.stream().sorted(StringHelper.emailDomainDistance(emailAddress)).toList()));
 			final String closestDomain = StringHelper.POPULAR_EMAIL_DOMAINS.stream()
