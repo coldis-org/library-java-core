@@ -29,7 +29,8 @@ public class ExtendedValidator implements Validator {
 	}
 
 	/**
-	 * @see jakarta.validation.Validator#validate(java.lang.Object, java.lang.Class[])
+	 * @see jakarta.validation.Validator#validate(java.lang.Object,
+	 *      java.lang.Class[])
 	 */
 	@Override
 	public <ObjectType> Set<ConstraintViolation<ObjectType>> validate(
@@ -112,6 +113,18 @@ public class ExtendedValidator implements Validator {
 		if ((violations != null) && !violations.isEmpty()) {
 			// Throws a constraint violation exception with the constraint violations.
 			throw new ConstraintViolationException(violationsMessage.toString(), violations);
+		}
+	}
+
+	/** Makes all invalid fields null in an object. */
+	public <T> void clearInvalidFields(
+			final T object) {
+		if (object != null) {
+			final Set<ConstraintViolation<T>> violations = this.validate(object);
+			for (final ConstraintViolation<T> violation : violations) {
+				final String propertyPath = violation.getPropertyPath().toString();
+				ReflectionHelper.setAttribute(object, propertyPath, null);
+			}
 		}
 	}
 
