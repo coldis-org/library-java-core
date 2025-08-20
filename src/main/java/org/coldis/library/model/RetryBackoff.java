@@ -3,6 +3,7 @@ package org.coldis.library.model;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -11,12 +12,24 @@ import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.view.ModelView;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  * Retry backoff model.
  */
-public class RetryBackoff<Type> {
+@JsonTypeName(value = RetryBackoff.TYPE_NAME)
+public class RetryBackoff<Type> implements Typable {
+
+	/**
+	 * Serial.
+	 */
+	private static final long serialVersionUID = -4695307630532402133L;
+
+	/**
+	 * Type name.
+	 */
+	public static final String TYPE_NAME = "org.coldis.library.model.RetryBackoff";
 
 	/** The backoff time. */
 	public static final Duration DEFAULT_BACKOFF = Duration.ofMinutes(2);
@@ -377,6 +390,44 @@ public class RetryBackoff<Type> {
 			this.setAttempts(this.getAttempts() + 1);
 			this.calculateNextAttemptAt();
 		}
+	}
+
+	/**
+	 * @see org.coldis.library.model.Typable#getTypeName()
+	 */
+	@Override
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	public String getTypeName() {
+		return RetryBackoff.TYPE_NAME;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.attempts, this.backoff, this.backoffMultiplier, this.baseDateFunction, this.maxBackoff, this.maxRetries, this.nextAttemptAt,
+				this.nextAttemptScheduledFor, this.retryOwner, this.shouldRetry);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(
+			final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
+			return false;
+		}
+		final RetryBackoff other = (RetryBackoff) obj;
+		return Objects.equals(this.attempts, other.attempts) && Objects.equals(this.backoff, other.backoff)
+				&& Objects.equals(this.backoffMultiplier, other.backoffMultiplier) && Objects.equals(this.baseDateFunction, other.baseDateFunction)
+				&& Objects.equals(this.maxBackoff, other.maxBackoff) && Objects.equals(this.maxRetries, other.maxRetries)
+				&& Objects.equals(this.nextAttemptAt, other.nextAttemptAt) && Objects.equals(this.nextAttemptScheduledFor, other.nextAttemptScheduledFor)
+				&& Objects.equals(this.retryOwner, other.retryOwner) && Objects.equals(this.shouldRetry, other.shouldRetry);
 	}
 
 }
