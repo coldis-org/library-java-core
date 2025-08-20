@@ -44,13 +44,13 @@ public class RetryBackoff<Type> implements Typable {
 	public static final Integer DEFAULT_MAX_RETRIES = 21;
 
 	/** Retry owner. */
-	private Type retryOwner;
+	private transient Type retryOwner;
 
 	/** Should retry predicate. */
-	private Predicate<Type> shouldRetry;
+	private transient Predicate<Type> shouldRetry;
 
 	/** Base date function. */
-	private Function<Type, LocalDateTime> baseDateFunction;
+	private transient Function<Type, LocalDateTime> baseDateFunction;
 
 	/** Backoff minuutes. */
 	private Duration backoff;
@@ -406,8 +406,8 @@ public class RetryBackoff<Type> implements Typable {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.attempts, this.backoff, this.backoffMultiplier, this.baseDateFunction, this.maxBackoff, this.maxRetries, this.nextAttemptAt,
-				this.nextAttemptScheduledFor, this.retryOwner, this.shouldRetry);
+		return Objects.hash(this.attempts, this.backoff, this.backoffMultiplier, this.maxBackoff, this.maxRetries, this.nextAttemptAt,
+				this.nextAttemptScheduledFor);
 	}
 
 	/**
@@ -424,10 +424,9 @@ public class RetryBackoff<Type> implements Typable {
 		}
 		final RetryBackoff other = (RetryBackoff) obj;
 		return Objects.equals(this.attempts, other.attempts) && Objects.equals(this.backoff, other.backoff)
-				&& Objects.equals(this.backoffMultiplier, other.backoffMultiplier) && Objects.equals(this.baseDateFunction, other.baseDateFunction)
-				&& Objects.equals(this.maxBackoff, other.maxBackoff) && Objects.equals(this.maxRetries, other.maxRetries)
-				&& Objects.equals(this.nextAttemptAt, other.nextAttemptAt) && Objects.equals(this.nextAttemptScheduledFor, other.nextAttemptScheduledFor)
-				&& Objects.equals(this.retryOwner, other.retryOwner) && Objects.equals(this.shouldRetry, other.shouldRetry);
+				&& Objects.equals(this.backoffMultiplier, other.backoffMultiplier) && Objects.equals(this.maxBackoff, other.maxBackoff)
+				&& Objects.equals(this.maxRetries, other.maxRetries) && Objects.equals(this.nextAttemptAt, other.nextAttemptAt)
+				&& Objects.equals(this.nextAttemptScheduledFor, other.nextAttemptScheduledFor);
 	}
 
 }
