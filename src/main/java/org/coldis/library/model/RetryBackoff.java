@@ -84,10 +84,23 @@ public class RetryBackoff<Type> {
 		this.maxRetries = ObjectUtils.defaultIfNull(maxRetries, RetryBackoff.DEFAULT_MAX_RETRIES);
 	}
 
-	/** No-args constructor. */
+	/**
+	 * Simpler constructor.
+	 *
+	 * @param retryOwner       The retry owner.
+	 * @param shouldRetry      The predicate to determine if should retry.
+	 * @param baseDateFunction The function to get the base date for the retry
+	 *                             backoff.
+	 */
 	public RetryBackoff(final Type retryOwner, final Predicate<Type> shouldRetry, final Function<Type, LocalDateTime> baseDateFunction) {
 		this(retryOwner, shouldRetry, baseDateFunction, RetryBackoff.DEFAULT_BACKOFF, RetryBackoff.DEFAULT_BACKOFF_MULTIPLIER, RetryBackoff.DEFAULT_MAX_BACKOFF,
 				RetryBackoff.DEFAULT_MAX_RETRIES);
+	}
+
+	/** No-args constructor. */
+	public RetryBackoff() {
+		this(null, object -> false, object -> DateTimeHelper.getCurrentLocalDateTime(), RetryBackoff.DEFAULT_BACKOFF, RetryBackoff.DEFAULT_BACKOFF_MULTIPLIER,
+				RetryBackoff.DEFAULT_MAX_BACKOFF, RetryBackoff.DEFAULT_MAX_RETRIES);
 	}
 
 	/**
