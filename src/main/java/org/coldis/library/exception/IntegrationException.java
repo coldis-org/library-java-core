@@ -1,12 +1,16 @@
 package org.coldis.library.exception;
 
+import java.time.Duration;
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
+import org.coldis.library.model.RetriableIn;
 import org.coldis.library.model.SimpleMessage;
 
 /**
  * Unchecked integration exception.
  */
-public class IntegrationException extends RuntimeException {
+public class IntegrationException extends RuntimeException implements RetriableIn {
 
 	/**
 	 * Serial.
@@ -19,6 +23,11 @@ public class IntegrationException extends RuntimeException {
 	private static final Integer DEFAULT_STATUS_CODE = 500;
 
 	/**
+	 * Default retry in.
+	 */
+	public static final Duration DEFAULT_RETRY_IN = Duration.ofSeconds(30L);
+
+	/**
 	 * Message.
 	 */
 	private SimpleMessage internalMessage;
@@ -29,6 +38,25 @@ public class IntegrationException extends RuntimeException {
 	private Integer statusCode;
 
 	/**
+	 * Retry at.
+	 */
+	private final Duration retryIn;
+
+	/**
+	 * Message, status and cause constructor.
+	 *
+	 * @param message    Exception message.
+	 * @param statusCode Exception status code.
+	 * @param cause      The exception cause.
+	 */
+	public IntegrationException(final SimpleMessage message, final Integer statusCode, final Duration retryIn, final Throwable cause) {
+		super(cause);
+		this.internalMessage = message;
+		this.statusCode = statusCode;
+		this.retryIn = retryIn;
+	}
+
+	/**
 	 * Message, status and cause constructor.
 	 *
 	 * @param message    Exception message.
@@ -36,9 +64,7 @@ public class IntegrationException extends RuntimeException {
 	 * @param cause      The exception cause.
 	 */
 	public IntegrationException(final SimpleMessage message, final Integer statusCode, final Throwable cause) {
-		super(cause);
-		this.internalMessage = message;
-		this.statusCode = statusCode;
+		this(message, statusCode, IntegrationException.DEFAULT_RETRY_IN, cause);
 	}
 
 	/**
@@ -122,6 +148,16 @@ public class IntegrationException extends RuntimeException {
 	}
 
 	/**
+	 * Gets the retryIn.
+	 *
+	 * @return The retryIn.
+	 */
+	@Override
+	public Duration getRetryIn() {
+		return this.retryIn;
+	}
+
+	/**
 	 * @see java.lang.Throwable#getMessage()
 	 */
 	@Override
@@ -129,6 +165,41 @@ public class IntegrationException extends RuntimeException {
 		String message = (this.getInternalMessage() != null ? this.getInternalMessage().toString() : null);
 		message = (StringUtils.isBlank(message) ? ("Status: " + this.getStatusCode()) : message);
 		return message;
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.internalMessage, this.retryIn, this.statusCode);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(
+			final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
+			return false;
+		}
+		final IntegrationException other = (IntegrationException) obj;
+		return Objects.equals(this.internalMessage, other.internalMessage) && Objects.equals(this.retryIn, other.retryIn)
+				&& Objects.equals(this.statusCode, other.statusCode);
+	}
+
+	/**
+	 * @see org.coldis.library.model.RetriableIn#setRetryIn(java.time.Duration)
+	 */
+	@Override
+	public void setRetryIn(
+			final Duration retryIn) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

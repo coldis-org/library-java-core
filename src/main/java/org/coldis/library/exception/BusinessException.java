@@ -1,17 +1,21 @@
 package org.coldis.library.exception;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.coldis.library.model.RetriableIn;
 import org.coldis.library.model.SimpleMessage;
 
 /**
  * Checked business exception.
  */
-public class BusinessException extends Exception {
+public class BusinessException extends Exception implements RetriableIn {
 
 	/**
 	 * Generated serial.
@@ -23,6 +27,9 @@ public class BusinessException extends Exception {
 	 */
 	private static final Integer DEFAULT_STATUS_CODE = 400;
 
+	/** Default retry in. */
+	public static final Duration DEFAULT_RETRY_IN = Duration.ofSeconds(30L);
+
 	/**
 	 * Messages.
 	 */
@@ -33,6 +40,23 @@ public class BusinessException extends Exception {
 	 */
 	private Integer statusCode;
 
+	/** Retry in. */
+	private Duration retryIn;
+
+	/**
+	 * Messages, status and cause constructor.
+	 *
+	 * @param messages   Exception messages.
+	 * @param statusCode Exception status code.
+	 * @param cause      Exception cause.
+	 */
+	public BusinessException(final Collection<SimpleMessage> messages, final Integer statusCode, final Duration retryIn, final Throwable cause) {
+		super(cause);
+		this.messages = messages;
+		this.statusCode = statusCode;
+		this.retryIn = retryIn;
+	}
+
 	/**
 	 * Messages, status and cause constructor.
 	 *
@@ -41,9 +65,7 @@ public class BusinessException extends Exception {
 	 * @param cause      Exception cause.
 	 */
 	public BusinessException(final Collection<SimpleMessage> messages, final Integer statusCode, final Throwable cause) {
-		super(cause);
-		this.messages = messages;
-		this.statusCode = statusCode;
+		this(messages, statusCode, (Set.of(400, 404).contains(statusCode) ? BusinessException.DEFAULT_RETRY_IN : null), cause);
 	}
 
 	/**
@@ -173,6 +195,27 @@ public class BusinessException extends Exception {
 	}
 
 	/**
+	 * Gets the retryIn.
+	 *
+	 * @return The retryIn.
+	 */
+	@Override
+	public Duration getRetryIn() {
+		return this.retryIn;
+	}
+
+	/**
+	 * Sets the retryIn.
+	 *
+	 * @param retryIn New retryIn.
+	 */
+	@Override
+	public void setRetryIn(
+			final Duration retryIn) {
+		this.retryIn = retryIn;
+	}
+
+	/**
 	 * Gets the first message code, or null if there is no code for the message.
 	 *
 	 * @return The first message code, or null if there is no code for the message.
@@ -190,6 +233,30 @@ public class BusinessException extends Exception {
 		message = (StringUtils.isBlank(message) ? ("Status: " + this.getStatusCode()) : message);
 		return message;
 	}
-	
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.messages, this.retryIn, this.statusCode);
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(
+			final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
+			return false;
+		}
+		final BusinessException other = (BusinessException) obj;
+		return Objects.equals(this.messages, other.messages) && Objects.equals(this.retryIn, other.retryIn)
+				&& Objects.equals(this.statusCode, other.statusCode);
+	}
 
 }
