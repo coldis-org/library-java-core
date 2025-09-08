@@ -65,7 +65,7 @@ public class BusinessException extends Exception implements RetriableIn {
 	 * @param cause      Exception cause.
 	 */
 	public BusinessException(final Collection<SimpleMessage> messages, final Integer statusCode, final Throwable cause) {
-		this(messages, statusCode, (Set.of(400, 404).contains(statusCode) ? BusinessException.DEFAULT_RETRY_IN : null), cause);
+		this(messages, statusCode, (Set.of(BusinessException.DEFAULT_STATUS_CODE).contains(statusCode) ? null : BusinessException.DEFAULT_RETRY_IN), cause);
 	}
 
 	/**
