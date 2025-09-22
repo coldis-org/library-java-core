@@ -40,7 +40,7 @@ public class IntegrationException extends RuntimeException implements RetriableI
 	/**
 	 * Retry at.
 	 */
-	private final Duration retryIn;
+	private Duration retryIn;
 
 	/**
 	 * Message, status and cause constructor.
@@ -158,6 +158,15 @@ public class IntegrationException extends RuntimeException implements RetriableI
 	}
 
 	/**
+	 * @see org.coldis.library.model.RetriableIn#setRetryIn(java.time.Duration)
+	 */
+	@Override
+	public void setRetryIn(
+			final Duration retryIn) {
+		this.retryIn = retryIn;
+	}
+
+	/**
 	 * @see java.lang.Throwable#getMessage()
 	 */
 	@Override
@@ -190,16 +199,6 @@ public class IntegrationException extends RuntimeException implements RetriableI
 		final IntegrationException other = (IntegrationException) obj;
 		return Objects.equals(this.internalMessage, other.internalMessage) && Objects.equals(this.retryIn, other.retryIn)
 				&& Objects.equals(this.statusCode, other.statusCode);
-	}
-
-	/**
-	 * @see org.coldis.library.model.RetriableIn#setRetryIn(java.time.Duration)
-	 */
-	@Override
-	public void setRetryIn(
-			final Duration retryIn) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
