@@ -25,7 +25,7 @@ public class BusinessException extends Exception implements RetriableIn {
 	/**
 	 * Default status code.
 	 */
-	private static final Integer DEFAULT_STATUS_CODE = 400;
+	public static final Integer DEFAULT_STATUS_CODE = 400;
 
 	/** Default retry in. */
 	public static final Duration DEFAULT_RETRY_IN = Duration.ofSeconds(30L);
