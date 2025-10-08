@@ -1,6 +1,7 @@
 package org.coldis.library.model.verification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -67,6 +68,33 @@ public class Verification implements Typable {
 	}
 
 	/**
+	 * Adds a item (replacing any similar one).
+	 *
+	 * @param item Item.
+	 */
+	public void addItem(
+			final VerificationItem item) {
+		if (item != null) {
+			this.getItems().removeIf(currentItem -> item.isSimilar(currentItem));
+			this.getItems().add(item);
+		}
+	}
+
+	/**
+	 * Adds a item (replacing any similar one).
+	 *
+	 * @param item Item.
+	 */
+	public void addItems(
+			final Collection<VerificationItem> items) {
+		if (items != null) {
+			for (final VerificationItem item : items) {
+				this.addItem(item);
+			}
+		}
+	}
+
+	/**
 	 * Sets the verification items.
 	 *
 	 * @param items New verification items.
@@ -99,13 +127,25 @@ public class Verification implements Typable {
 		}
 		// Sets the items.
 		this.items = actualItems;
+	}
 
+	/**
+	 * Returns the verification status for an attribute.
+	 *
+	 * @param  verifiable    The verifiable object.
+	 * @param  attributeName Attribute name.
+	 * @return               The verification status for an attribute.
+	 */
+	public VerificationStatus getItemVerificationStatus(
+			final String attributeName) {
+		return Verifiable.getVerificationStatus(this, attributeName);
 	}
 
 	/**
 	 * @see org.coldis.library.model.Typable#getTypeName()
 	 */
 	@Override
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public String getTypeName() {
 		return Verification.TYPE_NAME;
 	}

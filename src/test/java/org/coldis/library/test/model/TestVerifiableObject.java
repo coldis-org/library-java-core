@@ -3,7 +3,6 @@ package org.coldis.library.test.model;
 import org.coldis.library.model.verification.Verifiable;
 import org.coldis.library.model.verification.VerifiableAttribute;
 import org.coldis.library.model.verification.Verification;
-import org.coldis.library.model.verification.VerificationStatus;
 
 /**
  * Test object.
@@ -60,7 +59,8 @@ public class TestVerifiableObject implements Verifiable {
 	 *
 	 * @param attribute1 New attribute1.
 	 */
-	public void setAttribute1(final String attribute1) {
+	public void setAttribute1(
+			final String attribute1) {
 		this.attribute1 = attribute1;
 	}
 
@@ -79,7 +79,8 @@ public class TestVerifiableObject implements Verifiable {
 	 *
 	 * @param attribute2 New attribute2.
 	 */
-	public void setAttribute2(final Integer attribute2) {
+	public void setAttribute2(
+			final Integer attribute2) {
 		this.attribute2 = attribute2;
 	}
 
@@ -98,7 +99,8 @@ public class TestVerifiableObject implements Verifiable {
 	 *
 	 * @param attribute3 New attribute3.
 	 */
-	public void setAttribute3(final Long attribute3) {
+	public void setAttribute3(
+			final Long attribute3) {
 		this.attribute3 = attribute3;
 	}
 
@@ -116,7 +118,8 @@ public class TestVerifiableObject implements Verifiable {
 	 *
 	 * @param attribute4 New attribute4.
 	 */
-	public void setAttribute4(final String attribute4) {
+	public void setAttribute4(
+			final String attribute4) {
 		this.attribute4 = attribute4;
 	}
 
@@ -141,16 +144,9 @@ public class TestVerifiableObject implements Verifiable {
 	 *
 	 * @param verification New verification.
 	 */
-	public void setVerification(final Verification verification) {
+	public void setVerification(
+			final Verification verification) {
 		this.verification = verification;
-	}
-
-	/**
-	 * @see org.coldis.library.model.verification.Verifiable#getVerificationStatus()
-	 */
-	@Override
-	public VerificationStatus getVerificationStatus() {
-		return Verifiable.getVerificationStatus(this);
 	}
 
 }

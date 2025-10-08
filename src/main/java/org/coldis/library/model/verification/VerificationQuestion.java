@@ -1,8 +1,9 @@
 package org.coldis.library.model.verification;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.coldis.library.model.Typable;
 import org.coldis.library.model.view.ModelView;
@@ -34,12 +35,12 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	/**
 	 * Answers options.
 	 */
-	private List<Map<String, String>> options;
+	private List<String> options;
 
 	/**
 	 * Possible correct answers.
 	 */
-	private List<String> correctAnswer;
+	private String correctAnswer;
 
 	/**
 	 * Submitted answer.
@@ -50,6 +51,46 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	 * Data sources.
 	 */
 	private String dataSource;
+
+	/**
+	 * No arguments constructor.
+	 */
+	public VerificationQuestion() {
+		super();
+	}
+
+	/**
+	 * Default constructor.
+	 *
+	 * @param status        Status.
+	 * @param attributes    Attributes.
+	 * @param question      Question.
+	 * @param options       Options.
+	 * @param correctAnswer Correct answer.
+	 * @param answer        Answer.
+	 * @param dataSource    Data source.
+	 * @param verifiedBy    VerifiedBy.
+	 * @param expiredAt     Expiration.
+	 */
+	public VerificationQuestion(
+			final VerificationStatus status,
+			final Set<String> attributes,
+			final String question,
+			final List<String> options,
+			final String correctAnswer,
+			final String answer,
+			final String dataSource,
+			final LocalDateTime expiredAt) {
+		super();
+		this.setStatus(status);
+		this.setAttributes(attributes);
+		this.setQuestion(question);
+		this.setOptions(options);
+		this.setCorrectAnswer(correctAnswer);
+		this.setAnswer(answer);
+		this.setDataSource(dataSource);
+		this.setExpiredAt(expiredAt);
+	}
 
 	/**
 	 * Gets the question.
@@ -96,7 +137,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	 * @return The options.
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public List<Map<String, String>> getOptions() {
+	public List<String> getOptions() {
 		return this.options;
 	}
 
@@ -106,7 +147,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	 * @param options New options.
 	 */
 	public void setOptions(
-			final List<Map<String, String>> options) {
+			final List<String> options) {
 		this.options = options;
 	}
 
@@ -116,7 +157,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	 * @return The correctAnswer.
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public List<String> getCorrectAnswer() {
+	public String getCorrectAnswer() {
 		return this.correctAnswer;
 	}
 
@@ -126,7 +167,7 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	 * @param correctAnswer New correctAnswer.
 	 */
 	public void setCorrectAnswer(
-			final List<String> correctAnswer) {
+			final String correctAnswer) {
 		this.correctAnswer = correctAnswer;
 	}
 
@@ -168,6 +209,22 @@ public class VerificationQuestion extends VerificationItem implements Typable {
 	public void setDataSource(
 			final String dataSource) {
 		this.dataSource = dataSource;
+	}
+
+	/**
+	 * Checks if the given objects are similar.
+	 *
+	 * @param  this   Object 1.
+	 * @param  object Object 2.
+	 * @return        If the given object are similar.
+	 */
+	@Override
+	public Boolean isSimilar(
+			final VerificationItem object) {
+		return (object != null) && Objects.equals(this.getClass(), object.getClass())&& object instanceof final VerificationQuestion verificationQuestion
+				&& Objects.equals(this.getAttributes(), verificationQuestion.getAttributes())
+				&& Objects.equals(this.getQuestion(), verificationQuestion.getQuestion())
+				&& Objects.equals(this.getDataSource(), verificationQuestion.getDataSource());
 	}
 
 	/**

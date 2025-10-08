@@ -19,46 +19,6 @@ public interface Verifiable {
 	Verification getVerification();
 
 	/**
-	 * Returns the verification status.
-	 *
-	 * @return The verification status.
-	 */
-	VerificationStatus getVerificationStatus();
-
-	/**
-	 * Gets the attributes that should be verified for the object to be verified.
-	 *
-	 * @param  verifiable The verifiable object.
-	 * @return            The attributes that should be verified for the object to
-	 *                    be verified.
-	 */
-	static Set<String> getVerifiableAttributes(
-			final Verifiable verifiable) {
-		// Set of verifiable attributes.
-		final Set<String> verifiableAttributes = new HashSet<>();
-		// If the verifiable object is given.
-		if (verifiable != null) {
-			// For each method.
-			for (final Method currentMethod : verifiable.getClass().getMethods()) {
-				// If it is a getter.
-				if (ReflectionHelper.isGetter(currentMethod)) {
-					// Gets the attribute name.
-					final String attributeName = ReflectionHelper.getAttributeName(currentMethod.getName());
-					// Gets the verifiable attribute annotation.
-					final VerifiableAttribute verifiableAttributeMetadata = currentMethod.getAnnotation(VerifiableAttribute.class);
-					// If the attribute should be verified.
-					if (verifiableAttributeMetadata != null) {
-						// Adds the attribute to the verifiable set.
-						verifiableAttributes.add(attributeName);
-					}
-				}
-			}
-		}
-		// Returns the verifiable attributes.
-		return verifiableAttributes;
-	}
-
-	/**
 	 * Returns the verification status for an attribute.
 	 *
 	 * @param  verifiable    The verifiable object.
@@ -66,14 +26,14 @@ public interface Verifiable {
 	 * @return               The verification status for an attribute.
 	 */
 	static VerificationStatus getVerificationStatus(
-			final Verifiable verifiable,
+			final Verification verification,
 			final String attributeName) {
 		// Attribute status is not verified by default.
 		VerificationStatus status = VerificationStatus.NOT_VERIFIED;
 		// If the object and attribute are given.
-		if ((verifiable != null) && (verifiable.getVerification().getItems() != null) && (attributeName != null)) {
+		if ((verification != null) && (verification.getItems() != null) && (attributeName != null)) {
 			// For each verification on the object.
-			for (final VerificationItem verificationItem : verifiable.getVerification().getItems()) {
+			for (final VerificationItem verificationItem : verification.getItems()) {
 				// If the verification is for the attribute.
 				if (verificationItem.getAttributes().contains(attributeName)) {
 					// If the verification is not expired.
@@ -131,6 +91,64 @@ public interface Verifiable {
 	}
 
 	/**
+	 * Gets the attributes that should be verified for the object to be verified.
+	 *
+	 * @param  verifiable The verifiable object.
+	 * @return            The attributes that should be verified for the object to
+	 *                    be verified.
+	 */
+	static Set<String> getVerifiableAttributes(
+			final Verifiable verifiable) {
+		// Set of verifiable attributes.
+		final Set<String> verifiableAttributes = new HashSet<>();
+		// If the verifiable object is given.
+		if (verifiable != null) {
+			// For each method.
+			for (final Method currentMethod : verifiable.getClass().getMethods()) {
+				// If it is a getter.
+				if (ReflectionHelper.isGetter(currentMethod)) {
+					// Gets the attribute name.
+					final String attributeName = ReflectionHelper.getAttributeName(currentMethod.getName());
+					// Gets the verifiable attribute annotation.
+					final VerifiableAttribute verifiableAttributeMetadata = currentMethod.getAnnotation(VerifiableAttribute.class);
+					// If the attribute should be verified.
+					if (verifiableAttributeMetadata != null) {
+						// Adds the attribute to the verifiable set.
+						verifiableAttributes.add(attributeName);
+					}
+				}
+			}
+		}
+		// Returns the verifiable attributes.
+		return verifiableAttributes;
+	}
+
+	/**
+	 * Returns the verification status for an attribute.
+	 *
+	 * @param  verifiable    The verifiable object.
+	 * @param  attributeName Attribute name.
+	 * @return               The verification status for an attribute.
+	 */
+	static VerificationStatus getVerificationStatus(
+			final Verifiable verifiable,
+			final String attributeName) {
+		return Verifiable.getVerificationStatus(verifiable != null ? verifiable.getVerification() : null, attributeName);
+	}
+
+	/**
+	 * Returns the verification status for an attribute.
+	 *
+	 * @param  verifiable    The verifiable object.
+	 * @param  attributeName Attribute name.
+	 * @return               The verification status for an attribute.
+	 */
+	default VerificationStatus getVerificationStatus(
+			final String attributeName) {
+		return Verifiable.getVerificationStatus(this, attributeName);
+	}
+
+	/**
 	 * Returns the verification status for an object.
 	 *
 	 * @param  verifiable The verifiable object.
@@ -179,6 +197,17 @@ public interface Verifiable {
 		}
 		// Returns the object status.
 		return status;
+	}
+
+	/**
+	 * Returns the verification status for an attribute.
+	 *
+	 * @param  verifiable    The verifiable object.
+	 * @param  attributeName Attribute name.
+	 * @return               The verification status for an attribute.
+	 */
+	default VerificationStatus getVerificationStatus() {
+		return Verifiable.getVerificationStatus(this);
 	}
 
 }

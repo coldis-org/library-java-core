@@ -1,5 +1,6 @@
 package org.coldis.library.test.model;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -7,6 +8,8 @@ import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.verification.Verifiable;
 import org.coldis.library.model.verification.Verification;
 import org.coldis.library.model.verification.VerificationItem;
+import org.coldis.library.model.verification.VerificationQuestion;
+import org.coldis.library.model.verification.VerificationScore;
 import org.coldis.library.model.verification.VerificationStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -176,6 +179,55 @@ public class VerificationTest {
 			// Makes sure the object is not verified.
 			Assertions.assertEquals(VerificationStatus.DUBIOUS, testObject.getVerificationStatus());
 		}
+	}
+
+	/**
+	 * Tests replacing similar items.
+	 */
+	@Test
+	public void test04ReplaceSimilarItems() {
+		// Adds a verification item replacing a similar one.
+		final Verification verification = new Verification();
+		verification.addItem(
+				new VerificationItem(VerificationStatus.VALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"));
+		Assertions.assertEquals(1, verification.getItems().size());
+		verification.addItem(
+				new VerificationItem(VerificationStatus.INVALID, Set.of("attribute1"), "me", DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc"));
+		// Makes sure the item was replaced and it is the last one added.
+		Assertions.assertEquals(1, verification.getItems().size());
+		Assertions.assertEquals(VerificationStatus.INVALID, verification.getItems().get(0).getStatus());
+
+		// Adds a verification question replacing a similar one.
+		verification.addItem(new VerificationQuestion(VerificationStatus.INVALID, Set.of("attribute1"), "Qual seu nome?", List.of("João", "José"), "João",
+				"José", "data", DateTimeHelper.getCurrentLocalDateTime().plusDays(1)));
+		Assertions.assertEquals(2, verification.getItems().size());
+		verification.addItem(new VerificationQuestion(VerificationStatus.VALID, Set.of("attribute1"), "Qual seu nome?", List.of("João", "José"), "Antonia",
+				"Maria", "data", DateTimeHelper.getCurrentLocalDateTime().plusDays(1)));
+		// Makes sure the item was replaced and it is the last one added.
+		Assertions.assertEquals(2, verification.getItems().size());
+		Assertions.assertEquals(VerificationStatus.VALID, verification.getItems().get(1).getStatus());
+
+		// Adds a verification score replacing a similar one.
+		verification.addItem(new VerificationScore(VerificationStatus.INVALID, Set.of("attribute1"), "data",
+				DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc", "alg1", new BigDecimal("0.5")));
+		verification.addItem(new VerificationScore(VerificationStatus.VALID, Set.of("attribute1"), "data", DateTimeHelper.getCurrentLocalDateTime().plusDays(1),
+				"desc", "alg1", new BigDecimal("0.1")));
+		// Makes sure the item was replaced and it is the last one added.
+		Assertions.assertEquals(3, verification.getItems().size());
+		Assertions.assertEquals(VerificationStatus.VALID, verification.getItems().get(2).getStatus());
+
+		// Adds a different algorithm verification score.
+		verification.addItem(new VerificationScore(VerificationStatus.INVALID, Set.of("attribute1"), "data",
+				DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc", "alg2", new BigDecimal("0.5")));
+		// Makes sure the item was added.
+		Assertions.assertEquals(4, verification.getItems().size());
+
+		// Adds a different data source score.
+		verification.addItem(new VerificationScore(VerificationStatus.INVALID, Set.of("attribute1"), "data2",
+				DateTimeHelper.getCurrentLocalDateTime().plusDays(1), "desc", "alg2", new BigDecimal("0.5")));
+		// Makes sure the item was added.
+		Assertions.assertEquals(5, verification.getItems().size());
+
 	}
 
 }

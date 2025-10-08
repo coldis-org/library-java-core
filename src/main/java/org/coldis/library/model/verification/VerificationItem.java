@@ -189,7 +189,7 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 
 	/**
 	 * Gets the description from a simple message (former type).
-	 * 
+	 *
 	 * @param  description Description.
 	 * @return             The description from a simple message (former type).
 	 */
@@ -238,6 +238,19 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	}
 
 	/**
+	 * Checks if the given objects are similar.
+	 *
+	 * @param  this   Object 1.
+	 * @param  object Object 2.
+	 * @return        If the given object are similar.
+	 */
+	public Boolean isSimilar(
+			final VerificationItem object) {
+		return (object != null) && Objects.equals(this.getClass(), object.getClass()) && Objects.equals(this.getAttributes(), object.getAttributes())
+				&& Objects.equals(this.getDescription(), object.getDescription()) && Objects.equals(this.getVerifiedBy(), object.getVerifiedBy());
+	}
+
+	/**
 	 * @see org.coldis.library.model.Typable#getTypeName()
 	 */
 	@Override
@@ -273,20 +286,6 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 		return Objects.equals(this.attributes, other.attributes) && Objects.equals(this.description, other.description)
 				&& Objects.equals(this.details, other.details) && (this.status == other.status) && Objects.equals(this.verifiedAt, other.verifiedAt)
 				&& Objects.equals(this.verifiedBy, other.verifiedBy);
-	}
-
-	/**
-	 * Checks if the given objects are similar.
-	 *
-	 * @param  object1 Object 1.
-	 * @param  object2 Object 2.
-	 * @return         If the given object are similar.
-	 */
-	public static Boolean isSimilar(
-			final VerificationItem object1,
-			final VerificationItem object2) {
-		return Objects.equals(object1.attributes, object2.attributes) && Objects.equals(object1.description, object2.description)
-				&& Objects.equals(object1.verifiedBy, object2.verifiedBy);
 	}
 
 }

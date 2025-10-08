@@ -118,6 +118,20 @@ public class VerificationScore extends VerificationItem implements Typable {
 	}
 
 	/**
+	 * Checks if the given objects are similar.
+	 *
+	 * @param  this   Object 1.
+	 * @param  object Object 2.
+	 * @return        If the given object are similar.
+	 */
+	@Override
+	public Boolean isSimilar(
+			final VerificationItem object) {
+		return (object != null) && Objects.equals(this.getClass(), object.getClass()) && object instanceof final VerificationScore verificationScore
+				&& super.isSimilar(verificationScore) && Objects.equals(this.getAlgorithm(), verificationScore.getAlgorithm());
+	}
+
+	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
