@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.AbstractExpirable;
 import org.coldis.library.model.Expirable;
@@ -196,7 +197,10 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	@Deprecated
 	protected String getDescriptionFromSimpleMessage(
 			final Object description) {
-		return (description instanceof SimpleMessage ? ((SimpleMessage) description).getContent() : this.description);
+		return (description == null ? null
+				: description instanceof final SimpleMessage simpleDescription
+						? StringUtils.firstNonBlank(simpleDescription.getContent(), simpleDescription.getCode())
+						: description instanceof final String stringDescription ? stringDescription : Objects.toString(description));
 	}
 
 	/**
