@@ -181,7 +181,7 @@ public class ReflectionHelper {
 			// For each attribute in the path.
 			for (Integer attributePathPartIndex = 0; attributePathPartIndex < attributePath.length; attributePathPartIndex++) {
 				// Gets the attribute path part.
-				final String attributePathPart = attributePath[attributePathPartIndex];
+				String attributePathPart = attributePath[attributePathPartIndex];
 				// If the attribute value path is still valid.
 				if (attributePathValue != null) {
 					// Tries to get the next path value.
@@ -189,14 +189,17 @@ public class ReflectionHelper {
 						if (attributePathValue instanceof Map) {
 							attributePathValue = ((Map<?, ?>) attributePathValue).get(attributePathPart);
 						}
-						else if ((attributePathValue instanceof Object[]) && NumberUtils.isDigits(attributePathPart)) {
-							attributePathValue = ArrayUtils.get((Object[]) attributePathValue, Integer.parseInt(attributePathPart));
-						}
-						else if (fieldAccess) {
-							attributePathValue = FieldUtils.getField(attributePathValue.getClass(), attributePathPart, true).get(attributePathValue);
-						}
 						else {
-							attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
+							attributePathPart = StringUtils.replace(attributePathPart, " ", "");
+							if ((attributePathValue instanceof Object[]) && NumberUtils.isDigits(attributePathPart)) {
+								attributePathValue = ArrayUtils.get((Object[]) attributePathValue, Integer.parseInt(attributePathPart));
+							}
+							else if (fieldAccess) {
+								attributePathValue = FieldUtils.getField(attributePathValue.getClass(), attributePathPart, true).get(attributePathValue);
+							}
+							else {
+								attributePathValue = MethodUtils.invokeMethod(attributePathValue, ReflectionHelper.getGetterName(attributePathPart));
+							}
 						}
 					}
 					// If the attribute path cannot be retrieved.
