@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 /**
  * Verification score.
  */
+@Deprecated
 @JsonTypeName(value = "br.com.supersim.service.party.model.verification.VerificationScore")
 public class VerificationScore1 extends VerificationScore {
 
