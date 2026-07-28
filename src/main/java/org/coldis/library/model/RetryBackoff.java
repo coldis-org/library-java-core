@@ -277,9 +277,13 @@ public class RetryBackoff<Type> implements Typable {
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public Integer getAttempts() {
-		this.attempts = (!this.shouldRetry() || (this.getNextAttemptScheduledFor() == null) ? null : this.attempts);
-		this.attempts = ObjectUtils.defaultIfNull(this.attempts, 0);
-		return this.attempts;
+		// Pure read: must NOT mutate state. This getter is invoked by (de)serialization (e.g. Jackson
+		// walking the object during a Hibernate dirty-check deep-copy), and the previous
+		// "reset to null when !shouldRetry() or nextAttemptScheduledFor==null" side effect corrupted
+		// the persisted counter whenever shouldRetry() was transiently false during a read (owner
+		// backref not yet wired), pinning attempts at 0/1. Resetting the backoff is the client's
+		// responsibility (see setScheduled()/incrementRetries() and callers that null the backoff).
+		return ObjectUtils.defaultIfNull(this.attempts, 0);
 	}
 
 	/**
@@ -308,10 +312,13 @@ public class RetryBackoff<Type> implements Typable {
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public LocalDateTime getNextAttemptAt() {
-		if ((!this.shouldRetry() || (this.getAttempts() > this.maxRetries))) {
-			this.nextAttemptAt = null;
+		// Pure read: returns null when retrying is over (not retrying, or past maxRetries) WITHOUT
+		// nulling the field, so a serialization/read never corrupts persisted state. The value is
+		// recoverable on the next call because getAttempts() is now stable.
+		if (!this.shouldRetry() || (this.getAttempts() > this.maxRetries)) {
+			return null;
 		}
-		else if (this.nextAttemptAt == null) {
+		if (this.nextAttemptAt == null) {
 			this.calculateNextAttemptAt();
 		}
 		return this.nextAttemptAt;
@@ -349,9 +356,9 @@ public class RetryBackoff<Type> implements Typable {
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public LocalDateTime getNextAttemptScheduledFor() {
-		if (!this.shouldRetry()) {
-			this.nextAttemptScheduledFor = null;
-		}
+		// Pure read: never nulls the field during (de)serialization. The scheduling decision in
+		// getShouldScheduleNextAttempt() already guards on shouldRetry(), so a stale value is harmless;
+		// nulling it here corrupted the persisted schedule during reads and broke the backoff.
 		return this.nextAttemptScheduledFor;
 	}
 
