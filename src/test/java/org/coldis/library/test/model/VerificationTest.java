@@ -230,4 +230,19 @@ public class VerificationTest {
 
 	}
 
+	/**
+	 * Tests that a null item status defaults to not verified.
+	 */
+	@Test
+	public void test05NullStatusDefaultsToNotVerified() {
+		// Creates an item with a null status.
+		final VerificationItem item = new VerificationItem(null, Set.of("attribute1"), "me", null, "desc");
+		// Makes sure the item status defaults to not verified.
+		Assertions.assertEquals(VerificationStatus.NOT_VERIFIED, item.getStatus());
+		// Makes sure the status aggregation does not fail and resolves to not verified.
+		final TestVerifiableObject testObject = new TestVerifiableObject(new Verification(List.of(item)));
+		Assertions.assertEquals(VerificationStatus.NOT_VERIFIED, Verifiable.getVerificationStatus(testObject, "attribute1"));
+		Assertions.assertEquals(VerificationStatus.NOT_VERIFIED, testObject.getVerificationStatus());
+	}
+
 }
