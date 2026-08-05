@@ -99,6 +99,9 @@ public class VerificationItem extends AbstractExpirable implements Typable, Expi
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public VerificationStatus getStatus() {
+		// Makes sure the status is initialized.
+		this.status = this.status == null ? VerificationStatus.NOT_VERIFIED : this.status;
+		// Returns the status.
 		return this.status;
 	}
 
