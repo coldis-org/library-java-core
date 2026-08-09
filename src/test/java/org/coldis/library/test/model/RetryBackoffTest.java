@@ -45,6 +45,7 @@ public class RetryBackoffTest {
 	@AfterEach
 	public void setUp() {
 		DateTimeHelper.setClock(RetryBackoffTest.CLOCK);
+		RetryOwner.SHOULD_RETRY = true;
 	}
 
 	/**
@@ -89,6 +90,68 @@ public class RetryBackoffTest {
 		Assertions.assertTrue(retryBackoff.shouldRetry());
 		Assertions.assertEquals(4, retryBackoff.getAttempts());
 		Assertions.assertEquals(firstAttemptAt.plus(Double.valueOf(2 * 60 * 1.5 * 1.5 * 1000).longValue(), ChronoUnit.MILLIS), retryBackoff.getNextAttemptAt());
+
+	}
+
+	/**
+	 * Regression: a serialization/read while shouldRetry() is transiently false must not zero the
+	 * counter nor drop the schedule. Before the getters were made side-effect-free this pinned
+	 * attempts at 0/1 (the getters were invoked by Jackson during a Hibernate load deep-copy, when the
+	 * owner backref was not yet wired and shouldRetry() therefore returned false).
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	public void testAttemptsSurviveTransientShouldRetryFalse() throws Exception {
+
+		final RetryOwner retryOwner = new RetryOwner();
+		final RetryBackoff<RetryOwner> retryBackoff = new RetryBackoff<>(retryOwner, RetryOwner::getShouldRetry, RetryOwner::getBaseDate);
+
+		// Climbs to three attempts.
+		retryBackoff.incrementRetries();
+		retryBackoff.incrementRetries();
+		retryBackoff.incrementRetries();
+		Assertions.assertEquals(3, retryBackoff.getAttempts());
+		final LocalDateTime scheduledFor = retryBackoff.getNextAttemptScheduledFor();
+		Assertions.assertNotNull(scheduledFor);
+
+		// Simulates a serialization/read (Jackson walking the getters) while shouldRetry() is
+		// transiently false, then restores it.
+		RetryOwner.SHOULD_RETRY = false;
+		retryBackoff.getAttempts();
+		retryBackoff.getNextAttemptScheduledFor();
+		retryBackoff.getNextAttemptAt();
+		RetryOwner.SHOULD_RETRY = true;
+
+		// The transient false must NOT have corrupted the persisted counter/schedule...
+		Assertions.assertEquals(3, retryBackoff.getAttempts());
+		Assertions.assertEquals(scheduledFor, retryBackoff.getNextAttemptScheduledFor());
+		// ...and the backoff keeps climbing (it was stuck at 1 before the fix).
+		retryBackoff.incrementRetries();
+		Assertions.assertEquals(4, retryBackoff.getAttempts());
+
+	}
+
+	/**
+	 * The backoff must stop scheduling once it exhausts maxRetries (getNextAttemptAt() == null and
+	 * getShouldScheduleNextAttempt() == false); the side-effect-free getters must preserve that cap.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	public void testGivesUpAfterMaxRetries() throws Exception {
+
+		final RetryOwner retryOwner = new RetryOwner();
+		final RetryBackoff<RetryOwner> retryBackoff = new RetryBackoff<>(retryOwner, RetryOwner::getShouldRetry, RetryOwner::getBaseDate);
+		retryBackoff.setMaxRetries(3);
+
+		for (int attempt = 0; attempt < 5; attempt++) {
+			retryBackoff.incrementRetries();
+		}
+
+		Assertions.assertTrue(retryBackoff.getAttempts() > retryBackoff.getMaxRetries());
+		Assertions.assertNull(retryBackoff.getNextAttemptAt());
+		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
 
 	}
 
