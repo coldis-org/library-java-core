@@ -74,8 +74,7 @@ Git:
 ## Workspace
 
 This repository expects `supersim-infrastructure-code-reviewer` checked out next to it
-(`../supersim-infrastructure-code-reviewer`; clone
-`https://ci.gov.tech.supersim.com.br/supersim/infrastructure-code-reviewer.git` there if it's
+(`../supersim-infrastructure-code-reviewer`; clone it there from the internal Git host if it's
 missing). The review gates and the local review both live in it.
 
 ## Review
