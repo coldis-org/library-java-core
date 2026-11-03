@@ -1,0 +1,29 @@
+# Review policy for coldis-org/library-java-core. Read from master by the local review
+# (../supersim-infrastructure-code-reviewer/local-review/REVIEW.md), so a
+# branch can't weaken its own review. Gate names are the prompt filenames.
+
+[project]
+name = "library-java-core"
+
+[gates.security]
+type = "agent"
+mandatory = true          # required by contract: uncappable, no exceptions
+
+[gates.service-business]
+type = "agent"
+mandatory = true
+
+[gates.service-architecture]
+type = "agent"
+mandatory = true
+
+[gates.service-coding]
+type = "agent"
+mandatory = true
+
+[gates.service-test]
+type = "agent"
+mandatory = true
+
+# No [gates.infrastructure]: a library has no deployment module, so the gate
+# would only spend a call to report that it does not apply.

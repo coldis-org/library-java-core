@@ -79,9 +79,10 @@ missing). The review gates and the local review both live in it.
 
 ## Review
 
-The gates are those of `src/agents/review/review.toml` when this repository has one, otherwise
-the reviewer's defaults (service family plus `security` and `infrastructure`). What each gate
-stops: `../supersim-infrastructure-code-reviewer/local-review/GATES.md`. The service gates were
+The gates are those of `src/agents/review/review.toml`, read from master, so a branch can't
+weaken its own review: `security`, `service-business`, `service-architecture`, `service-coding`,
+`service-test`, all mandatory (no `infrastructure`: a library has no deployment module). What
+each gate stops: `../supersim-infrastructure-code-reviewer/local-review/GATES.md`. The service gates were
 written for application services: rules about client/common/test subprojects, generated clients,
 integration services, service tiers or migrations apply here only where this library has that
 concept. The PR description is what the gates read as intent: name every default, limit or
