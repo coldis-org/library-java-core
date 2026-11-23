@@ -82,6 +82,29 @@ public class CpuLimitsTest {
 	}
 
 	/**
+	 * Tests the other cgroup v1 locations, the cap and a quota below one CPU.
+	 *
+	 * @param  directory Fresh tree.
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("cgroup v1 at the root and under cpu/, capped at the runtime's processors; a quota below one CPU is kept and resolves to at least 1")
+	public void testCgroupV1Locations(
+			@TempDir
+			final Path directory) throws Exception {
+		this.write("cpu.cfs_quota_us", "250000");
+		this.write("cpu.cfs_period_us", "100000");
+		Assertions.assertEquals(2.5D, new CpuLimits(this.cgroupRoot, () -> 16).getCpus());
+		Assertions.assertEquals(2D, new CpuLimits(this.cgroupRoot, () -> 2).getCpus());
+		Files.createDirectories(directory.resolve("cpu"));
+		Files.writeString(directory.resolve("cpu").resolve("cpu.cfs_quota_us"), "50000\n");
+		Files.writeString(directory.resolve("cpu").resolve("cpu.cfs_period_us"), "100000\n");
+		final CpuLimits belowOne = new CpuLimits(directory, () -> 16);
+		Assertions.assertEquals(0.5D, belowOne.getCpus());
+		Assertions.assertEquals(1, belowOne.resolve(2D));
+	}
+
+	/**
 	 * Tests the detection happens once.
 	 *
 	 * @throws Exception If the test fails.
@@ -108,12 +131,29 @@ public class CpuLimitsTest {
 		final CpuLimits cpuLimits = new CpuLimits(this.cgroupRoot, () -> 16);
 		Assertions.assertNull(cpuLimits.getPinnedCpus());
 		Assertions.assertFalse(cpuLimits.pin(0));
+		Assertions.assertFalse(cpuLimits.pin(-1));
+		Assertions.assertFalse(cpuLimits.pin(Double.POSITIVE_INFINITY));
 		Assertions.assertTrue(cpuLimits.pin(3.5));
 		Assertions.assertEquals(3.5D, cpuLimits.getCpus());
 		Assertions.assertTrue(cpuLimits.pin(3.5));
 		Assertions.assertFalse(cpuLimits.pin(8));
 		Assertions.assertEquals(3.5D, cpuLimits.getCpus());
 		Assertions.assertEquals(3.5D, cpuLimits.getPinnedCpus());
+	}
+
+	/**
+	 * Tests a pin after the count was read.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("A pin after the detected count was read still applies (and warns)")
+	public void testPinAfterRead() throws Exception {
+		this.write("cpu.max", "200000 100000");
+		final CpuLimits cpuLimits = new CpuLimits(this.cgroupRoot, () -> 16);
+		Assertions.assertEquals(2D, cpuLimits.getCpus());
+		Assertions.assertTrue(cpuLimits.pin(3D));
+		Assertions.assertEquals(3D, cpuLimits.getCpus());
 	}
 
 	/**
@@ -137,16 +177,16 @@ public class CpuLimitsTest {
 		Assertions.assertNull(cpuLimits.resolve(null, 0D, 3D));
 		Assertions.assertNull(cpuLimits.resolve(null, null, null));
 		Assertions.assertEquals(8, CpuLimits.resolve(null, 2D, null, () -> 4D));
+		Assertions.assertEquals(7, CpuLimits.resolve(null, 0.07D, null, () -> 100D));
 	}
 
 	/**
 	 * Tests the process-wide instance.
 	 */
 	@Test
-	@DisplayName("The process-wide instance is shared and reports at least one CPU")
+	@DisplayName("The process-wide instance reports a positive CPU count")
 	public void testDefault() {
-		Assertions.assertSame(CpuLimits.getDefault(), CpuLimits.getDefault());
-		Assertions.assertTrue(CpuLimits.getDefault().getCpus() >= 1D);
+		Assertions.assertTrue(CpuLimits.getDefault().getCpus() > 0D);
 	}
 
 }

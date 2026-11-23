@@ -1,6 +1,8 @@
 package org.coldis.library.thread;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,7 +40,8 @@ import org.slf4j.LoggerFactory;
  * be set once: the first {@link #pin(double)} with a positive value wins, and a
  * later different value is ignored (with a warning), so readers never see the
  * CPU count change after startup. The detected value is read from the cgroup
- * once, on first use, and cached. {@link #getDefault()} is the process-wide
+ * once, on first use, and cached; pin before anything resolves a limit (a pin
+ * after a read is applied, with a warning). {@link #getDefault()} is the process-wide
  * instance (the {@code /sys/fs/cgroup} root and the runtime's processors);
  * tests build their own instances instead of pinning it.
  */
@@ -110,7 +113,7 @@ public final class CpuLimits {
 	 * @param  file File.
 	 * @return      The content, or null when it cannot be read.
 	 */
-	private static String read(
+	private static String readTrimmedCgroupFile(
 			final Path file) {
 		String content = null;
 		try {
@@ -129,7 +132,7 @@ public final class CpuLimits {
 	 * @param  period Period.
 	 * @return        The CPUs, or null when there is no quota.
 	 */
-	private static Double divide(
+	private static Double parseQuotaAsCpus(
 			final String quota,
 			final String period) {
 		Double cpus = null;
@@ -147,12 +150,12 @@ public final class CpuLimits {
 	 */
 	private double detectCpus() {
 		final double processors = Math.max(1, this.runtimeProcessors.getAsInt());
-		final String cpuMax = CpuLimits.read(this.cgroupRoot.resolve("cpu.max"));
-		Double quota = (cpuMax == null ? null : CpuLimits.divide(StringUtils.substringBefore(cpuMax, " "), StringUtils.substringAfter(cpuMax, " ")));
+		final String cpuMax = CpuLimits.readTrimmedCgroupFile(this.cgroupRoot.resolve("cpu.max"));
+		Double quota = (cpuMax == null ? null : CpuLimits.parseQuotaAsCpus(StringUtils.substringBefore(cpuMax, " "), StringUtils.substringAfter(cpuMax, " ")));
 		for (final String controller : List.of("", "cpu", "cpu,cpuacct")) {
 			final Path directory = (controller.isEmpty() ? this.cgroupRoot : this.cgroupRoot.resolve(controller));
 			quota = (quota == null
-					? CpuLimits.divide(CpuLimits.read(directory.resolve("cpu.cfs_quota_us")), CpuLimits.read(directory.resolve("cpu.cfs_period_us")))
+					? CpuLimits.parseQuotaAsCpus(CpuLimits.readTrimmedCgroupFile(directory.resolve("cpu.cfs_quota_us")), CpuLimits.readTrimmedCgroupFile(directory.resolve("cpu.cfs_period_us")))
 					: quota);
 		}
 		return (quota == null ? processors : Math.min(quota, processors));
@@ -162,25 +165,29 @@ public final class CpuLimits {
 	 * Pins the CPUs, once: the first positive value wins; a later different value
 	 * is ignored with a warning (readers must not see the count change).
 	 *
-	 * @param  cpus CPUs (positive).
+	 * @param  cpus CPUs (positive and finite).
 	 * @return      If the CPUs are pinned to this value after the call.
 	 */
 	public boolean pin(
 			final double cpus) {
-		boolean pinned = false;
-		if (cpus > 0) {
+		boolean isPinnedToRequestedValue = false;
+		if (Double.isFinite(cpus) && (cpus > 0)) {
 			synchronized (this.lock) {
 				if (this.pinnedCpus == null) {
+					if ((this.detectedCpus != null) && (this.detectedCpus != cpus)) {
+						CpuLimits.LOGGER.warn("CPU-based limits were already read with {} detected CPUs before being pinned to {}: pin at startup, "
+								+ "before any limit is resolved.", this.detectedCpus, cpus);
+					}
 					this.pinnedCpus = cpus;
 					CpuLimits.LOGGER.info("CPU-based limits use {} pinned CPUs.", cpus);
 				}
 				else if (this.pinnedCpus != cpus) {
 					CpuLimits.LOGGER.warn("CPU-based limits are already pinned to {} CPUs; ignoring {}.", this.pinnedCpus, cpus);
 				}
-				pinned = (this.pinnedCpus == cpus);
+				isPinnedToRequestedValue = (this.pinnedCpus == cpus);
 			}
 		}
-		return pinned;
+		return isPinnedToRequestedValue;
 	}
 
 	/**
@@ -211,6 +218,20 @@ public final class CpuLimits {
 	}
 
 	/**
+	 * Multiplies the CPUs by a ratio, rounded up in decimal (so a product that is
+	 * a whole number is not pushed up by binary rounding), at least 1.
+	 *
+	 * @param  cpus  CPUs.
+	 * @param  ratio Ratio per CPU.
+	 * @return       The limit.
+	 */
+	private static int multiplyRoundingUp(
+			final double cpus,
+			final double ratio) {
+		return Math.max(1, BigDecimal.valueOf(cpus).multiply(BigDecimal.valueOf(ratio)).setScale(0, RoundingMode.CEILING).intValue());
+	}
+
+	/**
 	 * Resolves a limit against a CPU count: the absolute value when positive,
 	 * else the ratio, else the default ratio, times the CPUs, rounded up, at
 	 * least 1.
@@ -233,7 +254,7 @@ public final class CpuLimits {
 			limit = absolute;
 		}
 		else if ((actualRatio != null) && (actualRatio > 0)) {
-			limit = Math.max(1, (int) Math.ceil(cpus.getAsDouble() * actualRatio));
+			limit = CpuLimits.multiplyRoundingUp(cpus.getAsDouble(), actualRatio);
 		}
 		return limit;
 	}
@@ -262,7 +283,7 @@ public final class CpuLimits {
 	 */
 	public int resolve(
 			final double multiplier) {
-		return Math.max(1, (int) Math.ceil(this.getCpus() * multiplier));
+		return CpuLimits.multiplyRoundingUp(this.getCpus(), multiplier);
 	}
 
 }
