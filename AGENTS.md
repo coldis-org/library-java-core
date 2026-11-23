@@ -17,7 +17,7 @@ All under `src/main/java/org/coldis/library/`.
 | `exception` | `BusinessException`, `IntegrationException` and the message model they carry |
 | `model` | Shared contracts (`Typable`, `Identifiable`, `Expirable`, `Timestampable`, `RetryBackoff`) and `view` (`ModelView` for `@JsonView`), `statistics`, `verification`, `science` |
 | `cache` | Local periodic-job and statistics-summary caches |
-| `thread` | Dynamic thread pools and thread-bound context |
+| `thread` | Dynamic thread pools, thread-bound context, and `CpuLimits` (the CPU count CPU-based limits multiply: pinned, else the cgroup quota, else the runtime processors) |
 
 Depends on: no other coldis library. Used by: `dto`, `pdf`, `persistence`, `serialization`, `service`, `service-client`, `test`, and the services built on them.
 
