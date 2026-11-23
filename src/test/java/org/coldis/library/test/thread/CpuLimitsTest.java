@@ -101,7 +101,7 @@ public class CpuLimitsTest {
 		Files.writeString(directory.resolve("cpu").resolve("cpu.cfs_period_us"), "100000\n");
 		final CpuLimits belowOne = new CpuLimits(directory, () -> 16);
 		Assertions.assertEquals(0.5D, belowOne.getCpus());
-		Assertions.assertEquals(1, belowOne.resolve(2D));
+		Assertions.assertEquals(1, belowOne.resolve(1D));
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class CpuLimitsTest {
 	 * @throws Exception If the test fails.
 	 */
 	@Test
-	@DisplayName("A pin after the detected count was read still applies (and warns)")
+	@DisplayName("A pin after the detected count was read still applies")
 	public void testPinAfterRead() throws Exception {
 		this.write("cpu.max", "200000 100000");
 		final CpuLimits cpuLimits = new CpuLimits(this.cgroupRoot, () -> 16);
@@ -178,15 +178,18 @@ public class CpuLimitsTest {
 		Assertions.assertNull(cpuLimits.resolve(null, null, null));
 		Assertions.assertEquals(8, CpuLimits.resolve(null, 2D, null, () -> 4D));
 		Assertions.assertEquals(7, CpuLimits.resolve(null, 0.07D, null, () -> 100D));
+		Assertions.assertNull(CpuLimits.resolve(null, Double.POSITIVE_INFINITY, null, () -> 4D));
+		Assertions.assertEquals(1, cpuLimits.resolve(Double.NaN));
+		Assertions.assertEquals(1, cpuLimits.resolve(-2D));
 	}
 
 	/**
 	 * Tests the process-wide instance.
 	 */
 	@Test
-	@DisplayName("The process-wide instance reports a positive CPU count")
+	@DisplayName("Smoke: the process-wide instance reads the real cgroup and reports at most the runtime processors")
 	public void testDefault() {
-		Assertions.assertTrue(CpuLimits.getDefault().getCpus() > 0D);
+		Assertions.assertTrue((CpuLimits.getDefault().getCpus() > 0D) && (CpuLimits.getDefault().getCpus() <= Runtime.getRuntime().availableProcessors()));
 	}
 
 }

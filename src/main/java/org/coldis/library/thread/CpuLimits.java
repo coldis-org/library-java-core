@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * Thread safety: an instance is safe for concurrent use. The pinned value can
  * be set once: the first {@link #pin(double)} with a positive value wins, and a
  * later different value is ignored (with a warning), so readers never see the
- * CPU count change after startup. The detected value is read from the cgroup
+ * CPU count change once it is pinned. The detected value is read from the cgroup
  * once, on first use, and cached; pin before anything resolves a limit (a pin
  * after a read is applied, with a warning). {@link #getDefault()} is the process-wide
  * instance (the {@code /sys/fs/cgroup} root and the runtime's processors);
@@ -151,14 +151,14 @@ public final class CpuLimits {
 	private double detectCpus() {
 		final double processors = Math.max(1, this.runtimeProcessors.getAsInt());
 		final String cpuMax = CpuLimits.readTrimmedCgroupFile(this.cgroupRoot.resolve("cpu.max"));
-		Double quota = (cpuMax == null ? null : CpuLimits.parseQuotaAsCpus(StringUtils.substringBefore(cpuMax, " "), StringUtils.substringAfter(cpuMax, " ")));
+		Double quotaCpus = (cpuMax == null ? null : CpuLimits.parseQuotaAsCpus(StringUtils.substringBefore(cpuMax, " "), StringUtils.substringAfter(cpuMax, " ")));
 		for (final String controller : List.of("", "cpu", "cpu,cpuacct")) {
 			final Path directory = (controller.isEmpty() ? this.cgroupRoot : this.cgroupRoot.resolve(controller));
-			quota = (quota == null
+			quotaCpus = (quotaCpus == null
 					? CpuLimits.parseQuotaAsCpus(CpuLimits.readTrimmedCgroupFile(directory.resolve("cpu.cfs_quota_us")), CpuLimits.readTrimmedCgroupFile(directory.resolve("cpu.cfs_period_us")))
-					: quota);
+					: quotaCpus);
 		}
-		return (quota == null ? processors : Math.min(quota, processors));
+		return (quotaCpus == null ? processors : Math.min(quotaCpus, processors));
 	}
 
 	/**
@@ -241,7 +241,7 @@ public final class CpuLimits {
 	 * @param  defaultRatio Default ratio per CPU (null for no default).
 	 * @param  cpus         CPU count.
 	 * @return              The limit, or null when none applies (no value, or a
-	 *                      ratio not positive).
+	 *                      ratio that is not positive or not finite).
 	 */
 	public static Integer resolve(
 			final Integer absolute,
@@ -253,7 +253,7 @@ public final class CpuLimits {
 		if ((absolute != null) && (absolute > 0)) {
 			limit = absolute;
 		}
-		else if ((actualRatio != null) && (actualRatio > 0)) {
+		else if ((actualRatio != null) && Double.isFinite(actualRatio) && (actualRatio > 0)) {
 			limit = CpuLimits.multiplyRoundingUp(cpus.getAsDouble(), actualRatio);
 		}
 		return limit;
@@ -277,13 +277,15 @@ public final class CpuLimits {
 
 	/**
 	 * Resolves a ratio per CPU against {@link #getCpus()}: rounded up, at least 1.
+	 * Unlike {@link #resolve(Integer, Double, Double)}, this always returns a
+	 * limit: a multiplier that is not positive or not finite gives 1.
 	 *
 	 * @param  multiplier Ratio per CPU.
-	 * @return            The limit (1 for a ratio that is not positive).
+	 * @return            The limit (at least 1).
 	 */
 	public int resolve(
 			final double multiplier) {
-		return CpuLimits.multiplyRoundingUp(this.getCpus(), multiplier);
+		return (Double.isFinite(multiplier) && (multiplier > 0) ? CpuLimits.multiplyRoundingUp(this.getCpus(), multiplier) : 1);
 	}
 
 }
