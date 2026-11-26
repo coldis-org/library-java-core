@@ -118,9 +118,13 @@ public class LocalThrottle {
 		}
 	}
 
-	/** Clears the expired entries (in the background) every so many runs. */
+	/**
+	 * Clears the expired entries (in the background) every so many runs: once per
+	 * crossing of the threshold, not on every run until the clear resets the
+	 * counter.
+	 */
 	private void clearExpiredIfDue() {
-		if (this.tryRunCount.incrementAndGet() >= this.timesToRunBeforeClearingExpired) {
+		if (this.tryRunCount.incrementAndGet() == this.timesToRunBeforeClearingExpired) {
 			this.CLEAR_EXECUTOR.execute(this::clearExpired);
 		}
 	}
@@ -152,7 +156,7 @@ public class LocalThrottle {
 				if (lastRun.getLastRunAt().isBefore(expiration)) {
 					final LocalDateTime nextRunAfter = DateTimeHelper.mininum(now.plus(waitPeriod),
 							(maximumWaitUnit == null ? null : maximumWaitUnit.addTo(now.truncatedTo(maximumWaitUnit), 1)));
-					reservation = new LocalThrottleReservation(key, now, nextRunAfter, lastRun.getLastRunAt(), lastRun.getNextRunAfter());
+					reservation = new LocalThrottleReservation(key, now, nextRunAfter, lastRun.getStoredLastRunAt(), lastRun.getStoredNextRunAfter());
 					lastRun.setLastRunAt(now);
 					lastRun.setNextRunAfter(nextRunAfter);
 				}
@@ -168,7 +172,10 @@ public class LocalThrottle {
 	/**
 	 * Releases a run that did not happen, giving the key back to the state it had
 	 * before. Does nothing when a later run of the key was acquired since (or the
-	 * entry was cleared).
+	 * entry was cleared). Only release a run whose action certainly did not reach
+	 * anything outside the system (e.g. after its transaction rolled back), never
+	 * after a failure that may have happened after the action (such as a timeout
+	 * from an outside provider): the key would run again, repeating the action.
 	 *
 	 * @param reservation The run acquired.
 	 */
@@ -177,13 +184,13 @@ public class LocalThrottle {
 		if (reservation != null) {
 			try {
 				this.lock.readLock().lock();
-				final LocalThrottleEntry lastRun = this.lastRuns.get(reservation.key());
+				final LocalThrottleEntry lastRun = this.lastRuns.get(reservation.getKey());
 				if (lastRun != null) {
 					synchronized (lastRun) {
-						if (Objects.equals(lastRun.getLastRunAt(), reservation.acquiredAt())
-								&& Objects.equals(lastRun.getNextRunAfter(), reservation.nextRunAfter())) {
-							lastRun.setLastRunAt(reservation.previousLastRunAt());
-							lastRun.setNextRunAfter(reservation.previousNextRunAfter());
+						if (Objects.equals(lastRun.getStoredLastRunAt(), reservation.getAcquiredAt())
+								&& Objects.equals(lastRun.getStoredNextRunAfter(), reservation.getNextRunAfter())) {
+							lastRun.setLastRunAt(reservation.getPreviousLastRunAt());
+							lastRun.setNextRunAfter(reservation.getPreviousNextRunAfter());
 						}
 					}
 				}

@@ -77,6 +77,24 @@ public class LocalThrottleEntry {
 	}
 
 	/**
+	 * Gets the last run at as stored (null when the key never ran).
+	 *
+	 * @return The last run at as stored.
+	 */
+	LocalDateTime getStoredLastRunAt() {
+		return this.lastRunAt;
+	}
+
+	/**
+	 * Gets the next run after as stored (null when the key never ran).
+	 *
+	 * @return The next run after as stored.
+	 */
+	LocalDateTime getStoredNextRunAfter() {
+		return this.nextRunAfter;
+	}
+
+	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
