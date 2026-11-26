@@ -3,6 +3,7 @@ package org.coldis.library.test.helper;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.coldis.library.cache.LocalThrottle;
@@ -81,7 +82,7 @@ public class LocalThrottleTest {
 		final LocalThrottleReservation laterRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
 		Assertions.assertNotNull(laterRun);
 
-		throttle.release(oldRun);
+		Assertions.assertFalse(throttle.release(oldRun));
 		Assertions.assertEquals(laterRun.getAcquiredAt(), throttle.getLastRun("key").getLastRunAt());
 		Assertions.assertNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
 	}
@@ -120,7 +121,7 @@ public class LocalThrottleTest {
 		clock.set(clock.get().plus(LocalThrottleTest.WAIT_PERIOD).plusSeconds(1));
 		final LocalThrottleReservation secondRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
 		Assertions.assertNotNull(secondRun);
-		throttle.release(secondRun);
+		Assertions.assertTrue(throttle.release(secondRun));
 		Assertions.assertEquals(firstRun.getAcquiredAt(), throttle.getLastRun("key").getLastRunAt());
 		Assertions.assertEquals(firstRun.getNextRunAfter(), throttle.getLastRun("key").getNextRunAfter());
 		Assertions.assertNotNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
@@ -142,7 +143,7 @@ public class LocalThrottleTest {
 		clock.set(LocalDateTime.of(2026, 1, 2, 0, 0, 1));
 		final LocalThrottleReservation nextDayRun = throttle.tryAcquire("key", day, ChronoUnit.DAYS);
 		Assertions.assertNotNull(nextDayRun);
-		throttle.release(nextDayRun);
+		Assertions.assertTrue(throttle.release(nextDayRun));
 		Assertions.assertEquals(LocalDateTime.of(2026, 1, 2, 0, 0), throttle.getLastRun("key").getNextRunAfter());
 		Assertions.assertNotNull(throttle.tryAcquire("key", day, ChronoUnit.DAYS));
 		Assertions.assertNull(throttle.tryAcquire("key", day, ChronoUnit.DAYS));
@@ -181,7 +182,7 @@ public class LocalThrottleTest {
 		final LocalThrottleReservation laterRun = throttle.tryAcquire("key", Duration.ofMinutes(1), null);
 		Assertions.assertNotNull(laterRun);
 
-		throttle.release(laterRun);
+		Assertions.assertTrue(throttle.release(laterRun));
 		Assertions.assertEquals(LocalDateTime.of(2026, 1, 1, 10, 0), throttle.getLastRun("key").getLastRunAt());
 		Assertions.assertNull(throttle.tryAcquire("key", Duration.ofMinutes(5), null));
 	}
@@ -201,7 +202,7 @@ public class LocalThrottleTest {
 		Assertions.assertNotNull(laterRun);
 
 		throttle.clear();
-		throttle.release(laterRun);
+		Assertions.assertFalse(throttle.release(laterRun));
 		Assertions.assertEquals(new LocalThrottleEntry(), throttle.getLastRun("key"));
 	}
 
@@ -236,7 +237,8 @@ public class LocalThrottleTest {
 		final LocalThrottle throttle = this.createThrottle(clock);
 		final LocalThrottleReservation firstRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
 		Assertions.assertNotNull(firstRun);
-		throttle.release(firstRun);
+		Assertions.assertTrue(throttle.release(firstRun));
+		Assertions.assertFalse(throttle.release(firstRun));
 		final LocalThrottleReservation secondRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
 		Assertions.assertNotNull(secondRun);
 
@@ -305,6 +307,79 @@ public class LocalThrottleTest {
 		clock.set(clock.get().plus(LocalThrottleTest.WAIT_PERIOD).plusSeconds(1));
 		throttle.tryAcquire("other-key", LocalThrottleTest.WAIT_PERIOD, null);
 		Assertions.assertTrue(this.waitUntilCleared(throttle, "expiring-key"));
+	}
+
+	/**
+	 * Throttle that counts its clears of the expired entries.
+	 */
+	private static class ClearCountingThrottle extends LocalThrottle {
+
+		/** Clears. */
+		private final AtomicInteger clears = new AtomicInteger();
+
+		/**
+		 * Creates the throttle.
+		 *
+		 * @param timesToRunBeforeClearingExpired Number of runs before clearing.
+		 * @param clock                           Clock.
+		 */
+		ClearCountingThrottle(final Long timesToRunBeforeClearingExpired, final AtomicReference<LocalDateTime> clock) {
+			super(timesToRunBeforeClearingExpired, clock::get);
+		}
+
+		/**
+		 * @see org.coldis.library.cache.LocalThrottle#clearExpired()
+		 */
+		@Override
+		public void clearExpired() {
+			super.clearExpired();
+			this.clears.incrementAndGet();
+		}
+
+	}
+
+	/**
+	 * Waits until a throttle cleared a number of times, then a little longer, and
+	 * gets its clears.
+	 *
+	 * @param  throttle             Throttle.
+	 * @param  expectedClears       Clears waited for.
+	 * @return                      The clears.
+	 * @throws InterruptedException If interrupted while waiting.
+	 */
+	private int waitForClears(
+			final ClearCountingThrottle throttle,
+			final int expectedClears) throws InterruptedException {
+		for (int attempt = 0; (attempt < 100) && (throttle.clears.get() < expectedClears); attempt++) {
+			Thread.sleep(50);
+		}
+		Thread.sleep(200);
+		return throttle.clears.get();
+	}
+
+	/**
+	 * Tests that each crossing of the threshold queues exactly one clear, and that
+	 * a threshold below 1 clears after the very first run.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("Each crossing of the threshold queues exactly one clear, and a threshold below 1 clears after every run")
+	public void testClearsQueuedOncePerCrossing() throws Exception {
+		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
+		final ClearCountingThrottle throttle = new ClearCountingThrottle(3L, clock);
+		for (int run = 1; run <= 3; run++) {
+			throttle.tryAcquire("key-" + run, LocalThrottleTest.WAIT_PERIOD, null);
+		}
+		Assertions.assertEquals(1, this.waitForClears(throttle, 1));
+		for (int run = 4; run <= 6; run++) {
+			throttle.tryAcquire("key-" + run, LocalThrottleTest.WAIT_PERIOD, null);
+		}
+		Assertions.assertEquals(2, this.waitForClears(throttle, 2));
+
+		final ClearCountingThrottle everyRunThrottle = new ClearCountingThrottle(0L, clock);
+		everyRunThrottle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertEquals(1, this.waitForClears(everyRunThrottle, 1));
 	}
 
 }

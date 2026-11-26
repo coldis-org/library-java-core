@@ -180,6 +180,9 @@ public class LocalThrottle {
 	 * anything outside the system (e.g. after its transaction rolled back), never
 	 * after a failure that may have happened after the action (such as a timeout
 	 * from an outside provider): the key would run again, repeating the action.
+	 * Do not release runs of a throttle that limits security-sensitive attempts
+	 * (logins, codes, lookups by personal identifiers): those must count every
+	 * attempt, whatever its outcome.
 	 *
 	 * @param  reservation The run acquired.
 	 * @return             If the key was given back.
