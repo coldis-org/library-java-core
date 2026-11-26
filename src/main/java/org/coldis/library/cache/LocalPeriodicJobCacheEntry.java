@@ -34,4 +34,14 @@ public class LocalPeriodicJobCacheEntry extends LocalThrottleEntry {
 		super(entry);
 	}
 
+	/**
+	 * Creates a copy of an entry (kept for callers compiled against the previous
+	 * version).
+	 *
+	 * @param entry Entry.
+	 */
+	public LocalPeriodicJobCacheEntry(final LocalPeriodicJobCacheEntry entry) {
+		super(entry);
+	}
+
 }

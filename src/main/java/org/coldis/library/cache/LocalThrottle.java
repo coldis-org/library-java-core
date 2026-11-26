@@ -47,7 +47,9 @@ public class LocalThrottle {
 	 * Creates a new instance of the class.
 	 *
 	 * @param timesToRunBeforeClearingExpired Number of runs before clearing the
-	 *                                            expired entries.
+	 *                                            expired entries (at least 1: a
+	 *                                            lower value clears on every
+	 *                                            run).
 	 * @param currentDateTime                 Current date and time (e.g. the
 	 *                                            wall clock, when the
 	 *                                            application clock may be moved,
@@ -55,7 +57,7 @@ public class LocalThrottle {
 	 */
 	public LocalThrottle(final Long timesToRunBeforeClearingExpired, final Supplier<LocalDateTime> currentDateTime) {
 		super();
-		this.timesToRunBeforeClearingExpired = timesToRunBeforeClearingExpired;
+		this.timesToRunBeforeClearingExpired = Math.max(1L, Objects.requireNonNull(timesToRunBeforeClearingExpired));
 		this.currentDateTime = Objects.requireNonNull(currentDateTime);
 	}
 
@@ -159,6 +161,7 @@ public class LocalThrottle {
 					reservation = new LocalThrottleReservation(key, now, nextRunAfter, lastRun.getStoredLastRunAt(), lastRun.getStoredNextRunAfter());
 					lastRun.setLastRunAt(now);
 					lastRun.setNextRunAfter(nextRunAfter);
+					lastRun.setReservation(reservation);
 				}
 			}
 		}
@@ -171,26 +174,30 @@ public class LocalThrottle {
 
 	/**
 	 * Releases a run that did not happen, giving the key back to the state it had
-	 * before. Does nothing when a later run of the key was acquired since (or the
-	 * entry was cleared). Only release a run whose action certainly did not reach
+	 * before. A reservation releases only its own run, once: it does nothing when
+	 * a later run of the key was acquired since (even at the same instant), when
+	 * the entry was cleared, or when it was already released. Only release a run whose action certainly did not reach
 	 * anything outside the system (e.g. after its transaction rolled back), never
 	 * after a failure that may have happened after the action (such as a timeout
 	 * from an outside provider): the key would run again, repeating the action.
 	 *
-	 * @param reservation The run acquired.
+	 * @param  reservation The run acquired.
+	 * @return             If the key was given back.
 	 */
-	public void release(
+	public boolean release(
 			final LocalThrottleReservation reservation) {
+		boolean released = false;
 		if (reservation != null) {
 			try {
 				this.lock.readLock().lock();
 				final LocalThrottleEntry lastRun = this.lastRuns.get(reservation.getKey());
 				if (lastRun != null) {
 					synchronized (lastRun) {
-						if (Objects.equals(lastRun.getStoredLastRunAt(), reservation.getAcquiredAt())
-								&& Objects.equals(lastRun.getStoredNextRunAfter(), reservation.getNextRunAfter())) {
+						if (lastRun.getReservation() == reservation) {
 							lastRun.setLastRunAt(reservation.getPreviousLastRunAt());
 							lastRun.setNextRunAfter(reservation.getPreviousNextRunAfter());
+							lastRun.setReservation(null);
+							released = true;
 						}
 					}
 				}
@@ -199,6 +206,7 @@ public class LocalThrottle {
 				this.lock.readLock().unlock();
 			}
 		}
+		return released;
 	}
 
 	/**

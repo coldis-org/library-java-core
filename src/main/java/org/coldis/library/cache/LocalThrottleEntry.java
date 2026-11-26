@@ -12,6 +12,12 @@ public class LocalThrottleEntry {
 	/** Next run after. */
 	private LocalDateTime nextRunAfter;
 
+	/**
+	 * The reservation of the current run, which only that reservation can release
+	 * (not copied, and not part of the equality).
+	 */
+	private LocalThrottleReservation reservation;
+
 	/** Creates a new instance of the class. */
 	public LocalThrottleEntry() {
 		super();
@@ -35,7 +41,8 @@ public class LocalThrottleEntry {
 	 * @param entry Entry.
 	 */
 	public LocalThrottleEntry(final LocalThrottleEntry entry) {
-		this(entry.lastRunAt, entry.nextRunAfter);
+		// The stored values, so a key that never ran stays new (the getters return LocalDateTime.MIN).
+		this(entry.getStoredLastRunAt(), entry.getStoredNextRunAfter());
 	}
 
 	/**
@@ -74,6 +81,26 @@ public class LocalThrottleEntry {
 	public void setNextRunAfter(
 			final LocalDateTime nextRunAfter) {
 		this.nextRunAfter = nextRunAfter;
+	}
+
+	/**
+	 * Gets the reservation of the current run.
+	 *
+	 * @return The reservation of the current run (null when released or never
+	 *         acquired).
+	 */
+	LocalThrottleReservation getReservation() {
+		return this.reservation;
+	}
+
+	/**
+	 * Sets the reservation of the current run.
+	 *
+	 * @param reservation The reservation of the current run.
+	 */
+	void setReservation(
+			final LocalThrottleReservation reservation) {
+		this.reservation = reservation;
 	}
 
 	/**

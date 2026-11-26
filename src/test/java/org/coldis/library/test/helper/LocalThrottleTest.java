@@ -61,7 +61,7 @@ public class LocalThrottleTest {
 
 		final LocalThrottleReservation run = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
 		Assertions.assertNotNull(run);
-		throttle.release(run);
+		Assertions.assertTrue(throttle.release(run));
 		Assertions.assertEquals(new LocalThrottleEntry(), throttle.getLastRun("key"));
 		Assertions.assertNotNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
 		Assertions.assertNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
@@ -127,12 +127,12 @@ public class LocalThrottleTest {
 	}
 
 	/**
-	 * Tests that a restored earlier run still blocks the key while its wait is not
-	 * over (once a day).
+	 * Tests that releasing a next-day run restores the previous day's run (once a
+	 * day), after which the key can run again.
 	 */
 	@Test
-	@DisplayName("A restored earlier run still blocks the key until its next run")
-	public void testReleaseRestoresAnEarlierRunStillWaiting() {
+	@DisplayName("Releasing a next-day run restores the previous day's run, and the key can run again")
+	public void testReleaseRestoresThePreviousDayRun() {
 		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
 		final LocalThrottle throttle = this.createThrottle(clock);
 		final Duration day = Duration.ofDays(1);
@@ -169,19 +169,142 @@ public class LocalThrottleTest {
 	}
 
 	/**
-	 * Tests that releasing a run of a cleared entry does not bring the entry back.
+	 * Tests that a restored run still inside the wait blocks the key.
 	 */
 	@Test
-	@DisplayName("Releasing a run after the entries were cleared does not bring the run back")
+	@DisplayName("A restored run still inside the wait blocks the key")
+	public void testRestoredRunInsideTheWaitBlocks() {
+		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
+		final LocalThrottle throttle = this.createThrottle(clock);
+		Assertions.assertNotNull(throttle.tryAcquire("key", Duration.ofMinutes(1), null));
+		clock.set(LocalDateTime.of(2026, 1, 1, 10, 2));
+		final LocalThrottleReservation laterRun = throttle.tryAcquire("key", Duration.ofMinutes(1), null);
+		Assertions.assertNotNull(laterRun);
+
+		throttle.release(laterRun);
+		Assertions.assertEquals(LocalDateTime.of(2026, 1, 1, 10, 0), throttle.getLastRun("key").getLastRunAt());
+		Assertions.assertNull(throttle.tryAcquire("key", Duration.ofMinutes(5), null));
+	}
+
+	/**
+	 * Tests that releasing a run after the entries were cleared does not bring an
+	 * earlier run back.
+	 */
+	@Test
+	@DisplayName("Releasing a run after the entries were cleared does not bring an earlier run back")
 	public void testReleaseAfterClear() {
 		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
 		final LocalThrottle throttle = this.createThrottle(clock);
-		final LocalThrottleReservation run = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
-		Assertions.assertNotNull(run);
+		Assertions.assertNotNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
+		clock.set(clock.get().plus(LocalThrottleTest.WAIT_PERIOD).plusSeconds(1));
+		final LocalThrottleReservation laterRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertNotNull(laterRun);
 
 		throttle.clear();
-		throttle.release(run);
+		throttle.release(laterRun);
 		Assertions.assertEquals(new LocalThrottleEntry(), throttle.getLastRun("key"));
+	}
+
+	/**
+	 * Tests that a stale reservation does not undo a run acquired after a clear at
+	 * the same instant.
+	 */
+	@Test
+	@DisplayName("A reservation from before a clear does not undo a run acquired after it at the same instant")
+	public void testStaleReservationAfterClearKeepsTheNewRun() {
+		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
+		final LocalThrottle throttle = this.createThrottle(clock);
+		final LocalThrottleReservation staleRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertNotNull(staleRun);
+		throttle.clear();
+		final LocalThrottleReservation newRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertNotNull(newRun);
+
+		Assertions.assertFalse(throttle.release(staleRun));
+		Assertions.assertEquals(newRun.getAcquiredAt(), throttle.getLastRun("key").getLastRunAt());
+		Assertions.assertNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
+	}
+
+	/**
+	 * Tests that a reservation releases its run only once: a second release does
+	 * not undo a run acquired at the same instant after the first.
+	 */
+	@Test
+	@DisplayName("A reservation releases its run only once")
+	public void testReleaseIsSingleUse() {
+		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
+		final LocalThrottle throttle = this.createThrottle(clock);
+		final LocalThrottleReservation firstRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertNotNull(firstRun);
+		throttle.release(firstRun);
+		final LocalThrottleReservation secondRun = throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertNotNull(secondRun);
+
+		Assertions.assertFalse(throttle.release(firstRun));
+		Assertions.assertEquals(secondRun.getAcquiredAt(), throttle.getLastRun("key").getLastRunAt());
+		Assertions.assertNull(throttle.tryAcquire("key", LocalThrottleTest.WAIT_PERIOD, null));
+	}
+
+	/**
+	 * Waits until a key's entry is cleared (by the background clear).
+	 *
+	 * @param  throttle             Throttle.
+	 * @param  key                  Key.
+	 * @return                      If the entry was cleared in time.
+	 * @throws InterruptedException If interrupted while waiting.
+	 */
+	private boolean waitUntilCleared(
+			final LocalThrottle throttle,
+			final String key) throws InterruptedException {
+		boolean cleared = new LocalThrottleEntry().equals(throttle.getLastRun(key));
+		for (int attempt = 0; (attempt < 100) && !cleared; attempt++) {
+			Thread.sleep(50);
+			cleared = new LocalThrottleEntry().equals(throttle.getLastRun(key));
+		}
+		return cleared;
+	}
+
+	/**
+	 * Tests that the expired entries are cleared in the background each time the
+	 * runs cross the threshold.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("Expired entries are cleared in the background each time the runs cross the threshold")
+	public void testBackgroundClearOnThreshold() throws Exception {
+		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
+		final LocalThrottle throttle = new LocalThrottle(3L, clock::get);
+
+		// Run 1 records the key; once expired, runs 2 and 3 (other keys) cross the threshold.
+		throttle.tryAcquire("expiring-key", LocalThrottleTest.WAIT_PERIOD, null);
+		clock.set(clock.get().plus(LocalThrottleTest.WAIT_PERIOD).plusSeconds(1));
+		throttle.tryAcquire("other-key-1", LocalThrottleTest.WAIT_PERIOD, null);
+		throttle.tryAcquire("other-key-2", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertTrue(this.waitUntilCleared(throttle, "expiring-key"));
+
+		// The counter starts again: three more runs clear the next expired key.
+		throttle.tryAcquire("expiring-key-2", LocalThrottleTest.WAIT_PERIOD, null);
+		clock.set(clock.get().plus(LocalThrottleTest.WAIT_PERIOD).plusSeconds(1));
+		throttle.tryAcquire("other-key-3", LocalThrottleTest.WAIT_PERIOD, null);
+		throttle.tryAcquire("other-key-4", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertTrue(this.waitUntilCleared(throttle, "expiring-key-2"));
+	}
+
+	/**
+	 * Tests that a threshold below 1 clears the expired entries on every run.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("A threshold below 1 clears the expired entries on every run")
+	public void testThresholdBelowOneClearsOnEveryRun() throws Exception {
+		final AtomicReference<LocalDateTime> clock = new AtomicReference<>(LocalDateTime.of(2026, 1, 1, 10, 0));
+		final LocalThrottle throttle = new LocalThrottle(0L, clock::get);
+		throttle.tryAcquire("expiring-key", LocalThrottleTest.WAIT_PERIOD, null);
+		clock.set(clock.get().plus(LocalThrottleTest.WAIT_PERIOD).plusSeconds(1));
+		throttle.tryAcquire("other-key", LocalThrottleTest.WAIT_PERIOD, null);
+		Assertions.assertTrue(this.waitUntilCleared(throttle, "expiring-key"));
 	}
 
 }
