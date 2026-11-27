@@ -368,7 +368,7 @@ public class RetryBackoff<Type> implements Typable {
 	@JsonProperty("attempts")
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	private Integer getSerializedAttempts() {
-		return this.attempts;
+		return ObjectUtils.defaultIfNull(this.attempts, 0);
 	}
 
 	/**
@@ -443,7 +443,7 @@ public class RetryBackoff<Type> implements Typable {
 	 * Gets the attempts, clearing them (and the scheduled attempt) once retrying is
 	 * over or while nothing is scheduled. Not used by serialization.
 	 *
-	 * @return The attemptsSince.
+	 * @return The number of attempts in the current retry cycle.
 	 */
 	@JsonIgnore
 	public Integer getAttempts() {
@@ -453,14 +453,14 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Sets the attemptsSince.
+	 * Sets the number of attempts in the current retry cycle.
 	 *
-	 * @param attemptsSince New attemptsSince.
+	 * @param attempts The number of attempts in the current retry cycle.
 	 */
 	@JsonProperty("attempts")
 	public void setAttempts(
-			final Integer attemptsSince) {
-		this.attempts = attemptsSince;
+			final Integer attempts) {
+		this.attempts = attempts;
 	}
 
 	/** Calculates the next attempt rules at. */

@@ -221,6 +221,7 @@ public class RetryBackoffTest {
 		final JsonNode json = RetryBackoffTest.OBJECT_MAPPER.readTree(
 				RetryBackoffTest.OBJECT_MAPPER.writerWithView(ModelView.Persistent.class).writeValueAsString(retryBackoff));
 		Assertions.assertEquals(retryBackoff.getShouldScheduleNextAttempt(), json.get("shouldScheduleNextAttempt").asBoolean());
+		Assertions.assertEquals(retryBackoff.getNextAttemptDelay(), RetryBackoffTest.OBJECT_MAPPER.treeToValue(json.get("nextAttemptDelay"), Duration.class));
 		Assertions.assertEquals(retryBackoff.getAttempts(), json.get("attempts").asInt());
 	}
 
@@ -234,10 +235,16 @@ public class RetryBackoffTest {
 	public void testGivesUpAfterMaxRetries() throws Exception {
 		final RetryBackoff<RetryOwner> retryBackoff = new RetryBackoff<>(new RetryOwner(), RetryOwner::getShouldRetry, RetryOwner::getBaseDate);
 		retryBackoff.setMaxRetries(3);
-		for (int attempt = 0; attempt < 5; attempt++) {
-			retryBackoff.incrementRetries();
-		}
-		Assertions.assertTrue(retryBackoff.getAttempts() > retryBackoff.getMaxRetries());
+		retryBackoff.incrementRetries();
+		retryBackoff.incrementRetries();
+		retryBackoff.incrementRetries();
+		// At exactly the maximum, there is still a next attempt.
+		Assertions.assertEquals(3, retryBackoff.getAttempts());
+		Assertions.assertNotNull(retryBackoff.getNextAttemptAt());
+		Assertions.assertTrue(retryBackoff.getShouldScheduleNextAttempt());
+		// One more and the retries stop.
+		retryBackoff.incrementRetries();
+		Assertions.assertEquals(4, retryBackoff.getAttempts());
 		Assertions.assertNull(retryBackoff.getNextAttemptAt());
 		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
 	}
