@@ -20,14 +20,12 @@ import com.fasterxml.jackson.annotation.JsonView;
  * Retry backoff model.
  *
  * <p>
- * Serialization reads and writes only the stored state ({@code attempts},
- * {@code nextAttemptAt}, {@code nextAttemptScheduledFor}) and two read-only
- * computed values. The business getters, which reset the state once
- * {@link #shouldRetry()} is false, are never called by (de)serialization: a
- * serialization can run while the owner is not wired yet (for instance a
- * persistence snapshot right after loading, or a freshly deserialized backoff
- * whose predicate is still the no-args default), and would otherwise wipe the
- * state of a backoff that is still retrying.
+ * Getters never change the state: they return the effective values (none once
+ * retrying is over). Only {@link #setScheduled()}, {@link #incrementRetries()},
+ * {@link #reset()} and {@link #endFinishedCycle()} store anything, so neither a
+ * serialization (possibly with the owner not wired yet) nor a read makes an owner
+ * dirty. Owners end a finished cycle with {@link #endFinishedCycle()} when they
+ * save, so the next cycle starts from the first attempt.
  */
 @JsonTypeName(value = RetryBackoff.TYPE_NAME)
 public class RetryBackoff<Type> implements Typable {
@@ -417,15 +415,14 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Gets the scheduled attempt, clearing it once retrying is over. Not used by
-	 * serialization.
+	 * Gets the scheduled attempt: none once retrying is over. Does not change any
+	 * state, so reading a backoff never makes its owner dirty.
 	 *
 	 * @return The nextAttemptScheduledFor.
 	 */
 	@JsonIgnore
 	public LocalDateTime getNextAttemptScheduledFor() {
-		this.nextAttemptScheduledFor = this.getCurrentNextAttemptScheduledFor();
-		return this.nextAttemptScheduledFor;
+		return this.getCurrentNextAttemptScheduledFor();
 	}
 
 	/**
@@ -440,16 +437,14 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Gets the attempts, clearing them (and the scheduled attempt) once retrying is
-	 * over or while nothing is scheduled. Not used by serialization.
+	 * Gets the attempts: none once retrying is over or while nothing is scheduled.
+	 * Does not change any state.
 	 *
 	 * @return The number of attempts in the current retry cycle.
 	 */
 	@JsonIgnore
 	public Integer getAttempts() {
-		this.getNextAttemptScheduledFor();
-		this.attempts = this.getCurrentAttempts();
-		return this.attempts;
+		return this.getCurrentAttempts();
 	}
 
 	/**
@@ -463,22 +458,21 @@ public class RetryBackoff<Type> implements Typable {
 		this.attempts = attempts;
 	}
 
-	/** Calculates the next attempt rules at. */
+	/** Calculates and stores the next attempt for the current attempts. */
 	private void calculateNextAttemptAt() {
-		this.nextAttemptAt = this.getNextAttemptAtFor(this.getAttempts());
+		this.nextAttemptAt = this.getNextAttemptAtFor(this.getCurrentAttempts());
 	}
 
 	/**
-	 * Gets the next attempt, storing it, and clearing it once retrying is over or
-	 * past the maximum retries. Not used by serialization.
+	 * Gets the next attempt: none once retrying is over or past the maximum
+	 * retries, otherwise the stored one or, without it, the one for the current
+	 * attempts. Does not change any state.
 	 *
 	 * @return The nextAttempt.
 	 */
 	@JsonIgnore
 	public LocalDateTime getNextAttemptAt() {
-		this.getAttempts();
-		this.nextAttemptAt = this.getCurrentNextAttemptAt();
-		return this.nextAttemptAt;
+		return this.getCurrentNextAttemptAt();
 	}
 
 	/**
@@ -493,13 +487,13 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Gets the next attempt delay. Not used by serialization.
+	 * Gets the next attempt delay. Does not change any state.
 	 *
 	 * @return The next attempt delay.
 	 */
 	@JsonIgnore
 	public Duration getNextAttemptDelay() {
-		return RetryBackoff.getDelayUntil(this.getNextAttemptAt());
+		return RetryBackoff.getDelayUntil(this.getCurrentNextAttemptAt());
 	}
 
 	/** Resets the retry state: no attempts, nothing scheduled. */
@@ -510,32 +504,41 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Checks if the next attempt rules should be scheduled. Always goes through
-	 * {@link #getNextAttemptAt()}, which clears the state once retrying is over, so
-	 * the next retry cycle starts from the first attempt at the base date. Owners
-	 * call it on their updates, with the owner wired (an unwired backoff reads as
-	 * not retrying and resets). Not used by serialization.
+	 * Ends the retry cycle once retrying is over ({@link #reset()}), so the next
+	 * cycle starts from the first attempt at the base date. The getters never
+	 * clear the state, so owners call this, with the owner wired, when they save
+	 * (an unwired backoff reads as not retrying and would reset).
+	 */
+	public void endFinishedCycle() {
+		if (!this.shouldRetry()) {
+			this.reset();
+		}
+	}
+
+	/**
+	 * Checks if the next attempt rules should be scheduled: retrying, with a next
+	 * attempt that is not scheduled yet. Does not change any state.
 	 *
 	 * @return If the next attempt rules should be scheduled.
 	 */
 	@JsonIgnore
 	public Boolean getShouldScheduleNextAttempt() {
-		this.getNextAttemptAt();
 		return this.getCurrentShouldScheduleNextAttempt();
 	}
 
-	/** Schedule attempts. */
+	/** Schedules the next attempt: stores it and marks it as scheduled. */
 	public void setScheduled() {
-		this.setNextAttemptScheduledFor(this.getNextAttemptAt());
+		this.nextAttemptAt = this.getCurrentNextAttemptAt();
+		this.nextAttemptScheduledFor = this.nextAttemptAt;
 	}
 
 	/** Increments the attempts. */
 	public void incrementRetries() {
 		if (this.shouldRetry()) {
-			if (this.getNextAttemptScheduledFor() == null) {
+			if (this.getCurrentNextAttemptScheduledFor() == null) {
 				this.setScheduled();
 			}
-			this.setAttempts(this.getAttempts() + 1);
+			this.attempts = this.getCurrentAttempts() + 1;
 			this.calculateNextAttemptAt();
 		}
 	}

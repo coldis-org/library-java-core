@@ -178,27 +178,67 @@ public class RetryBackoffTest {
 	}
 
 	/**
-	 * The business getters still reset the state once retrying is over, so a later
-	 * retry cycle starts clean and schedules again.
+	 * Serializes the backoff the way persistence does, which changes nothing.
+	 *
+	 * @param  retryBackoff The backoff.
+	 * @return              The stored JSON.
+	 * @throws Exception    If the serialization fails.
+	 */
+	private static JsonNode storedStateOf(
+			final RetryBackoff<RetryOwner> retryBackoff) throws Exception {
+		return RetryBackoffTest.OBJECT_MAPPER.readTree(
+				RetryBackoffTest.OBJECT_MAPPER.writerWithView(ModelView.Persistent.class).writeValueAsString(retryBackoff));
+	}
+
+	/**
+	 * Reading a backoff, even once retrying is over, never changes its stored state:
+	 * the getters return the effective values.
 	 *
 	 * @throws Exception If the test fails.
 	 */
 	@Test
-	@DisplayName("The scheduling check resets once retrying is over, and a new cycle starts clean")
-	public void testBusinessGettersResetOnceRetryingIsOver() throws Exception {
+	@DisplayName("Reading a backoff never changes its stored state")
+	public void testGettersNeverChangeTheStoredState() throws Exception {
 		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(new RetryOwner());
-		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
+		final JsonNode before = RetryBackoffTest.storedStateOf(retryBackoff);
 
-		// The owner's update after the retry is over checks it, and it resets. The state
-		// is observed through serialization, which no longer changes anything.
 		RetryOwner.SHOULD_RETRY = false;
+		Assertions.assertEquals(0, retryBackoff.getAttempts());
+		Assertions.assertNull(retryBackoff.getNextAttemptAt());
+		Assertions.assertNull(retryBackoff.getNextAttemptScheduledFor());
+		Assertions.assertNull(retryBackoff.getNextAttemptDelay());
 		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
-		final JsonNode json = RetryBackoffTest.OBJECT_MAPPER.readTree(
-				RetryBackoffTest.OBJECT_MAPPER.writerWithView(ModelView.Persistent.class).writeValueAsString(retryBackoff));
+		final JsonNode after = RetryBackoffTest.storedStateOf(retryBackoff);
 		RetryOwner.SHOULD_RETRY = true;
-		Assertions.assertEquals(0, json.get("attempts").asInt());
-		Assertions.assertTrue(json.get("nextAttemptAt").isNull());
-		Assertions.assertTrue(json.get("nextAttemptScheduledFor").isNull());
+
+		Assertions.assertEquals(before.get("attempts"), after.get("attempts"));
+		Assertions.assertEquals(before.get("nextAttemptAt"), after.get("nextAttemptAt"));
+		Assertions.assertEquals(before.get("nextAttemptScheduledFor"), after.get("nextAttemptScheduledFor"));
+	}
+
+	/**
+	 * Ending a finished cycle resets it, so the next cycle starts from the first
+	 * attempt at the base date; while retrying, it changes nothing.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("Ending a finished cycle resets it, and a new cycle starts clean")
+	public void testEndFinishedCycleResetsOnlyOnceRetryingIsOver() throws Exception {
+		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(new RetryOwner());
+
+		// Still retrying: nothing to end.
+		retryBackoff.endFinishedCycle();
+		Assertions.assertEquals(3, RetryBackoffTest.storedStateOf(retryBackoff).get("attempts").asInt());
+
+		// Retrying is over: the cycle ends.
+		RetryOwner.SHOULD_RETRY = false;
+		retryBackoff.endFinishedCycle();
+		final JsonNode ended = RetryBackoffTest.storedStateOf(retryBackoff);
+		RetryOwner.SHOULD_RETRY = true;
+		Assertions.assertEquals(0, ended.get("attempts").asInt());
+		Assertions.assertTrue(ended.get("nextAttemptAt").isNull());
+		Assertions.assertTrue(ended.get("nextAttemptScheduledFor").isNull());
 
 		// A new retry cycle starts from the first attempt, at the base date, and
 		// schedules.
