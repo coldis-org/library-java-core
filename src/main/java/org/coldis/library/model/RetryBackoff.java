@@ -12,11 +12,22 @@ import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.view.ModelView;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  * Retry backoff model.
+ *
+ * <p>
+ * Serialization reads and writes only the stored state ({@code attempts},
+ * {@code nextAttemptAt}, {@code nextAttemptScheduledFor}) and two read-only
+ * computed values. The business getters, which reset the state once
+ * {@link #shouldRetry()} is false, are never called by (de)serialization: a
+ * serialization can run while the owner is not wired yet (for instance a
+ * persistence snapshot right after loading, or a freshly deserialized backoff
+ * whose predicate is still the no-args default), and would otherwise wipe the
+ * state of a backoff that is still retrying.
  */
 @JsonTypeName(value = RetryBackoff.TYPE_NAME)
 public class RetryBackoff<Type> implements Typable {
@@ -271,87 +282,149 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Gets the attemptsSince.
+	 * Gets the next attempt for a number of attempts, from the base date. Does not
+	 * change any state.
 	 *
-	 * @return The attemptsSince.
+	 * @param  currentAttempts Number of attempts.
+	 * @return                 The next attempt.
 	 */
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public Integer getAttempts() {
-		this.attempts = (!this.shouldRetry() || (this.getNextAttemptScheduledFor() == null) ? null : this.attempts);
-		this.attempts = ObjectUtils.defaultIfNull(this.attempts, 0);
-		return this.attempts;
-	}
-
-	/**
-	 * Sets the attemptsSince.
-	 *
-	 * @param attemptsSince New attemptsSince.
-	 */
-	public void setAttempts(
-			final Integer attemptsSince) {
-		this.attempts = attemptsSince;
-	}
-
-	/** Calculates the next attempt rules at. */
-	private void calculateNextAttemptAt() {
+	private LocalDateTime getNextAttemptAtFor(
+			final Integer currentAttempts) {
 		Long backoffMillis = Double
-				.valueOf((this.getAttempts() <= 1D ? 0D : Math.pow(this.backoffMultiplier, this.getAttempts() - 2) * this.backoff.toMillis())).longValue();
+				.valueOf((currentAttempts <= 1D ? 0D : Math.pow(this.backoffMultiplier, currentAttempts - 2) * this.backoff.toMillis())).longValue();
 		backoffMillis = Math.max(backoffMillis, 0);
 		backoffMillis = Math.min(backoffMillis, this.maxBackoff.toMillis());
-		this.nextAttemptAt = this.getBaseDate().plus(backoffMillis, ChronoUnit.MILLIS);
+		return this.getBaseDate().plus(backoffMillis, ChronoUnit.MILLIS);
 	}
 
 	/**
-	 * Gets the nextAttempt.
+	 * Gets the scheduled attempt: none once retrying is over. Does not change any
+	 * state.
 	 *
-	 * @return The nextAttempt.
+	 * @return The scheduled attempt.
 	 */
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public LocalDateTime getNextAttemptAt() {
-		if ((!this.shouldRetry() || (this.getAttempts() > this.maxRetries))) {
-			this.nextAttemptAt = null;
-		}
-		else if (this.nextAttemptAt == null) {
-			this.calculateNextAttemptAt();
-		}
-		return this.nextAttemptAt;
+	private LocalDateTime getCurrentNextAttemptScheduledFor() {
+		return (this.shouldRetry() ? this.nextAttemptScheduledFor : null);
 	}
 
 	/**
-	 * Gets the next attempt delay.
+	 * Gets the attempts: none once retrying is over or while nothing is scheduled.
+	 * Does not change any state.
 	 *
-	 * @return The next attempt delay.
+	 * @return The attempts.
 	 */
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
-	public Duration getNextAttemptDelay() {
+	private Integer getCurrentAttempts() {
+		return ((this.getCurrentNextAttemptScheduledFor() == null) ? 0 : ObjectUtils.defaultIfNull(this.attempts, 0));
+	}
+
+	/**
+	 * Gets the next attempt: none once retrying is over or past the maximum
+	 * retries, otherwise the stored one or, without it, the one for the current
+	 * attempts. Does not change any state.
+	 *
+	 * @return The next attempt.
+	 */
+	private LocalDateTime getCurrentNextAttemptAt() {
+		LocalDateTime currentNextAttemptAt = null;
+		if (this.shouldRetry() && (this.getCurrentAttempts() <= this.maxRetries)) {
+			currentNextAttemptAt = (this.nextAttemptAt == null ? this.getNextAttemptAtFor(this.getCurrentAttempts()) : this.nextAttemptAt);
+		}
+		return currentNextAttemptAt;
+	}
+
+	/**
+	 * Gets if the next attempt should be scheduled: retrying, with a next attempt
+	 * that is not scheduled yet. Does not change any state.
+	 *
+	 * @return If the next attempt should be scheduled.
+	 */
+	private Boolean getCurrentShouldScheduleNextAttempt() {
+		final LocalDateTime currentNextAttemptAt = this.getCurrentNextAttemptAt();
+		final LocalDateTime currentScheduledFor = this.getCurrentNextAttemptScheduledFor();
+		return ((currentNextAttemptAt != null) && ((currentScheduledFor == null) || currentNextAttemptAt.isAfter(currentScheduledFor)));
+	}
+
+	/**
+	 * Gets the delay until an attempt, never negative.
+	 *
+	 * @param  attemptAt The attempt.
+	 * @return           The delay, or null without an attempt.
+	 */
+	private static Duration getDelayUntil(
+			final LocalDateTime attemptAt) {
 		Duration delay = null;
-		if (this.getNextAttemptAt() != null) {
-			delay = Duration.ofSeconds(DateTimeHelper.getCurrentLocalDateTime().until(this.getNextAttemptAt(), ChronoUnit.SECONDS));
+		if (attemptAt != null) {
+			delay = Duration.ofSeconds(DateTimeHelper.getCurrentLocalDateTime().until(attemptAt, ChronoUnit.SECONDS));
 			delay = delay.isNegative() ? Duration.ofSeconds(0) : delay;
 		}
 		return delay;
 	}
 
 	/**
-	 * Sets the nextAttempt.
+	 * Gets the stored attempts, for serialization.
 	 *
-	 * @param nextAttemptAt New nextAttempt.
+	 * @return The stored attempts.
 	 */
-	public void setNextAttemptAt(
-			final LocalDateTime nextAttemptAt) {
-		this.nextAttemptAt = nextAttemptAt;
+	@JsonProperty("attempts")
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	private Integer getSerializedAttempts() {
+		return ObjectUtils.defaultIfNull(this.attempts, 0);
 	}
 
 	/**
-	 * Gets the nextAttemptScheduledFor.
+	 * Gets the stored next attempt, for serialization.
+	 *
+	 * @return The stored next attempt.
+	 */
+	@JsonProperty("nextAttemptAt")
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	private LocalDateTime getSerializedNextAttemptAt() {
+		return this.nextAttemptAt;
+	}
+
+	/**
+	 * Gets the stored scheduled attempt, for serialization.
+	 *
+	 * @return The stored scheduled attempt.
+	 */
+	@JsonProperty("nextAttemptScheduledFor")
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	private LocalDateTime getSerializedNextAttemptScheduledFor() {
+		return this.nextAttemptScheduledFor;
+	}
+
+	/**
+	 * Gets the next attempt delay, for serialization, without changing any state.
+	 *
+	 * @return The next attempt delay.
+	 */
+	@JsonProperty("nextAttemptDelay")
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	private Duration getSerializedNextAttemptDelay() {
+		return RetryBackoff.getDelayUntil(this.getCurrentNextAttemptAt());
+	}
+
+	/**
+	 * Gets if the next attempt should be scheduled, for serialization, without
+	 * changing any state.
+	 *
+	 * @return If the next attempt should be scheduled.
+	 */
+	@JsonProperty("shouldScheduleNextAttempt")
+	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	private Boolean getSerializedShouldScheduleNextAttempt() {
+		return this.getCurrentShouldScheduleNextAttempt();
+	}
+
+	/**
+	 * Gets the scheduled attempt, clearing it once retrying is over. Not used by
+	 * serialization.
 	 *
 	 * @return The nextAttemptScheduledFor.
 	 */
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	@JsonIgnore
 	public LocalDateTime getNextAttemptScheduledFor() {
-		if (!this.shouldRetry()) {
-			this.nextAttemptScheduledFor = null;
-		}
+		this.nextAttemptScheduledFor = this.getCurrentNextAttemptScheduledFor();
 		return this.nextAttemptScheduledFor;
 	}
 
@@ -360,20 +433,95 @@ public class RetryBackoff<Type> implements Typable {
 	 *
 	 * @param nextAttemptScheduledFor New nextAttemptScheduledFor.
 	 */
+	@JsonProperty("nextAttemptScheduledFor")
 	public void setNextAttemptScheduledFor(
 			final LocalDateTime nextAttemptScheduledFor) {
 		this.nextAttemptScheduledFor = nextAttemptScheduledFor;
 	}
 
 	/**
-	 * Checks if the next attempt rules should be scheduled.
+	 * Gets the attempts, clearing them (and the scheduled attempt) once retrying is
+	 * over or while nothing is scheduled. Not used by serialization.
+	 *
+	 * @return The number of attempts in the current retry cycle.
+	 */
+	@JsonIgnore
+	public Integer getAttempts() {
+		this.getNextAttemptScheduledFor();
+		this.attempts = this.getCurrentAttempts();
+		return this.attempts;
+	}
+
+	/**
+	 * Sets the number of attempts in the current retry cycle.
+	 *
+	 * @param attempts The number of attempts in the current retry cycle.
+	 */
+	@JsonProperty("attempts")
+	public void setAttempts(
+			final Integer attempts) {
+		this.attempts = attempts;
+	}
+
+	/** Calculates the next attempt rules at. */
+	private void calculateNextAttemptAt() {
+		this.nextAttemptAt = this.getNextAttemptAtFor(this.getAttempts());
+	}
+
+	/**
+	 * Gets the next attempt, storing it, and clearing it once retrying is over or
+	 * past the maximum retries. Not used by serialization.
+	 *
+	 * @return The nextAttempt.
+	 */
+	@JsonIgnore
+	public LocalDateTime getNextAttemptAt() {
+		this.getAttempts();
+		this.nextAttemptAt = this.getCurrentNextAttemptAt();
+		return this.nextAttemptAt;
+	}
+
+	/**
+	 * Sets the nextAttempt.
+	 *
+	 * @param nextAttemptAt New nextAttempt.
+	 */
+	@JsonProperty("nextAttemptAt")
+	public void setNextAttemptAt(
+			final LocalDateTime nextAttemptAt) {
+		this.nextAttemptAt = nextAttemptAt;
+	}
+
+	/**
+	 * Gets the next attempt delay. Not used by serialization.
+	 *
+	 * @return The next attempt delay.
+	 */
+	@JsonIgnore
+	public Duration getNextAttemptDelay() {
+		return RetryBackoff.getDelayUntil(this.getNextAttemptAt());
+	}
+
+	/** Resets the retry state: no attempts, nothing scheduled. */
+	public void reset() {
+		this.attempts = 0;
+		this.nextAttemptAt = null;
+		this.nextAttemptScheduledFor = null;
+	}
+
+	/**
+	 * Checks if the next attempt rules should be scheduled. Always goes through
+	 * {@link #getNextAttemptAt()}, which clears the state once retrying is over, so
+	 * the next retry cycle starts from the first attempt at the base date. Owners
+	 * call it on their updates, with the owner wired (an unwired backoff reads as
+	 * not retrying and resets). Not used by serialization.
 	 *
 	 * @return If the next attempt rules should be scheduled.
 	 */
-	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
+	@JsonIgnore
 	public Boolean getShouldScheduleNextAttempt() {
-		return (this.shouldRetry() && (this.getNextAttemptAt() != null)
-				&& ((this.getNextAttemptScheduledFor() == null) || this.getNextAttemptAt().isAfter(this.getNextAttemptScheduledFor())));
+		this.getNextAttemptAt();
+		return this.getCurrentShouldScheduleNextAttempt();
 	}
 
 	/** Schedule attempts. */
