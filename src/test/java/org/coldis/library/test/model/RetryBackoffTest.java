@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.coldis.library.helper.DateTimeHelper;
 import org.coldis.library.model.RetryBackoff;
@@ -11,6 +13,7 @@ import org.coldis.library.model.view.ModelView;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -127,6 +130,7 @@ public class RetryBackoffTest {
 	 * @throws Exception If the test fails.
 	 */
 	@Test
+	@DisplayName("Serializing while not retrying keeps the stored state")
 	public void testSerializationKeepsTheStateWhileShouldRetryIsFalse() throws Exception {
 		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(new RetryOwner());
 		final LocalDateTime nextAttemptAt = retryBackoff.getNextAttemptAt();
@@ -153,6 +157,7 @@ public class RetryBackoffTest {
 	 * @throws Exception If the test fails.
 	 */
 	@Test
+	@DisplayName("A deserialized backoff keeps its state until its owner is wired")
 	public void testDeserializedStateSurvivesUntilTheOwnerIsWired() throws Exception {
 		final RetryOwner retryOwner = new RetryOwner();
 		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(retryOwner);
@@ -179,20 +184,27 @@ public class RetryBackoffTest {
 	 * @throws Exception If the test fails.
 	 */
 	@Test
+	@DisplayName("The scheduling check resets once retrying is over, and a new cycle starts clean")
 	public void testBusinessGettersResetOnceRetryingIsOver() throws Exception {
 		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(new RetryOwner());
 		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
 
-		// The owner's update after the retry is over checks it, and it resets.
+		// The owner's update after the retry is over checks it, and it resets. The state
+		// is observed through serialization, which no longer changes anything.
 		RetryOwner.SHOULD_RETRY = false;
 		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
-		Assertions.assertNull(retryBackoff.getNextAttemptScheduledFor());
+		final JsonNode json = RetryBackoffTest.OBJECT_MAPPER.readTree(
+				RetryBackoffTest.OBJECT_MAPPER.writerWithView(ModelView.Persistent.class).writeValueAsString(retryBackoff));
 		RetryOwner.SHOULD_RETRY = true;
+		Assertions.assertEquals(0, json.get("attempts").asInt());
+		Assertions.assertTrue(json.get("nextAttemptAt").isNull());
+		Assertions.assertTrue(json.get("nextAttemptScheduledFor").isNull());
 
-		// A new retry cycle starts from the first attempt and schedules.
-		Assertions.assertEquals(0, retryBackoff.getAttempts());
-		Assertions.assertNull(retryBackoff.getNextAttemptScheduledFor());
+		// A new retry cycle starts from the first attempt, at the base date, and
+		// schedules.
 		Assertions.assertTrue(retryBackoff.getShouldScheduleNextAttempt());
+		Assertions.assertEquals(0, retryBackoff.getAttempts());
+		Assertions.assertEquals(RetryOwner.BASE_DATE, retryBackoff.getNextAttemptAt());
 	}
 
 	/**
@@ -201,6 +213,7 @@ public class RetryBackoffTest {
 	 * @throws Exception If the test fails.
 	 */
 	@Test
+	@DisplayName("The serialized computed values match the getters while retrying")
 	public void testSerializedComputedValuesMatchTheGetters() throws Exception {
 		final RetryBackoff<RetryOwner> retryBackoff = new RetryBackoff<>(new RetryOwner(), RetryOwner::getShouldRetry, RetryOwner::getBaseDate);
 		retryBackoff.incrementRetries();
@@ -217,6 +230,7 @@ public class RetryBackoffTest {
 	 * @throws Exception If the test fails.
 	 */
 	@Test
+	@DisplayName("Retries stop past the maximum")
 	public void testGivesUpAfterMaxRetries() throws Exception {
 		final RetryBackoff<RetryOwner> retryBackoff = new RetryBackoff<>(new RetryOwner(), RetryOwner::getShouldRetry, RetryOwner::getBaseDate);
 		retryBackoff.setMaxRetries(3);
@@ -226,6 +240,47 @@ public class RetryBackoffTest {
 		Assertions.assertTrue(retryBackoff.getAttempts() > retryBackoff.getMaxRetries());
 		Assertions.assertNull(retryBackoff.getNextAttemptAt());
 		Assertions.assertFalse(retryBackoff.getShouldScheduleNextAttempt());
+	}
+
+	/**
+	 * JSON stored before the serialization change reads back with all its state.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("JSON stored by the previous version reads back with its state")
+	public void testReadsPreviouslyStoredJson() throws Exception {
+		final String storedJson = "{\"backoff\":120.000000000,\"backoffMultiplier\":1.5,\"maxBackoff\":7200.000000000,\"maxRetries\":21,"
+				+ "\"attempts\":3,\"nextAttemptAt\":\"2026-11-27T10:03:00\",\"nextAttemptScheduledFor\":\"2026-11-27T10:02:00\","
+				+ "\"typeName\":\"org.coldis.library.model.RetryBackoff\",\"nextAttemptDelay\":null,\"shouldScheduleNextAttempt\":true}";
+		@SuppressWarnings("unchecked")
+		final RetryBackoff<RetryOwner> readBackoff = RetryBackoffTest.OBJECT_MAPPER.readValue(storedJson, RetryBackoff.class);
+		readBackoff.setRetryOwner(new RetryOwner());
+		readBackoff.setShouldRetry(RetryOwner::getShouldRetry);
+		readBackoff.setBaseDateFunction(RetryOwner::getBaseDate);
+
+		Assertions.assertEquals(3, readBackoff.getAttempts());
+		Assertions.assertEquals(LocalDateTime.parse("2026-11-27T10:03:00"), readBackoff.getNextAttemptAt());
+		Assertions.assertEquals(LocalDateTime.parse("2026-11-27T10:02:00"), readBackoff.getNextAttemptScheduledFor());
+	}
+
+	/**
+	 * The persistent and public views write the same keys as before the change.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("Both views write the same JSON keys as before")
+	public void testSerializedKeysAreUnchanged() throws Exception {
+		final Set<String> expectedKeys = new TreeSet<>(Set.of("backoff", "backoffMultiplier", "maxBackoff", "maxRetries", "attempts", "nextAttemptAt",
+				"nextAttemptScheduledFor", "typeName", "nextAttemptDelay", "shouldScheduleNextAttempt"));
+		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(new RetryOwner());
+		for (final Class<?> view : Set.of(ModelView.Persistent.class, ModelView.Public.class)) {
+			final Set<String> keys = new TreeSet<>();
+			RetryBackoffTest.OBJECT_MAPPER.readTree(RetryBackoffTest.OBJECT_MAPPER.writerWithView(view).writeValueAsString(retryBackoff)).fieldNames()
+					.forEachRemaining(keys::add);
+			Assertions.assertEquals(expectedKeys, keys, view.getSimpleName());
+		}
 	}
 
 }
