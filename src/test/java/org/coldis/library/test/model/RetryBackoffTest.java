@@ -272,6 +272,53 @@ public class RetryBackoffTest {
 	}
 
 	/**
+	 * An unlimited max retries ({@link Integer#MAX_VALUE}), as stored before, is
+	 * written capped in both views and still allows retrying after reading back.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("Integer.MAX_VALUE max retries is never written out, and reads back as unlimited")
+	public void testUnlimitedMaxRetriesIsWrittenCapped() throws Exception {
+		final String storedJson = "{\"backoff\":5.000000000,\"backoffMultiplier\":1.5,\"maxBackoff\":7200.000000000,\"maxRetries\":2147483647,"
+				+ "\"attempts\":0,\"typeName\":\"org.coldis.library.model.RetryBackoff\",\"shouldScheduleNextAttempt\":false}";
+		@SuppressWarnings("unchecked")
+		final RetryBackoff<RetryOwner> readBackoff = RetryBackoffTest.OBJECT_MAPPER.readValue(storedJson, RetryBackoff.class);
+		Assertions.assertEquals(RetryBackoff.MAX_SERIALIZED_MAX_RETRIES, readBackoff.getMaxRetries());
+		for (final Class<?> view : Set.of(ModelView.Persistent.class, ModelView.Public.class)) {
+			final String written = RetryBackoffTest.OBJECT_MAPPER.writerWithView(view).writeValueAsString(readBackoff);
+			Assertions.assertFalse(written.contains(String.valueOf(Integer.MAX_VALUE)), view.getSimpleName() + ": " + written);
+			Assertions.assertEquals(RetryBackoff.MAX_SERIALIZED_MAX_RETRIES.intValue(),
+					RetryBackoffTest.OBJECT_MAPPER.readTree(written).get("maxRetries").intValue(), view.getSimpleName());
+		}
+
+		// Reading the capped value back keeps retrying well past the default limit.
+		@SuppressWarnings("unchecked")
+		final RetryBackoff<RetryOwner> roundTrip = RetryBackoffTest.OBJECT_MAPPER
+				.readValue(RetryBackoffTest.OBJECT_MAPPER.writeValueAsString(readBackoff), RetryBackoff.class);
+		roundTrip.setRetryOwner(new RetryOwner());
+		roundTrip.setShouldRetry(RetryOwner::getShouldRetry);
+		roundTrip.setBaseDateFunction(RetryOwner::getBaseDate);
+		for (int attempt = 0; attempt < (RetryBackoff.DEFAULT_MAX_RETRIES * 2); attempt++) {
+			roundTrip.incrementRetries();
+		}
+		Assertions.assertTrue(roundTrip.getShouldScheduleNextAttempt());
+	}
+
+	/**
+	 * A limit under the cap is written as is.
+	 *
+	 * @throws Exception If the test fails.
+	 */
+	@Test
+	@DisplayName("A max retries under the cap is written unchanged")
+	public void testRegularMaxRetriesIsWrittenUnchanged() throws Exception {
+		final RetryBackoff<RetryOwner> retryBackoff = RetryBackoffTest.buildRetryingBackoff(new RetryOwner());
+		Assertions.assertEquals(RetryBackoff.DEFAULT_MAX_RETRIES.intValue(),
+				RetryBackoffTest.OBJECT_MAPPER.readTree(RetryBackoffTest.OBJECT_MAPPER.writeValueAsString(retryBackoff)).get("maxRetries").intValue());
+	}
+
+	/**
 	 * The persistent and public views write the same keys as before the change.
 	 *
 	 * @throws Exception If the test fails.

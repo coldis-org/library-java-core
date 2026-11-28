@@ -54,6 +54,15 @@ public class RetryBackoff<Type> implements Typable {
 	/** The max retries. */
 	public static final Integer DEFAULT_MAX_RETRIES = 21;
 
+	/**
+	 * Largest max retries written out (JSON). A larger limit (such as
+	 * {@link Integer#MAX_VALUE}, used for "no limit") is written as this value:
+	 * the integer extremes match web application firewall rules (integer overflow
+	 * attack signatures) and get the request carrying them blocked. No retry
+	 * cycle comes near it, so the limit read back behaves the same.
+	 */
+	public static final Integer MAX_SERIALIZED_MAX_RETRIES = 999_999_999;
+
 	/** Retry owner. */
 	private transient Type retryOwner;
 
@@ -248,13 +257,14 @@ public class RetryBackoff<Type> implements Typable {
 	}
 
 	/**
-	 * Gets the maxRetries.
+	 * Gets the maxRetries, capped at {@link #MAX_SERIALIZED_MAX_RETRIES} so the
+	 * integer extremes are never written out.
 	 *
 	 * @return The maxRetries.
 	 */
 	@JsonView({ ModelView.Persistent.class, ModelView.Public.class })
 	public Integer getMaxRetries() {
-		return this.maxRetries;
+		return (this.maxRetries == null ? null : Math.min(this.maxRetries, RetryBackoff.MAX_SERIALIZED_MAX_RETRIES));
 	}
 
 	/**
